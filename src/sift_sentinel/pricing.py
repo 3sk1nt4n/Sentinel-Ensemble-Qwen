@@ -21,6 +21,27 @@ _MODEL_RATES = {
 _CACHE_READ_MULT = 0.10        # cache HIT: 10% of the base input rate
 _CACHE_WRITE_MULT = 1.25       # 5-minute cache WRITE: 125% of the base input rate
 
+# Approximate Alibaba Cloud DashScope (international) list rates, USD/MTok, for
+# the cost READOUT only -- these are ESTIMATES, not an invoice. Pin your real
+# console rates via SIFT_PRICE_INPUT/OUTPUT_PER_MTOK. Matched by substring so
+# dated variants (qwen-max-2025-..) and qwen-max-latest resolve correctly;
+# more-specific keys first (vl-max before max).
+_QWEN_RATES = {
+    "vl-max": (1.6, 6.4),
+    "max": (1.6, 6.4),
+    "plus": (0.4, 1.2),
+    "turbo": (0.05, 0.2),
+    "long": (0.5, 2.0),
+}
+_QWEN_DEFAULT = (0.4, 1.2)     # qwen-plus-class default for unrecognised qwen ids
+
+
+def _qwen_rate(ml: str) -> tuple[float, float]:
+    for key, rate in _QWEN_RATES.items():
+        if key in ml:
+            return rate
+    return _QWEN_DEFAULT
+
 
 def resolve_rates(model: str) -> tuple[float, float]:
     """(input, output) USD/MTok for a model string. Env SIFT_PRICE_* overrides both."""
@@ -29,6 +50,8 @@ def resolve_rates(model: str) -> tuple[float, float]:
         base = _MODEL_RATES["opus"]
     elif "sonnet" in ml:
         base = _MODEL_RATES["sonnet"]
+    elif "qwen" in ml:
+        base = _qwen_rate(ml)
     else:
         base = _MODEL_RATES["haiku"]
     p_in = os.environ.get("SIFT_PRICE_INPUT_PER_MTOK")
