@@ -1,0 +1,13 @@
+{
+  "evidence_db": {},
+  "fact": {
+    "fact_type": "registry_persistence_fact",
+    "type": "registry_persistence_fact",
+    "value_name": "ImagePath",
+    "value_data": "\\??\\C:\\windows\\genericdrv.sys",
+    "registry_path": "HKLM\\SYSTEM\\ControlSet001\\Services\\genericsvc",
+    "normalized_registry_path": "hklm/system/controlset001/services/genericsvc/imagepath",
+    "service_name": "genericsvc",
+    "canonical_entity_id": "reg:hklm/system/controlset001/services/genericsvc"
+  }
+}

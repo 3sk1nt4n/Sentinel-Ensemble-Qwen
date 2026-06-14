@@ -1,0 +1,13 @@
+{
+  "evidence_db": {},
+  "fact": {
+    "fact_type": "registry_persistence_fact",
+    "type": "registry_persistence_fact",
+    "persistence_type": "ifeo",
+    "value_name": "Debugger",
+    "value_data": "C:\\Windows\\System32\\cmd.exe",
+    "registry_path": "HKLM\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\anyapp.exe",
+    "normalized_registry_path": "hklm/software/microsoft/windows nt/currentversion/image file execution options/anyapp.exe/debugger",
+    "canonical_entity_id": "reg:hklm/software/microsoft/windows nt/currentversion/image file execution options/anyapp.exe"
+  }
+}

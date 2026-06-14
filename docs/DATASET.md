@@ -1,0 +1,72 @@
+# Evidence Dataset Documentation
+
+*(Required submission deliverable: what the agent was tested against, the source
+of the data, and what it found.)*
+
+> The Sentinel Ensemble **pipeline is dataset-agnostic** - it embeds no case
+> names, IOCs, or answer keys (enforced by `audit/nocheat.py` + guard tests).
+> This document records the *results* of running that neutral pipeline against
+> evidence, which is exactly what the rules ask for.
+
+## Datasets used
+
+**Source:** all evidence is drawn from the **official Find Evil! hackathon public
+image set** that SANS published for entrants - the
+[starter case data](https://sansorg.egnyte.com/fl/HhH7crTYT4JK) plus the
+[additional test images](https://findevil.devpost.com/forum_topics/43853-more-images-to-test-across)
+forum thread. Nothing in this submission was tested against private or
+self-generated evidence.
+
+The agent was developed and validated against these Windows incident-response
+images spanning multiple OS versions and evidence shapes (memory-only, disk-only,
+and paired memory+disk). The raw images are **not** redistributed in this
+repository (size + licensing); the repo ships one complete run's **output**
+artifacts under [`artifacts/`](../artifacts/) so judges can inspect results
+without running anything.
+
+| Case shape | OS | Evidence | Role |
+|---|---|---|---|
+| Paired | Windows 10 / Server 2016+ | memory (3 GB) + disk (11.9 GB E01) | primary validation (artifacts shipped) |
+| Memory-only | Windows 7 / XP baselines | memory image | memory-only path + floor validation |
+| Disk-only | Server 2012 R2 / Win7 / XP | disk (E01) | disk-only source-filter validation |
+
+## What the agent found - primary paired run
+
+Full report: [`artifacts/run-rd01/report.md`](../artifacts/run-rd01/report.md) ·
+full execution log: [`artifacts/run-rd01/agent_execution_log.txt`](../artifacts/run-rd01/agent_execution_log.txt) ·
+[browse the whole run](../artifacts/run-rd01/) ·
+model: Claude Opus 4.8 (4-member ensemble) · run time 509s (8m 29s) · cost ~$15.45 (token-derived est.).
+
+**49 validator-backed findings/observations** → **2 confirmed malicious (atomic) · 42 suspicious / needs-review · 5 benign.**
+Self-correction: 46 ambiguous findings re-judged · ~40 self-corrected (ReAct +
+Step-13AA), with code - not the model - gating every promotion to confirmed.
+The agent autonomously reconstructed a multi-stage intrusion:
+
+| Stage (MITRE) | What the agent found |
+|---|---|
+| Defense Evasion (T1070.001) | Security event log cleared (Event ID 1102) |
+| Execution (T1047 / T1059.001) | WMI provider spawning unsigned PowerShell; PowerShell with RWX-injected memory |
+| Execution / Staging | `p.exe`, PWDumpX, NCPA staged + executed from `C:\Windows\Temp\` |
+| Persistence (T1112 / T1547) | Sticky-keys (sethc.exe) IFEO debugger hijack; PSEXESVC service; SafeBoot AlternateShell |
+| Credential Access (T1003) | Credential-dumping tool staged with confirmed hash + Executed flag |
+| Lateral Movement (T1021) | Admin-share (SMB) access + RDP reconnaissance across internal hosts |
+| C2 (T1071) | Beacon-pattern connections to internal + external endpoints |
+
+**Self-correction on camera:** a service flagged as a possible C2 listener was
+correctly re-classified **benign** by the ReAct cross-check after it identified
+the binary as a legitimate signed forensic tool - no human intervention.
+
+> 📄 **Full self-correction proof** - every ReAct + Step-13AA correction from this
+> run, before → after, with `agent_execution_log.txt` line refs:
+> **[`SELF-CORRECTION-PROOF.md`](../SELF-CORRECTION-PROOF.md)**.
+
+**Evidence integrity:** SHA256 of both evidence files was identical before and
+after analysis (chain of custody preserved by math).
+
+## Dataset-agnostic guarantee
+
+No case-specific indicator (hostname, username, IP, tool name, PID, hash) is
+embedded in pipeline code, prompts, or fixtures - detection is **behavioral and
+structural only**. Enforced by `tests/test_agnostic_contract.py`,
+`tests/test_analysis/test_investigation_answers_agnostic.py`, and the
+commit-time `audit/nocheat.py` gate.

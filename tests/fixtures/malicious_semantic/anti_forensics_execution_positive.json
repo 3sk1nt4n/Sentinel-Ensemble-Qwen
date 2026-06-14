@@ -1,0 +1,10 @@
+{
+  "evidence_db": {},
+  "fact": {
+    "fact_type": "file_execution_fact",
+    "type": "file_execution_fact",
+    "process_name": "sdelete64.exe",
+    "cmdline": "sdelete64.exe -p 3 -s -q C:\\Users\\Public\\staged",
+    "raw_excerpt": "sdelete64.exe -p 3 -s -q (SysInternals secure delete)"
+  }
+}

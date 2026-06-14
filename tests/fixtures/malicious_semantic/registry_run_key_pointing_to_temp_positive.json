@@ -1,0 +1,10 @@
+{
+  "fact": {
+    "type": "registry_persistence_fact",
+    "key": "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+    "value_name": "Updater",
+    "value_data": "C:\\ProgramData\\update_host.exe",
+    "hive": "SOFTWARE"
+  },
+  "evidence_db": {}
+}

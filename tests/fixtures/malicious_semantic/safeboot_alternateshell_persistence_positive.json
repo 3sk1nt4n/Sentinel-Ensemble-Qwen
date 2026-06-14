@@ -1,0 +1,13 @@
+{
+  "evidence_db": {},
+  "fact": {
+    "fact_type": "registry_persistence_fact",
+    "type": "registry_persistence_fact",
+    "persistence_type": "safeboot",
+    "value_name": "AlternateShell",
+    "value_data": "evil-payload.exe",
+    "registry_path": "HKLM\\System\\ControlSet001\\Control\\SafeBoot",
+    "normalized_registry_path": "hklm/system/controlset001/control/safeboot/alternateshell",
+    "canonical_entity_id": "reg:hklm/system/controlset001/control/safeboot"
+  }
+}

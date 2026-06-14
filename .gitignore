@@ -1,0 +1,78 @@
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+.DS_Store
+.env
+API_KEY.txt
+apikey.txt
+/analysis/
+cached_outputs/
+results/gpt/run03_rd01_bootstrap.log
+
+# Session 6a.5+ local-only artifacts
+# Policy: ignore all artifacts by default, explicitly negate submission-track named runs
+artifacts/*
+!artifacts/phase2_post_phase1/
+!artifacts/phase2_post_phase1/**
+!artifacts/rd02_blind_run_20260418/
+!artifacts/rd02_blind_run_20260418/**
+reports/*.md
+reports/*.json
+reports/*.html
+verify_*.sh
+telemetry/runs.db
+telemetry/artifacts/
+/tmp/*.log
+.claude/
+# Vol3 analysis pollution (Commit 9a)
+file.0x*.img
+file.0x*.dat
+file.0x*.vacb
+tmp_*.vol3
+live_vol3_*.txt
+run_archive/
+audit/forbidden_tokens.local.txt
+# slot 31C2-FIX-A: private denylist for case-specific PIDs / paths /
+# process names used by tests/test_integrity_sweep.py. The example
+# file (tests/fixtures/integrity_denylist.example.json) is tracked;
+# the real denylist with case-specific values is local-only.
+tests/fixtures/integrity_denylist.json
+run12_archive/
+reports/
+artifacts/
+BACKLOG.md
+BLIND_TEST_ATTESTATION.md
+BRANCH_C_TRIGGER.md
+BYPASS-TESTING.md
+CHECKPOINT.md
+CLAUDE-bootstrap.md
+CODING-DAY-PLAYBOOK.md
+DATASET.md
+EVIDENCE-DOWNLOAD-GUIDE.md
+PLAYBOOK.md
+PLAYBOOK_EXTENDED.md
+RULES_LOCKED.md
+docs/DECISION_TREES.md
+docs/TASKS.md
+tests/M1_criteria.md
+*.bak
+*.bak.*
+*.agn
+*.orig
+# Evidence stays local-only (chain of custody) -- never commit evidence
+*-case/
+*-case/
+*.E01
+*.vmem
+logs/
+_debug/
+HANDOFF_*.md
+SUBMISSION-RUNBOOK.md
+
+# Submission-track reference run (committed deliverable: Agent Execution Logs)
+!artifacts/run-rd01/
+!artifacts/run-rd01/**
+
+# Submission deliverable -- keep tracked despite the broad DATASET.md ignore
+!docs/DATASET.md

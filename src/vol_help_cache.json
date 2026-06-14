@@ -1,0 +1,542 @@
+{
+  "vol_amcache": {
+    "description": "Extract information on executed applications from the AmCache (deprecated).",
+    "plugin": "windows.amcache.Amcache"
+  },
+  "vol_bash": {
+    "description": "Recovers bash command history from memory.",
+    "plugin": "linux.bash.Bash"
+  },
+  "vol_bigpools": {
+    "description": "List big page pools.",
+    "plugin": "windows.bigpools.BigPools"
+  },
+  "vol_boottime": {
+    "description": "Shows the time the system was started",
+    "plugin": "linux.boottime.Boottime"
+  },
+  "vol_callbacks": {
+    "description": "Lists kernel callbacks and notification routines.",
+    "plugin": "windows.callbacks.Callbacks"
+  },
+  "vol_capabilities": {
+    "description": "Lists process capabilities",
+    "plugin": "linux.capabilities.Capabilities"
+  },
+  "vol_certificates": {
+    "description": "Lists the certificates in the registry's Certificate Store.",
+    "plugin": "windows.registry.certificates.Certificates"
+  },
+  "vol_checkafinfo": {
+    "description": "Verifies the operation function pointers of network protocols (deprecated).",
+    "plugin": "linux.check_afinfo.Check_afinfo"
+  },
+  "vol_checkcreds": {
+    "description": "Checks if any processes are sharing credential structures (deprecated).",
+    "plugin": "linux.check_creds.Check_creds"
+  },
+  "vol_checkidt": {
+    "description": "Checks if the IDT has been altered (deprecated).",
+    "plugin": "linux.check_idt.Check_idt"
+  },
+  "vol_checkmodules": {
+    "description": "Compares module list to sysfs info, if available (deprecated).",
+    "plugin": "linux.check_modules.Check_modules"
+  },
+  "vol_checksyscall": {
+    "description": "Check system call table for hooks (deprecated).",
+    "plugin": "linux.check_syscall.Check_syscall"
+  },
+  "vol_checksysctl": {
+    "description": "Check sysctl handlers for hooks.",
+    "plugin": "mac.check_sysctl.Check_sysctl"
+  },
+  "vol_checktraptable": {
+    "description": "Check mach trap table for hooks.",
+    "plugin": "mac.check_trap_table.Check_trap_table"
+  },
+  "vol_cmdline": {
+    "description": "Lists process command line arguments.",
+    "plugin": "windows.cmdline.CmdLine"
+  },
+  "vol_cmdscan": {
+    "description": "Looks for Windows Command History lists",
+    "plugin": "windows.cmdscan.CmdScan"
+  },
+  "vol_consoles": {
+    "description": "Looks for Windows console buffers",
+    "plugin": "windows.consoles.Consoles"
+  },
+  "vol_crashinfo": {
+    "description": "Lists the information from a Windows crash dump.",
+    "plugin": "windows.crashinfo.Crashinfo"
+  },
+  "vol_debugregisters": {
+    "description": "",
+    "plugin": "windows.debugregisters.DebugRegisters"
+  },
+  "vol_deskscan": {
+    "description": "Scans for the Desktop instances of each Window Station",
+    "plugin": "windows.deskscan.DeskScan"
+  },
+  "vol_desktops": {
+    "description": "Enumerates the Desktop instances of each Window Station",
+    "plugin": "windows.desktops.Desktops"
+  },
+  "vol_devicetree": {
+    "description": "Listing tree based on drivers and attached devices in a particular windows",
+    "plugin": "windows.devicetree.DeviceTree"
+  },
+  "vol_directsystemcalls": {
+    "description": "Detects the Direct System Call technique used to bypass EDRs (deprecated).",
+    "plugin": "windows.direct_system_calls.DirectSystemCalls"
+  },
+  "vol_dlllist": {
+    "description": "Lists the loaded DLLs in a particular windows memory image.",
+    "plugin": "windows.dlllist.DllList"
+  },
+  "vol_dmesg": {
+    "description": "Prints the kernel log buffer.",
+    "plugin": "mac.dmesg.Dmesg"
+  },
+  "vol_driverirp": {
+    "description": "List IRPs for drivers in a particular windows memory image.",
+    "plugin": "windows.driverirp.DriverIrp"
+  },
+  "vol_drivermodule": {
+    "description": "Determines if any loaded drivers were hidden by a rootkit (deprecated).",
+    "plugin": "windows.drivermodule.DriverModule"
+  },
+  "vol_driverscan": {
+    "description": "Scans for drivers present in a particular windows memory image.",
+    "plugin": "windows.driverscan.DriverScan"
+  },
+  "vol_dumpfiles": {
+    "description": "Dumps cached file contents from Windows memory samples.",
+    "plugin": "windows.dumpfiles.DumpFiles"
+  },
+  "vol_ebpf": {
+    "description": "Enumerate eBPF programs",
+    "plugin": "linux.ebpf.EBPF"
+  },
+  "vol_elfs": {
+    "description": "Lists all memory mapped ELF files for all processes.",
+    "plugin": "linux.elfs.Elfs"
+  },
+  "vol_envars": {
+    "description": "Display process environment variables",
+    "plugin": "windows.envars.Envars"
+  },
+  "vol_etwpatch": {
+    "description": "Identifies ETW (Event Tracing for Windows) patching techniques used by malware",
+    "plugin": "windows.etwpatch.EtwPatch"
+  },
+  "vol_fbdev": {
+    "description": "Extract framebuffers from the fbdev graphics subsystem",
+    "plugin": "linux.graphics.fbdev.Fbdev"
+  },
+  "vol_filescan": {
+    "description": "Scans for file objects present in a particular windows memory image.",
+    "plugin": "windows.filescan.FileScan"
+  },
+  "vol_ftrace": {
+    "description": "Detect ftrace hooking",
+    "plugin": "linux.tracing.ftrace.CheckFtrace"
+  },
+  "vol_getcellroutine": {
+    "description": "Reports registry hives with a hooked GetCellRoutine handler",
+    "plugin": "windows.registry.getcellroutine.GetCellRoutine"
+  },
+  "vol_getservicesids": {
+    "description": "Lists process token sids.",
+    "plugin": "windows.getservicesids.GetServiceSIDs"
+  },
+  "vol_getsids": {
+    "description": "Print the SIDs owning each process",
+    "plugin": "windows.getsids.GetSIDs"
+  },
+  "vol_handles": {
+    "description": "Lists process open handles.",
+    "plugin": "windows.handles.Handles"
+  },
+  "vol_hiddenmodules": {
+    "description": "Carves memory to find hidden kernel modules (deprecated).",
+    "plugin": "linux.hidden_modules.Hidden_modules"
+  },
+  "vol_hivescan": {
+    "description": "Scans for registry hives present in a particular windows memory image.",
+    "plugin": "windows.registry.hivescan.HiveScan"
+  },
+  "vol_hollowprocesses": {
+    "description": "Lists hollowed processes",
+    "plugin": "windows.malware.hollowprocesses.HollowProcesses"
+  },
+  "vol_iat": {
+    "description": "Extract Import Address Table to list API (functions) used by a program",
+    "plugin": "windows.iat.IAT"
+  },
+  "vol_ifconfig": {
+    "description": "Lists network interface information for all devices",
+    "plugin": "mac.ifconfig.Ifconfig"
+  },
+  "vol_indirectsystemcalls": {
+    "description": "Detects the Indirect System Call technique used to bypass EDRs (deprecated).",
+    "plugin": "windows.indirect_system_calls.IndirectSystemCalls"
+  },
+  "vol_info": {
+    "description": "Show OS & kernel details of the memory sample being analyzed.",
+    "plugin": "windows.info.Info"
+  },
+  "vol_iomem": {
+    "description": "Generates an output similar to /proc/iomem on a running system.",
+    "plugin": "linux.iomem.IOMem"
+  },
+  "vol_ip": {
+    "description": "Lists network interface information for all devices",
+    "plugin": "linux.ip.Addr"
+  },
+  "vol_joblinks": {
+    "description": "Print process job link information",
+    "plugin": "windows.joblinks.JobLinks"
+  },
+  "vol_kallsyms": {
+    "description": "Kallsyms symbols enumeration plugin.",
+    "plugin": "linux.kallsyms.Kallsyms"
+  },
+  "vol_kauthlisteners": {
+    "description": "Lists kauth listeners and their status",
+    "plugin": "mac.kauth_listeners.Kauth_listeners"
+  },
+  "vol_kauthscopes": {
+    "description": "Lists kauth scopes and their status",
+    "plugin": "mac.kauth_scopes.Kauth_scopes"
+  },
+  "vol_kevents": {
+    "description": "Lists event handlers registered by processes",
+    "plugin": "mac.kevents.Kevents"
+  },
+  "vol_keyboardnotifiers": {
+    "description": "Parses the keyboard notifier call chain (deprecated).",
+    "plugin": "linux.keyboard_notifiers.Keyboard_notifiers"
+  },
+  "vol_kmsg": {
+    "description": "Kernel log buffer reader",
+    "plugin": "linux.kmsg.Kmsg"
+  },
+  "vol_kpcrs": {
+    "description": "Print KPCR structure for each processor",
+    "plugin": "windows.kpcrs.KPCRs"
+  },
+  "vol_kthreads": {
+    "description": "Enumerates kthread functions",
+    "plugin": "linux.kthreads.Kthreads"
+  },
+  "vol_ldrmodules": {
+    "description": "Lists the loaded modules in a particular windows memory image.",
+    "plugin": "windows.malware.ldrmodules.LdrModules"
+  },
+  "vol_librarylist": {
+    "description": "Enumerate libraries loaded into processes",
+    "plugin": "linux.library_list.LibraryList"
+  },
+  "vol_listfiles": {
+    "description": "Lists all open file descriptors for all processes.",
+    "plugin": "mac.list_files.List_Files"
+  },
+  "vol_lsmod": {
+    "description": "Lists loaded kernel modules.",
+    "plugin": "linux.lsmod.Lsmod"
+  },
+  "vol_lsof": {
+    "description": "Lists open files for each processes.",
+    "plugin": "linux.lsof.Lsof"
+  },
+  "vol_malfind": {
+    "description": "Lists process memory ranges that potentially contain injected code",
+    "plugin": "windows.malfind.Malfind"
+  },
+  "vol_mbrscan": {
+    "description": "Scans for and parses potential Master Boot Records (MBRs)",
+    "plugin": "windows.mbrscan.MBRScan"
+  },
+  "vol_memmap": {
+    "description": "Prints the memory map",
+    "plugin": "windows.memmap.Memmap"
+  },
+  "vol_mftscan": {
+    "description": "Scans for MFT FILE objects present in a particular windows memory image.",
+    "plugin": "windows.mftscan.MFTScan"
+  },
+  "vol_modscan": {
+    "description": "Scans for modules present in a particular windows memory image.",
+    "plugin": "windows.modscan.ModScan"
+  },
+  "vol_moduleextract": {
+    "description": "Recreates an ELF file from a specific address in the kernel",
+    "plugin": "linux.module_extract.ModuleExtract"
+  },
+  "vol_modules": {
+    "description": "Lists the loaded kernel modules.",
+    "plugin": "windows.modules.Modules"
+  },
+  "vol_modxview": {
+    "description": "Centralize lsmod, check_modules and hidden_modules results to efficiently spot",
+    "plugin": "linux.malware.modxview.Modxview"
+  },
+  "vol_mount": {
+    "description": "A module containing a collection of plugins that produce data typically found",
+    "plugin": "mac.mount.Mount"
+  },
+  "vol_mountinfo": {
+    "description": "Lists mount points on processes mount namespaces",
+    "plugin": "linux.mountinfo.MountInfo"
+  },
+  "vol_mutantscan": {
+    "description": "Scans for mutexes present in a particular windows memory image.",
+    "plugin": "windows.mutantscan.MutantScan"
+  },
+  "vol_netfilter": {
+    "description": "Lists Netfilter hooks.",
+    "plugin": "linux.malware.netfilter.Netfilter"
+  },
+  "vol_netscan": {
+    "description": "Scans for network objects present in a particular windows memory image.",
+    "plugin": "windows.netscan.NetScan"
+  },
+  "vol_netstat": {
+    "description": "Lists all network connections for all processes.",
+    "plugin": "mac.netstat.Netstat"
+  },
+  "vol_orphankernelthreads": {
+    "description": "Lists process threads",
+    "plugin": "windows.orphan_kernel_threads.Threads"
+  },
+  "vol_pagecache": {
+    "description": "Lists files from memory",
+    "plugin": "linux.pagecache.Files"
+  },
+  "vol_pebmasquerade": {
+    "description": "Detects potential process name spoofing by comparing EPROCESS and PEB data.",
+    "plugin": "windows.malware.pebmasquerade.PebMasquerade"
+  },
+  "vol_pedump": {
+    "description": "Allows extracting PE Files from a specific address in a specific address space",
+    "plugin": "windows.pedump.PEDump"
+  },
+  "vol_perfevents": {
+    "description": "Lists performance events for each process.",
+    "plugin": "linux.tracing.perf_events.PerfEvents"
+  },
+  "vol_pesymbols": {
+    "description": "Prints symbols in PE files in process and kernel memory",
+    "plugin": "windows.pe_symbols.PESymbols"
+  },
+  "vol_pidhashtable": {
+    "description": "Enumerates processes through the PID hash table",
+    "plugin": "linux.pidhashtable.PIDHashTable"
+  },
+  "vol_poolscanner": {
+    "description": "A generic pool scanner plugin.",
+    "plugin": "windows.poolscanner.PoolScanner"
+  },
+  "vol_printkey": {
+    "description": "Lists the registry keys under a hive or specific key value.",
+    "plugin": "windows.registry.printkey.PrintKey"
+  },
+  "vol_privileges": {
+    "description": "Lists process token privileges",
+    "plugin": "windows.privileges.Privs"
+  },
+  "vol_proc": {
+    "description": "Lists all memory maps for all processes.",
+    "plugin": "linux.proc.Maps"
+  },
+  "vol_processghosting": {
+    "description": "Lists processes whose DeletePending bit is set or whose FILE_OBJECT is set to",
+    "plugin": "windows.malware.processghosting.ProcessGhosting"
+  },
+  "vol_procmaps": {
+    "description": "Lists process memory ranges that potentially contain injected code.",
+    "plugin": "mac.proc_maps.Maps"
+  },
+  "vol_psaux": {
+    "description": "Lists processes with their command line arguments",
+    "plugin": "linux.psaux.PsAux"
+  },
+  "vol_pscallstack": {
+    "description": "Enumerates the call stack of each task",
+    "plugin": "linux.pscallstack.PsCallStack"
+  },
+  "vol_pslist": {
+    "description": "Lists the processes present in a particular linux memory image.",
+    "plugin": "linux.pslist.PsList"
+  },
+  "vol_psscan": {
+    "description": "Scans for processes present in a particular windows memory image.",
+    "plugin": "windows.psscan.PsScan"
+  },
+  "vol_pstree": {
+    "description": "Plugin for listing processes in a tree based on their parent process ID.",
+    "plugin": "windows.pstree.PsTree"
+  },
+  "vol_psxview": {
+    "description": "Lists all processes found via four of the methods described in \"The Art of",
+    "plugin": "windows.malware.psxview.PsXView"
+  },
+  "vol_ptrace": {
+    "description": "Enumerates ptrace's tracer and tracee tasks",
+    "plugin": "linux.ptrace.Ptrace"
+  },
+  "vol_reg_hivelist": {
+    "description": "Lists the registry hives present in a particular memory image.",
+    "plugin": "windows.registry.hivelist.HiveList"
+  },
+  "vol_scheduledtasks": {
+    "description": "Decodes scheduled task information from the Windows registry, including",
+    "plugin": "windows.registry.scheduled_tasks.ScheduledTasks"
+  },
+  "vol_sessions": {
+    "description": "lists Processes with Session information extracted from Environmental",
+    "plugin": "windows.sessions.Sessions"
+  },
+  "vol_shimcachemem": {
+    "description": "Reads Shimcache entries from the ahcache.sys AVL tree",
+    "plugin": "windows.shimcachemem.ShimcacheMem"
+  },
+  "vol_skeletonkeycheck": {
+    "description": "Looks for signs of Skeleton Key malware",
+    "plugin": "windows.malware.skeleton_key_check.Skeleton_Key_Check"
+  },
+  "vol_socketfilters": {
+    "description": "Enumerates kernel socket filters.",
+    "plugin": "mac.socket_filters.Socket_filters"
+  },
+  "vol_sockstat": {
+    "description": "Lists all network connections for all processes.",
+    "plugin": "linux.sockstat.Sockstat"
+  },
+  "vol_ssdt": {
+    "description": "Lists the system call table.",
+    "plugin": "windows.ssdt.SSDT"
+  },
+  "vol_statistics": {
+    "description": "Lists statistics about the memory space.",
+    "plugin": "windows.statistics.Statistics"
+  },
+  "vol_strings": {
+    "description": "STRINGS_FILE",
+    "plugin": "windows.strings.Strings"
+  },
+  "vol_suspendedthreads": {
+    "description": "Enumerates suspended threads.",
+    "plugin": "windows.suspended_threads.SuspendedThreads"
+  },
+  "vol_suspiciousthreads": {
+    "description": "Lists suspicious userland process threads",
+    "plugin": "windows.malware.suspicious_threads.SuspiciousThreads"
+  },
+  "vol_svcdiff": {
+    "description": "Compares services found through list walking versus scanning to find rootkits",
+    "plugin": "windows.malware.svcdiff.SvcDiff"
+  },
+  "vol_svclist": {
+    "description": "Lists services contained with the services.exe doubly linked list of services",
+    "plugin": "windows.svclist.SvcList"
+  },
+  "vol_svcscan": {
+    "description": "Scans for windows services.",
+    "plugin": "windows.svcscan.SvcScan"
+  },
+  "vol_symlinkscan": {
+    "description": "Scans for links present in a particular windows memory image.",
+    "plugin": "windows.symlinkscan.SymlinkScan"
+  },
+  "vol_thrdscan": {
+    "description": "Scans for windows threads.",
+    "plugin": "windows.thrdscan.ThrdScan"
+  },
+  "vol_threads": {
+    "description": "Lists process threads",
+    "plugin": "windows.threads.Threads"
+  },
+  "vol_timers": {
+    "description": "Check for malicious kernel timers.",
+    "plugin": "mac.timers.Timers"
+  },
+  "vol_tracepoints": {
+    "description": "Detect tracepoints hooking",
+    "plugin": "linux.tracing.tracepoints.CheckTracepoints"
+  },
+  "vol_truecrypt": {
+    "description": "TrueCrypt Cached Passphrase Finder",
+    "plugin": "windows.truecrypt.Passphrase"
+  },
+  "vol_trustedbsd": {
+    "description": "Checks for malicious trustedbsd modules",
+    "plugin": "mac.trustedbsd.Trustedbsd"
+  },
+  "vol_ttycheck": {
+    "description": "Checks tty devices for hooks",
+    "plugin": "linux.malware.tty_check.Tty_Check"
+  },
+  "vol_unhookedsystemcalls": {
+    "description": "Detects hooked ntdll.dll stub functions in Windows processes.",
+    "plugin": "windows.malware.unhooked_system_calls.UnhookedSystemCalls"
+  },
+  "vol_unloadedmodules": {
+    "description": "Lists the unloaded kernel modules.",
+    "plugin": "windows.unloadedmodules.UnloadedModules"
+  },
+  "vol_userassist": {
+    "description": "Print userassist registry keys and information.",
+    "plugin": "windows.registry.userassist.UserAssist"
+  },
+  "vol_vadinfo": {
+    "description": "Lists process memory ranges.",
+    "plugin": "windows.vadinfo.VadInfo"
+  },
+  "vol_vadregexscan": {
+    "description": "PATTERN [--maxsize MAXSIZE]",
+    "plugin": "windows.vadregexscan.VadRegExScan"
+  },
+  "vol_vadwalk": {
+    "description": "Walk the VAD tree.",
+    "plugin": "windows.vadwalk.VadWalk"
+  },
+  "vol_vadyarascan": {
+    "description": "Scans all the Virtual Address Descriptor memory maps using yara.",
+    "plugin": "windows.vadyarascan.VadYaraScan"
+  },
+  "vol_verinfo": {
+    "description": "Lists version information from PE files.",
+    "plugin": "windows.verinfo.VerInfo"
+  },
+  "vol_vfsevents": {
+    "description": "Lists processes that are filtering file system events",
+    "plugin": "mac.vfsevents.VFSevents"
+  },
+  "vol_virtmap": {
+    "description": "Lists virtual mapped sections.",
+    "plugin": "windows.virtmap.VirtMap"
+  },
+  "vol_vmaregexscan": {
+    "description": "PATTERN [--maxsize MAXSIZE]",
+    "plugin": "linux.vmaregexscan.VmaRegExScan"
+  },
+  "vol_vmayarascan": {
+    "description": "Scans all virtual memory areas for tasks using yara.",
+    "plugin": "linux.vmayarascan.VmaYaraScan"
+  },
+  "vol_vmcoreinfo": {
+    "description": "Enumerate VMCoreInfo tables",
+    "plugin": "linux.vmcoreinfo.VMCoreInfo"
+  },
+  "vol_windows": {
+    "description": "Enumerates the Windows of Desktop instances",
+    "plugin": "windows.windows.Windows"
+  },
+  "vol_windowstations": {
+    "description": "Scans for top level Windows Stations",
+    "plugin": "windows.windowstations.WindowStations"
+  }
+}

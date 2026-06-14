@@ -1,0 +1,10 @@
+{
+  "evidence_db": {},
+  "fact": {
+    "fact_type": "process_fact",
+    "type": "process_fact",
+    "process_name": "cmd.exe",
+    "cmdline": "vssadmin.exe delete shadows /all /quiet",
+    "raw_excerpt": "vssadmin.exe delete shadows /all /quiet"
+  }
+}

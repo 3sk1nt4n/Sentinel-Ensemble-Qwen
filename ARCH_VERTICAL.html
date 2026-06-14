@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<title>Sentinel Ensemble — How the Investigation Runs</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1180px}
+  body{font-family:'Segoe UI',system-ui,sans-serif;color:#1f2430;
+    background:linear-gradient(135deg,#fffaf2,#fff4e2 55%,#fff7ec);padding:22px 34px 26px;
+    -webkit-font-smoothing:antialiased}
+  .head{text-align:center;margin-bottom:6px}
+  h1{font-size:30px;font-weight:900;background:linear-gradient(90deg,#ea580c,#f59e0b 50%,#eab308);
+     -webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{font-size:14px;color:#7c5a2a;font-weight:700;margin-top:2px}
+  .cond{margin:12px 0 6px;border:2.5px solid #94a3b8;border-radius:12px;
+    background:linear-gradient(135deg,#fff,#eef2f7);padding:9px 16px;text-align:center}
+  .cond b{font-size:15px;color:#334155}
+  .cond .d{font-size:12.5px;color:#5b6472;font-weight:600;margin-top:1px}
+  .flow{display:flex;flex-direction:column;align-items:stretch}
+  .row{display:grid;grid-template-columns:62px 1fr;gap:13px;align-items:stretch}
+  .num{display:flex;align-items:center;justify-content:center;border-radius:12px;
+    font-size:16px;font-weight:900;color:#fff;background:linear-gradient(135deg,#cbd5e1,#94a3b8);
+    min-height:52px;padding:0 4px;text-align:center;line-height:1.05}
+  .box{border:2px solid #e7e0d2;border-radius:12px;background:#fff;padding:7px 14px;
+    box-shadow:0 2px 7px rgba(170,120,30,.09)}
+  .t{font-size:15px;font-weight:900;color:#334155;letter-spacing:.2px}
+  .p{font-size:13px;font-weight:700;color:#0e7490;margin-top:1px}
+  .p::before{content:"In plain words: ";font-weight:800;color:#9a3412}
+  .d{font-size:11.5px;font-weight:600;color:#64748b;margin-top:2px;line-height:1.32}
+  .arr{font-size:15px;color:#f59e0b;font-weight:900;text-align:center;height:13px;line-height:13px;margin-left:31px}
+  /* AI rows */
+  .ai .num{background:linear-gradient(135deg,#06b6d4,#0891b2)}
+  .ai .box{border:2.6px solid #06b6d4;background:linear-gradient(135deg,#ecfeff,#cffafe)}
+  .ai .t{color:#0e7490}
+  .ai .t .bdg{background:#06b6d4;color:#fff;font-size:11px;padding:1px 8px;border-radius:999px;margin-left:7px;vertical-align:middle}
+  /* self-correction banner inside a row */
+  .sc{margin-top:5px;border:2px solid #f59e0b;border-radius:9px;
+    background:linear-gradient(135deg,#fffbeb,#fde68a);padding:5px 11px}
+  .sc b{font-size:12.5px;color:#b45309}
+  .sc span{font-size:11.5px;color:#92400e;font-weight:600}
+  /* code / integrity accents */
+  .lock .num{background:linear-gradient(135deg,#475569,#334155)}
+  .val .num{background:linear-gradient(135deg,#475569,#334155)}
+  .val .box{border-color:#475569}
+  .foot{text-align:center;margin-top:13px;font-size:15px;font-weight:900;color:#7c5a2a}
+  .foot b{color:#9a3412}
+  .legend{text-align:center;font-size:12px;font-weight:700;color:#5b6472;margin-top:4px}
+  .lg{display:inline-block;padding:1px 9px;border-radius:999px;font-size:11px;font-weight:800;margin:0 4px}
+  .lgA{background:#cffafe;color:#0e7490;border:1.5px solid #06b6d4}
+  .lgS{background:#fde68a;color:#92400e;border:1.5px solid #f59e0b}
+  .lgC{background:#eef2f7;color:#475569;border:1.5px solid #94a3b8}
+</style></head>
+<body>
+  <div class="head">
+    <h1>🛡️ Sentinel Ensemble — How the Investigation Runs</h1>
+    <div class="sub">One autonomous run, top to bottom · Step 0 → 16 · the AI is called 5 times (✦), code checks it at every turn</div>
+  </div>
+  <div class="cond"><b>⚙ CONDUCTOR · run_pipeline.py · deterministic Python</b>
+    <div class="d">owns every step and is the only memory — the AI acts only inside the ✦ AI boxes, and never sees its own previous output</div>
+  </div>
+  <div class="legend">
+    <span class="lg lgA">✦ AI call</span> the 5 invocations &nbsp;·&nbsp;
+    <span class="lg lgS">⭐ self-correction</span> the AI revises its own verdicts (twice) &nbsp;·&nbsp;
+    <span class="lg lgC">⚙ code</span> deterministic — checks the AI
+  </div>
+
+  <div class="flow">
+
+    <div class="row"><div class="num">0</div><div class="box"><div class="t">📂 Onboarding — you point it at the evidence</div>
+      <div class="p">it finds your memory + disk images, mounts them read-only, fingerprints them, checks they're healthy, and you pick the analysis depth.</div></div></div>
+    <div class="arr">▼</div>
+
+    <div class="row"><div class="num">1</div><div class="box"><div class="t">▶ Start — "Tell me what happened on this system."</div>
+      <div class="p">one question kicks off the whole autonomous run.</div></div></div>
+    <div class="arr">▼</div>
+
+    <div class="row lock"><div class="num">2</div><div class="box"><div class="t">🔒 Fingerprint #1 — SHA-256 of every evidence file</div>
+      <div class="p">takes a "before" fingerprint so we can prove nothing was changed.</div></div></div>
+    <div class="arr">▼</div>
+
+    <div class="row"><div class="num">3</div><div class="box"><div class="t">🛡️ Rootkit / kernel-integrity check</div>
+      <div class="p">checks the operating-system core for tampering BEFORE trusting the process list. If hooked, confidence is capped.</div></div></div>
+    <div class="arr">▼</div>
+
+    <div class="row"><div class="num">4</div><div class="box"><div class="t">🧰 Tool prep — build the catalog (nothing runs yet)</div>
+      <div class="p">discovers 195 typed tools (138 Volatility plugins + disk parsers) sorted into 38 buckets.</div></div></div>
+    <div class="arr">▼</div>
+
+    <div class="row ai"><div class="num">5</div><div class="box"><div class="t">AI CALL 1 — Tool selection <span class="bdg">✦ AI</span></div>
+      <div class="p">the AI picks which tools to run; then deterministic code injects the must-have tools it can't skip, so coverage is guaranteed.</div></div></div>
+    <div class="arr">▼</div>
+
+    <div class="row"><div class="num">6</div><div class="box"><div class="t">🔌 Run tools via the MCP server</div>
+      <div class="p">Volatility 3, Sleuth Kit, EZ Tools, Plaso run as typed functions — typed JSON in/out, never a shell.</div></div></div>
+    <div class="arr">▼</div>
+
+    <div class="row"><div class="num">7</div><div class="box"><div class="t">▦ EvidenceDB — pair every value to its source</div>
+      <div class="p">links each hash→file, pid→process, connection→owner — the "paired reference set" the validator checks against.</div></div></div>
+    <div class="arr">▼</div>
+
+    <div class="row ai"><div class="num">8–9</div><div class="box"><div class="t">AI CALL 2 — Analysis <span class="bdg">✦ 4-MODEL ENSEMBLE</span></div>
+      <div class="p">four AI models read the same evidence independently; only what they agree on is kept.</div></div></div>
+    <div class="arr">▼</div>
+
+    <div class="row val"><div class="num">10</div><div class="box"><div class="t">🧪 Validator — code checks the AI</div>
+      <div class="p">every claim is checked against the real evidence → MATCH · MISMATCH · UNRESOLVED. A mismatch blocks the finding (not dropped — sent to Step 13AA).</div></div></div>
+    <div class="arr">▼</div>
+
+    <div class="row ai"><div class="num">11</div><div class="box"><div class="t">AI CALL 3 — ReAct investigation <span class="bdg">✦ AI</span></div>
+      <div class="p">the AI re-investigates its own suspicious findings with live tools and can overturn its own verdict.</div>
+      <div class="sc"><b>⭐ SELF-CORRECTION #1</b> &nbsp;<span>"I flagged this — I tested it — it's actually safe." A scary alert becomes Assessed benign.</span></div></div></div>
+    <div class="arr">▼</div>
+
+    <div class="row"><div class="num">12</div><div class="box"><div class="t">♻️ Claim rescue (deterministic — no AI)</div>
+      <div class="p">if a finding's link to its evidence broke, code re-attaches it instead of losing the finding.</div></div></div>
+    <div class="arr">▼</div>
+
+    <div class="row"><div class="num">13</div><div class="box"><div class="t">📊 Confidence calibration (code, not feelings)</div>
+      <div class="p">3+ independent evidence types = HIGH · 2 = MEDIUM · 1 = LOW; seen in disk AND memory = upgraded.</div>
+      <div class="sc"><b>⭐ SELF-CORRECTION #2 · Step 13AA — final re-judge</b> &nbsp;<span>every still-uncertain finding is judged one last time — code gates promotion: no evidence, no confirm. Can rescue a missed threat, never re-litigates a settled one.</span></div></div></div>
+    <div class="arr">▼</div>
+
+    <div class="row ai"><div class="num">14</div><div class="box"><div class="t">AI CALL 4 — Report <span class="bdg">✦ AI</span></div>
+      <div class="p">writes the human report from the validated truth buckets — the prose can never contradict them.</div></div></div>
+    <div class="arr">▼</div>
+
+    <div class="row lock"><div class="num">15</div><div class="box"><div class="t">🔒 Fingerprint #2 — must equal #1</div>
+      <div class="p">the "after" fingerprint is compared to the "before." Identical = evidence never modified, proven by math.</div></div></div>
+    <div class="arr">▼</div>
+
+    <div class="row"><div class="num">16</div><div class="box"><div class="t">📋 Delivered</div>
+      <div class="p">a clear report — verdict, attack timeline, who did what, remediation — plus findings table, network IOCs, and a full audit trail.</div></div></div>
+
+  </div>
+
+  <div class="foot"><b>5 AI calls · checked by code at every turn · self-corrects twice · evidence is never modified · honest by design</b></div>
+</body></html>

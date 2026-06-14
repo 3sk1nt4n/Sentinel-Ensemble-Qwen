@@ -1,0 +1,11 @@
+{
+  "fact": {
+    "type": "process_relationship_fact",
+    "parent_process": "rundll32.exe",
+    "child_process": "powershell.exe",
+    "child_path": "C:\\Users\\Public\\loader.ps1",
+    "parent_pid": 980,
+    "child_pid": 1044
+  },
+  "evidence_db": {}
+}

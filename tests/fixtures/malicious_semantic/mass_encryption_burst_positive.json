@@ -1,0 +1,10 @@
+{
+  "evidence_db": {},
+  "fact": {
+    "fact_type": "filesystem_timeline_fact",
+    "type": "filesystem_timeline_fact",
+    "path": "C:\\Users\\bobby\\Documents\\Q3-Financials.xlsx.locked",
+    "normalized_path": "c:/users/bobby/documents/q3-financials.xlsx.locked",
+    "raw_excerpt": "MFT: Q3-Financials.xlsx.locked modified"
+  }
+}

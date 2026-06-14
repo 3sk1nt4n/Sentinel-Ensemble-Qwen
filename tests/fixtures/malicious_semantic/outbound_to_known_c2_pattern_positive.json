@@ -1,0 +1,13 @@
+{
+  "fact": {
+    "type": "network_connection_fact",
+    "direction": "outbound",
+    "process": "stager.exe",
+    "pid": 4242,
+    "foreign_addr": "203.0.113.10",
+    "foreign_port": 4444,
+    "is_suspicious": true,
+    "classification": "beacon"
+  },
+  "evidence_db": {}
+}

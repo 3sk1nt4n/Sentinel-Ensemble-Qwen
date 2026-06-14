@@ -1,0 +1,14 @@
+{
+  "evidence_db": {},
+  "fact": {
+    "artifact": "C:\\Users\\Public\\staged-tool.exe",
+    "executed": true,
+    "fact_type": "appcompatcache_execution_fact",
+    "image_path": "C:\\Users\\Public\\staged-tool.exe",
+    "normalized_path": "c:\\users\\public\\staged-tool.exe",
+    "path": "C:\\Users\\Public\\staged-tool.exe",
+    "raw_excerpt": "{\"Path\": \"C:\\\\Users\\\\Public\\\\staged-tool.exe\", \"Executed\": true, \"Source\": \"AppCompatCache\"}",
+    "source_tool": "run_appcompatcacheparser",
+    "type": "appcompatcache_execution_fact"
+  }
+}

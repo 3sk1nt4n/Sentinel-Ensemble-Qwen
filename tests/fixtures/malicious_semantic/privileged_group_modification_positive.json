@@ -1,0 +1,10 @@
+{
+  "evidence_db": {},
+  "fact": {
+    "fact_type": "event_log_fact",
+    "type": "event_log_fact",
+    "event_id": "4732",
+    "entity_id": "4732",
+    "message": "A member was added to a security-enabled local group. Subject: Account Name: attacker Group: Security ID: S-1-5-32-544 Group Name: Administrators Member: Security ID: S-1-5-21-111-222-333-1105"
+  }
+}

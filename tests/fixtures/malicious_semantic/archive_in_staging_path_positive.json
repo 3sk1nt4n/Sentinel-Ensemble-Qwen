@@ -1,0 +1,15 @@
+{
+  "evidence_db": {},
+  "fact": {
+    "fact_type": "filesystem_timeline_fact",
+    "type": "filesystem_timeline_fact",
+    "path": "C:\\Windows\\Temp\\collected_archive.zip",
+    "normalized_path": "c:\\windows\\temp\\collected_archive.zip",
+    "raw_excerpt": "C:\\Windows\\Temp\\collected_archive.zip",
+    "fields": {
+      "path": "C:\\Windows\\Temp\\collected_archive.zip",
+      "timestamp": "2020-01-01T00:00:00",
+      "activity": "created"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "fact": {
+    "type": "memory_injection_fact",
+    "protection": "PAGE_EXECUTE_READWRITE",
+    "characterization": "mz_pe",
+    "is_private": true,
+    "region_type": "private",
+    "pid": 4242
+  },
+  "evidence_db": {}
+}

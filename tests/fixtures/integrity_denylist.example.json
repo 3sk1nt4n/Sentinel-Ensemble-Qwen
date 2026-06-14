@@ -1,0 +1,13 @@
+{
+  "_comment": [
+    "Template for tests/fixtures/integrity_denylist.json.",
+    "Copy this file to integrity_denylist.json (gitignored) and fill",
+    "with case-specific PIDs / paths / process names that must not",
+    "appear in src/ or run_pipeline.py. tests/test_integrity_sweep.py",
+    "loads the real file when present; without it, only the generic",
+    "structural rules run."
+  ],
+  "case_pids": [],
+  "evidence_paths": [],
+  "case_procs": []
+}

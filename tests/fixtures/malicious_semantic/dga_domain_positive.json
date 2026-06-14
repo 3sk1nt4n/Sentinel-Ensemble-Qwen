@@ -1,0 +1,8 @@
+{
+  "evidence_db": null,
+  "fact": {
+    "fact_type": "network_ioc_fact",
+    "type": "network_ioc_fact",
+    "command": "beacon to http://203.0.113.77:4444/gate.php every 60s"
+  }
+}

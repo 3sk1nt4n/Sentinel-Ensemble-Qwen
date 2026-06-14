@@ -1,0 +1,10 @@
+{
+  "fact": {
+    "type": "process_fact",
+    "process": "svchost.exe",
+    "image_path": "C:\\Users\\Public\\svchost.exe",
+    "cmdline": "",
+    "pid": 5150
+  },
+  "evidence_db": {}
+}

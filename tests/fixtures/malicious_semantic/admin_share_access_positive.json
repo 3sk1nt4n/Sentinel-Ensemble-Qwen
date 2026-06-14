@@ -1,0 +1,10 @@
+{
+  "evidence_db": {},
+  "fact": {
+    "fact_type": "event_log_fact",
+    "type": "event_log_fact",
+    "event_id": "5140",
+    "entity_id": "5140",
+    "message": "A network share object was accessed. Share Name: \\\\*\\C$ Account Name: attacker Source Address: 10.0.0.5"
+  }
+}

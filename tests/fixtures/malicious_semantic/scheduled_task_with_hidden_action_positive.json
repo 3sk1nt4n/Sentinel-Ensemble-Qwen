@@ -1,0 +1,9 @@
+{
+  "fact": {
+    "type": "scheduled_task_fact",
+    "task_name": "\\Microsoft\\Windows\\Maintenance\\SystemHealth",
+    "hidden": true,
+    "action": "powershell.exe -nop -w hidden -encodedcommand <redacted>"
+  },
+  "evidence_db": {}
+}

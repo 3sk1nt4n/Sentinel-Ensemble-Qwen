@@ -1,0 +1,21 @@
+{
+  "evidence_db": {},
+  "fact": {
+    "fact_type": "network_connection_fact",
+    "type": "network_connection_fact",
+    "protocol": "TCPv4",
+    "localaddr": "10.20.30.40",
+    "localport": "3389",
+    "foreignaddr": "8.8.8.8",
+    "foreignport": "51514",
+    "src_ip": "8.8.8.8",
+    "src_port": "51514",
+    "dst_ip": "10.20.30.40",
+    "dst_port": "3389",
+    "state": "ESTABLISHED",
+    "owner": "svchost.exe",
+    "artifact": ["TCPv4", "10.20.30.40:3389", "8.8.8.8:51514", "ESTABLISHED", "svchost.exe"],
+    "raw_excerpt": "{\"Proto\": \"TCPv4\", \"LocalAddr\": \"10.20.30.40\", \"LocalPort\": \"3389\", \"ForeignAddr\": \"8.8.8.8\", \"ForeignPort\": \"51514\", \"State\": \"ESTABLISHED\", \"Owner\": \"svchost.exe\"}",
+    "source_tool": "vol_netscan"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "fact": {
+    "type": "process_fact",
+    "process": "stager.exe",
+    "image_path": "C:\\Users\\analyst\\AppData\\Local\\Temp\\stager.exe",
+    "pid": 4242
+  },
+  "evidence_db": {}
+}

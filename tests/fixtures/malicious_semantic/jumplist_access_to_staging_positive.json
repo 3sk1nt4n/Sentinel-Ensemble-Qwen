@@ -1,0 +1,47 @@
+{
+  "evidence_db": {},
+  "fact": {
+    "app_path": "C:\\Users\\Public\\staged-tool.exe",
+    "application_path": "C:\\Users\\Public\\staged-tool.exe",
+    "arguments": "C:\\Users\\Public\\staged-tool.exe",
+    "artifact": [
+      "C:\\Users\\Public\\AppData\\Roaming\\Microsoft\\Windows\\Recent\\AutomaticDestinations\\generic.automaticDestinations-ms",
+      "C:\\Users\\Public\\staged-tool.exe"
+    ],
+    "command": "C:\\Users\\Public\\staged-tool.exe",
+    "description": "generic staged jumplist target",
+    "dest_list_path": "C:\\Users\\Public\\AppData\\Roaming\\Microsoft\\Windows\\Recent\\AutomaticDestinations\\generic.automaticDestinations-ms",
+    "entry_path": "C:\\Users\\Public\\staged-tool.exe",
+    "expanded_path": "C:\\Users\\Public\\staged-tool.exe",
+    "fact_type": "jumplist_fact",
+    "fields": {
+      "app_path": "C:\\Users\\Public\\staged-tool.exe",
+      "application_path": "C:\\Users\\Public\\staged-tool.exe",
+      "arguments": "C:\\Users\\Public\\staged-tool.exe",
+      "command": "C:\\Users\\Public\\staged-tool.exe",
+      "description": "generic staged jumplist target",
+      "dest_list_path": "C:\\Users\\Public\\AppData\\Roaming\\Microsoft\\Windows\\Recent\\AutomaticDestinations\\generic.automaticDestinations-ms",
+      "entry_path": "C:\\Users\\Public\\staged-tool.exe",
+      "expanded_path": "C:\\Users\\Public\\staged-tool.exe",
+      "file_path": "C:\\Users\\Public\\staged-tool.exe",
+      "jumplist_path": "C:\\Users\\Public\\AppData\\Roaming\\Microsoft\\Windows\\Recent\\AutomaticDestinations\\generic.automaticDestinations-ms",
+      "local_path": "C:\\Users\\Public\\staged-tool.exe",
+      "normalized_path": "c:\\users\\public\\staged-tool.exe",
+      "path": "C:\\Users\\Public\\staged-tool.exe",
+      "source_path": "C:\\Users\\Public\\AppData\\Roaming\\Microsoft\\Windows\\Recent\\AutomaticDestinations\\generic.automaticDestinations-ms",
+      "target": "C:\\Users\\Public\\staged-tool.exe",
+      "target_path": "C:\\Users\\Public\\staged-tool.exe"
+    },
+    "file_path": "C:\\Users\\Public\\staged-tool.exe",
+    "jumplist_path": "C:\\Users\\Public\\AppData\\Roaming\\Microsoft\\Windows\\Recent\\AutomaticDestinations\\generic.automaticDestinations-ms",
+    "local_path": "C:\\Users\\Public\\staged-tool.exe",
+    "normalized_path": "c:\\users\\public\\staged-tool.exe",
+    "path": "C:\\Users\\Public\\staged-tool.exe",
+    "raw_excerpt": "{\"Arguments\": \"C:\\\\Users\\\\Public\\\\staged-tool.exe\", \"Command\": \"C:\\\\Users\\\\Public\\\\staged-tool.exe\", \"FilePath\": \"C:\\\\Users\\\\Public\\\\staged-tool.exe\", \"Kind\": \"jumplist\", \"LocalPath\": \"C:\\\\Users\\\\Public\\\\staged-tool.exe\", \"Path\": \"C:\\\\Users\\\\Public\\\\staged-tool.exe\", \"SourceFile\": \"C:\\\\Users\\\\Public\\\\staged-tool.exe\", \"Target\": \"C:\\\\Users\\\\Public\\\\staged-tool.exe\", \"TargetPath\": \"C:\\\\Users\\\\Public\\\\staged-tool.exe\"}",
+    "source_path": "C:\\Users\\Public\\AppData\\Roaming\\Microsoft\\Windows\\Recent\\AutomaticDestinations\\generic.automaticDestinations-ms",
+    "source_tool": "run_jlecmd",
+    "target": "C:\\Users\\Public\\staged-tool.exe",
+    "target_path": "C:\\Users\\Public\\staged-tool.exe",
+    "type": "jumplist_fact"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "fact": {
+    "fact_type": "srum_usage_fact",
+    "type": "srum_usage_fact",
+    "fields": {"bytes_total": 100000000, "bytes_sent": 100000000, "table": "srum_network_usage"}
+  },
+  "evidence_db": {
+    "typed_facts": {
+      "srum_usage_fact": [
+        {"fact_type": "srum_usage_fact", "fields": {"bytes_total": 1000}},
+        {"fact_type": "srum_usage_fact", "fields": {"bytes_total": 1500}},
+        {"fact_type": "srum_usage_fact", "fields": {"bytes_total": 800}},
+        {"fact_type": "srum_usage_fact", "fields": {"bytes_total": 2200}},
+        {"fact_type": "srum_usage_fact", "fields": {"bytes_total": 1700}},
+        {"fact_type": "srum_usage_fact", "fields": {"bytes_total": 900}},
+        {"fact_type": "srum_usage_fact", "fields": {"bytes_total": 1300}},
+        {"fact_type": "srum_usage_fact", "fields": {"bytes_total": 2600}},
+        {"fact_type": "srum_usage_fact", "fields": {"bytes_total": 1100}},
+        {"fact_type": "srum_usage_fact", "fields": {"bytes_total": 1900}},
+        {"fact_type": "srum_usage_fact", "fields": {"bytes_total": 100000000}}
+      ]
+    }
+  }
+}

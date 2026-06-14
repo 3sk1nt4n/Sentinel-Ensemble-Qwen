@@ -1,0 +1,9 @@
+{
+  "fact": {
+    "type": "memory_injection_fact",
+    "hollowing_indicator": "unmapped_main_image",
+    "image_state": "image_mismatch",
+    "pid": 2280
+  },
+  "evidence_db": {}
+}
