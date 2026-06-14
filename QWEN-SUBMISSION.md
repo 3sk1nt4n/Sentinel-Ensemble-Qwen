@@ -120,9 +120,12 @@ Python.
 | Live Qwen run + artifacts | pending `DASHSCOPE_API_KEY` |
 | Alibaba ECS deployment + proof recording | pending ECS |
 | Demo video (<3 min, YouTube/Vimeo/Youku) | pending live run |
+| Legacy-doc reframe to Track 4 (README/ARCHITECTURE/etc.) | in progress |
 
-> **Honesty note:** `artifacts/run-rd01/` is the **Claude reference run** that
-> proves the architecture end-to-end; it is **not** a Qwen run. No Qwen-specific
-> performance numbers are claimed until a live Qwen run replaces it. The
-> trust-layer, tool, and pipeline design are model-agnostic and carry over
-> unchanged.
+> **Honesty note:** the architecture was proven end-to-end on a **Claude
+> reference run**, kept **local-only** (git-ignored) and **not shipped** in this
+> repo - it is not a Qwen run and no Qwen-specific numbers are claimed. The
+> shipped proof will be the **Qwen run** generated once the DashScope key is
+> active. The trust layer, the typed forensic tools, and the 16-step conductor
+> are model-agnostic, so they carry over unchanged - only the model provider
+> differs.
