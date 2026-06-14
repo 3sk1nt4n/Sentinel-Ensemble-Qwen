@@ -1393,9 +1393,11 @@ else:
 _client = None
 if _args.live:
     try:
-        import anthropic as _anthropic_mod
-        _client = _anthropic_mod.Anthropic()
-        logger.info("LIVE MODE: Anthropic client initialized")
+        import anthropic as _anthropic_mod  # noqa: F401 -- kept for exception types
+        from sift_sentinel.llm_provider import make_llm_client
+        _client = make_llm_client()   # Anthropic (default) or Qwen/DashScope
+        logger.info("LIVE MODE: LLM client initialized (provider=%s)",
+                    os.environ.get("SIFT_LLM_PROVIDER", "anthropic"))
     except Exception as exc:
         logger.error("Failed to initialize Anthropic client: %s", exc)
         LIVE_MODE = False

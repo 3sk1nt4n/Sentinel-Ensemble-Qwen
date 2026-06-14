@@ -1401,8 +1401,9 @@ def invoke_claude(
         return fallback_fn()
 
     try:
+        from .llm_provider import make_llm_client
         prompt_text = Path(prompt_path).read_text()
-        client = anthropic.Anthropic()
+        client = make_llm_client()   # Anthropic (default) or Qwen/DashScope
         request_kwargs: dict[str, Any] = {
             "model": model,
             "max_tokens": 4096,

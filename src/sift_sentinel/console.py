@@ -331,10 +331,11 @@ def query_ollama(prompt: str) -> str:
 
 def query_anthropic(prompt: str) -> str:
     """Send prompt to Anthropic API."""
-    import anthropic
+    import anthropic  # noqa: F401 -- kept for exception types
 
     from .model_roles import create_message_temp_resilient
-    client = anthropic.Anthropic()
+    from .llm_provider import make_llm_client
+    client = make_llm_client()   # Anthropic (default) or Qwen/DashScope
     # The resilient wrapper drops temperature for models that reject it
     # (Opus 4.7/4.8, Fable 5, or any model learned at runtime) so this path
     # never 400s on the deprecated parameter while keeping it for the rest.
