@@ -1,11 +1,12 @@
 # 🧑‍⚖️ Judge Quickstart
 
-**Sentinel Ensemble** - Agentic DFIR Pipeline · Find Evil! AI Hackathon 2026
-Author: Adil Eskintan · Repo: github.com/3sk1nt4n/Sentinel-Ensemble
+**Sentinel Ensemble** - Agentic DFIR Pipeline · Global AI Hackathon with Qwen Cloud, Track 4 (Autopilot Agent)
+Author: Adil Eskintan · Repo: github.com/3sk1nt4n/Sentinel-Ensemble-Qwen
 *(internal Python package name: `sift_sentinel`)*
 
-Five minutes from clone to a running investigation. The free `--demo` mode
-needs **no evidence and no API key** - you can verify the whole flow first.
+Five minutes from clone to a running investigation **on Qwen models hosted on
+Alibaba Cloud**. The free `--demo` mode needs **no evidence and no API key** - you
+can verify the whole flow first.
 
 ---
 
@@ -14,16 +15,10 @@ needs **no evidence and no API key** - you can verify the whole flow first.
 | Requirement | Version | Notes |
 |---|---|---|
 | SANS SIFT Workstation | Ubuntu 22.04+ | free VM from SANS - **[download](https://sans.org/tools/sift-workstation)**; ships Volatility 3, Sleuth Kit, EWF tools, Plaso |
-| VM resources | **≥ 8 GB RAM · ≥ 80 GB disk** | 8 GB is the SIFT default; give more RAM for large memory images. The run copies the evidence to `/tmp` and writes GBs of tool output, so keep several × the evidence size free (hard floor: 1 GB, override `SIFT_RUN_MIN_FREE_MB`). |
+| VM resources | **≥ 8 GB RAM · ≥ 80 GB disk** | the run copies evidence to `/tmp` and writes GBs of tool output; keep several × the evidence size free (hard floor 1 GB, override `SIFT_RUN_MIN_FREE_MB`) |
 | Python | 3.10+ | ships with SIFT |
-| Anthropic API key | **Tier 2+** | Three easy ways - see **§3 below**: paste at the hidden prompt, a visible **`API_KEY.txt`**, or `export ANTHROPIC_API_KEY=...`. (`--demo` needs none.) |
+| Qwen Cloud API key | DashScope / Model Studio | request the **$40 hackathon voucher**; create an API key in Model Studio (see §3). (`--demo` needs none.) |
 | Evidence | - | memory (`.img`/`.raw`/`.vmem`) and/or disk (`.E01`) in one folder |
-
-> ⚠️ **API tier:** the analysis stage runs a **4-model ensemble in parallel**
-> (4 concurrent API calls), so a **Tier-1** key ($5) is likely to hit rate
-> limits (HTTP 429). Use **at least Tier-2** ($40) - **Tier-3** ($200) is
-> smoothest. `--demo` needs no key and no tier. Check / raise your tier at
-> **https://platform.claude.com/settings/limits**.
 
 No additional forensic tool installation is required on SIFT. (One Python
 package, `pycryptodome`, is in `requirements.txt` - see
@@ -34,8 +29,8 @@ package, `pycryptodome`, is in `requirements.txt` - see
 ## 2️⃣ Install
 
 ```bash
-git clone https://github.com/3sk1nt4n/Sentinel-Ensemble.git
-cd Sentinel-Ensemble
+git clone https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen.git
+cd Sentinel-Ensemble-Qwen
 pip install -r requirements.txt
 ./findevil.sh --demo        # smoke test - no evidence, no API key
 ```
@@ -50,44 +45,38 @@ You'll know it worked when the demo prints a synthetic case card ending in
 
 ---
 
-## 3️⃣ Add your Anthropic API key
+## 3️⃣ Add your Qwen Cloud API key
 
-The live run needs an Anthropic API key (the `--demo` above does **not**). Pick
-whichever way is easiest - and a **real** key always wins over a leftover
-placeholder, so you can't get stuck:
+The live run calls **Qwen models on Alibaba Cloud (DashScope / Model Studio)**.
+Provider + model are env-driven, so no code change is needed.
 
-**A. Just run it and paste** - *simplest; nothing to find or edit.*
-When the launcher reaches the `🔑 API key` step it asks for your key at a **hidden
-prompt**. Paste it (the screen stays blank while pasting - that's normal) and press
-Enter. It's verified live, used for this session only, and **never echoed, logged,
-or written to disk**.
+1. Request the **$40 Qwen Cloud voucher**, then in **Model Studio** (Singapore /
+   International region) → **API Keys** → **Create API Key** → copy the `sk-…`.
+2. Point Sentinel Ensemble at it:
 
-**B. A visible file** - *set it once, no prompt next time.*
-Open **`API_KEY.txt`** in the repo root (the launcher creates it for you on first
-run), replace the `sk-ant-xxxx…` placeholder on the **last line** with your key,
-and **save**. It's picked up automatically on the next run. The file is
-**gitignored**, so your key is never committed.
+```bash
+cp .env.qwen.example .env              # then set DASHSCOPE_API_KEY in .env
+# or export directly:
+export SIFT_LLM_PROVIDER=qwen
+export DASHSCOPE_API_KEY=sk-...        # QWEN_API_KEY also accepted
+export SIFT_DEFAULT_MODEL=qwen3.7-max
+python3 scripts/qwen_smoke.py          # one-call connectivity check before a full run
+```
 
-**C. An environment variable** - `export ANTHROPIC_API_KEY=sk-ant-...`
-(a hidden `.env` file containing `ANTHROPIC_API_KEY=…` works too).
+The international (Singapore) DashScope endpoint is the default; set
+`DASHSCOPE_BASE_URL` for the mainland-China endpoint. The key is read at call
+time and **never echoed, logged, or written to disk** by the pipeline.
 
-> **Order & self-healing.** The launcher checks **env var → `.env` → `API_KEY.txt`**.
-> If the environment key is rejected - e.g. a stale `export` still in your shell -
-> it automatically falls back to a valid key in `API_KEY.txt` / `.env` *before*
-> asking you to paste, so the file you just edited always works.
-
-Get a key at **https://console.anthropic.com → API keys → Create key**. Use a
-**Tier-2+** key for the parallel ensemble (see the tier note in Prerequisites
-above).
+> **Anthropic fallback (optional).** The provider seam keeps `anthropic` as the
+> zero-regression default - unset `SIFT_LLM_PROVIDER` and set `ANTHROPIC_API_KEY`
+> to run the identical pipeline on Claude. Not needed for this submission.
 
 ---
 
 ## 4️⃣ Run a real investigation
 
-> **Need a case?** Use the **official hackathon starter case data** -
-> **[download](https://sansorg.egnyte.com/fl/HhH7crTYT4JK)** (also posted on the
-> Protocol SIFT Slack, per the rules): a ready-made memory + disk pair. Or point it
-> at your own `.E01`/`.raw` disk and `.img`/`.raw`/`.vmem` memory in one folder.
+> **Need a case?** Point it at any Windows memory (`.img`/`.raw`/`.vmem`) and/or
+> disk (`.E01`) evidence in one folder - e.g. a public SANS IR image.
 
 ```bash
 ./findevil.sh /path/to/case-folder
@@ -95,14 +84,14 @@ above).
 
 What happens next (a couple of prompts, then it runs):
 
-1. It scans the evidence and shows a **case card** - what it found
-   (memory/disk, OS, health), sizes, read-only mount status. Just read it.
-2. It asks the **analysis depth** - `1` (or Enter) = ⚡ HEAVY (Claude Opus 4.8,
-   ~$8-15/case), `2` = 🪶 LIGHT (Claude Haiku 4.5, ~$2-3/case). **Choosing the
-   depth launches the run** - there's nothing else to type.
-3. The **`🔑 API key`** step - if you already set your key (file or env, §3),
-   it's used automatically and skipped; otherwise paste it at the **hidden
-   prompt** (blank screen while pasting is normal; never echoed or saved to disk).
+1. It scans the evidence and shows a **case card** - memory/disk, OS, health,
+   sizes, read-only mount status. Just read it.
+2. It asks the **analysis depth** - `1` (or Enter) = ⚡ HEAVY (flagship;
+   `qwen3.7-max` on the Qwen config), `2` = 🪶 LIGHT (`qwen-plus`, cheaper). The
+   model per tier is env-driven (see [`.env.qwen.example`](.env.qwen.example)).
+   **Choosing the depth launches the run.**
+3. The **`🔑 API key`** step - if you set `DASHSCOPE_API_KEY` (file or env, §3)
+   it's used automatically; otherwise paste it at the **hidden prompt**.
 4. Then touch nothing - minutes, not hours.
 
 <details>
@@ -125,25 +114,33 @@ prefer `./findevil.sh` unless you are developing.
 
 | Artifact | What it is |
 |---|---|
-| `report.md` | the investigative narrative - findings first, plain-English "why it matters", WHO/WHEN context, network-IOC roll-up (the per-finding customer table renders into its sections) |
-| `run_summary.md` | tools · dispositions · cost · tokens at a glance |
-| `agent_execution_log.txt` | append-only execution log - every tool call, timestamps, token usage, the 4-model ensemble, validator verdicts, and Step-13AA reasoning |
+| `report.md` | the investigative narrative - findings first, plain-English "why it matters", WHO/WHEN context, network-IOC roll-up |
+| `run_summary.md` | tools · dispositions · cost · tokens · **`llm_provider` / `model`** (proves the run executed on Qwen) |
+| `agent_execution_log.txt` | append-only execution log - every tool call, timestamps, token usage, the 4-model ensemble, validator verdicts, Step-13AA reasoning |
 | `summary_report.html` | interactive one-page summary |
 | `reports/incident_report_YYYYMMDD.md` | dated copy of the final report |
 
-> The files above ship in [`artifacts/run-rd01/`](artifacts/run-rd01/) for inspection. A **live run** additionally writes `finding_disposition_buckets.json` - the confirmed / needs-review / benign / inconclusive buckets that `report.md` §1/§3/§4 are rendered from - to its run directory.
+> A live run writes these (plus `finding_disposition_buckets.json`) into its run
+> directory. Per the **case-neutral repo policy**, run outputs (which contain
+> case-specific IOCs) are **not committed** to the public repo - reproduce them
+> by running `./findevil.sh` on your evidence; the demo video shows a live Qwen
+> run end to end.
 
 Every finding links to the exact tool execution that proved it - pick any
 claim and trace it to raw tool output in seconds.
 
 ---
 
-## 6️⃣ Numbers from a real proven run
+## 6️⃣ Reference metrics (Claude reference run, rd01)
 
-Paired Windows case (memory + disk, ~15 GB), 4-member **Claude Opus 4.8**
-ensemble - the same run shipped in [`artifacts/run-rd01/`](artifacts/run-rd01/)
-and detailed in [`ARCHITECTURE.md`](ARCHITECTURE.md) and
-[`docs/DATASET.md`](docs/DATASET.md):
+> ⚠️ **These numbers are from a CLAUDE reference run** (the architecture proven
+> end to end before the Qwen port), kept **local / not committed**. They are
+> **not** a Qwen result and no Qwen-specific number is claimed here - the **Qwen
+> Cloud run regenerates them** (shown in the demo video). The trust layer, the
+> 195 typed tools, and the 16-step conductor are model-agnostic, so the shape
+> carries over; only the provider differs.
+
+Paired Windows case (memory + disk, ~15 GB), 4-member ensemble:
 
 | Metric | Value |
 |---|---|
@@ -153,37 +150,30 @@ and detailed in [`ARCHITECTURE.md`](ARCHITECTURE.md) and
 | Validator | 81 raw → 51 candidates · 22 blocked & routed to a final cross-check (never silently dropped) |
 | Self-correction (Step 13AA) | 46 ambiguous findings re-judged · ~40 self-corrected (ReAct + 13AA) |
 | Final disposition | 2 confirmed · 42 suspicious / needs-review · 5 benign · 49 total |
-| Estimated cost | ~$15.45 with prompt caching |
 | Evidence integrity | SHA256 MATCH (pre == post) |
-
-*Full per-finding 13AA reasoning is in
-[`artifacts/run-rd01/report.md`](artifacts/run-rd01/report.md) §4 and the raw
-[`agent_execution_log.txt`](artifacts/run-rd01/agent_execution_log.txt).*
 
 ---
 
 ## 7️⃣ Verify the claims yourself
 
 ```bash
-pytest tests/ -q             # 4,800+ tests collected
+PYTHONPATH=src python3 -m pytest tests/test_llm_provider.py -q   # the Qwen provider seam
+pytest tests/ -q                                                # 4,800+ tests collected
 ```
 
-After a run, the judge-facing invariants - all checkable in the shipped
-[`artifacts/run-rd01/`](artifacts/run-rd01/):
+After a run, the judge-facing invariants:
 
-- **Integrity** - `report.md` §1 states the SHA256 pre/post comparison
-  (`SHA256 MATCH - evidence unmodified`); the live verification is in
-  `agent_execution_log.txt` (`INTEGRITY VERIFIED: all hashes match`).
+- **Provider proof** - `pipeline_summary.json` records `llm_provider` / `model` /
+  `llm_endpoint`, so the artifact shows the run executed on Qwen Cloud / DashScope.
+- **Integrity** - `report.md` §1 states the SHA256 pre/post comparison; the live
+  verification is in `agent_execution_log.txt` (`INTEGRITY VERIFIED`).
 - **Traceability** - pick any finding id in `report.md`, grep the same id in
-  `agent_execution_log.txt`, and read its `source_tools` / per-finding
-  evidence and the exact tool calls that produced it.
+  `agent_execution_log.txt`, and read its `source_tools` and the exact tool calls
+  that produced it.
 - **Self-correction** - `report.md` §4 summarizes Step-13AA; the raw decisions
-  (`INV3A_FINALIZE moved=39/46`, the per-finding verdicts, and
-  `INV3A_PROMOTION_DENIALS …`) are in `agent_execution_log.txt`, showing exactly
-  where code overruled the model's `confirmed` verdict.
-  👉 **[`SELF-CORRECTION-PROOF.md`](SELF-CORRECTION-PROOF.md)** lists *every*
-  correction from this run - both layers, before → after, with the exact
-  `agent_execution_log.txt` line for each.
+  (`INV3A_FINALIZE`, per-finding verdicts, `INV3A_PROMOTION_DENIALS`) are in
+  `agent_execution_log.txt`, showing exactly where code overruled the model's
+  `confirmed` verdict. See **[`SELF-CORRECTION-PROOF.md`](SELF-CORRECTION-PROOF.md)**.
 
 ---
 
@@ -193,10 +183,11 @@ After a run, the judge-facing invariants - all checkable in the shipped
 |---|---|
 | "Vol3 ISF profile not found" | Volatility 3 can't identify the memory image OS - the pipeline falls back to profile-independent scanning. Expected on some evidence sets. |
 | "SSDT trust: degraded" | the kernel-integrity check found hooked/unresolvable entries - memory-based confidence is capped at MEDIUM. A feature, not a bug. |
-| "Rate limit 429" | your Anthropic tier is too low for the parallel 4-model ensemble - automatic retry/backoff is built in, but use **Tier-2+** (see Prerequisites; raise it at https://platform.claude.com/settings/limits). |
+| "DashScope HTTP 429" | DashScope rate limit on the parallel 4-model ensemble - the client retries with backoff (429/5xx); if it persists, pace the run or check your Model Studio quota. |
+| "model not found" / 400 | confirm the exact model IDs in your Model Studio list (`qwen3.7-max`, `qwen-plus`); `max_tokens` is auto-clamped to the model's output cap. |
 | `pip install` refused (PEP 668) | use a venv or `--break-system-packages` (see Install above). |
 | The run doesn't start after you pick depth | you ran `step0_onboard.py` directly (staged / dev mode) - use `./findevil.sh`, which is live by default. |
 
 ---
 
-*Sentinel Ensemble - Adil Eskintan - Find Evil! AI Hackathon 2026*
+*Sentinel Ensemble - Adil Eskintan - Global AI Hackathon with Qwen Cloud, Track 4 (Autopilot Agent)*
