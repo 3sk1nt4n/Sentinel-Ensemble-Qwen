@@ -7,7 +7,7 @@
 
 **Hackathon:** Global AI Hackathon with Qwen Cloud
 **Track:** 4 - Autopilot Agent
-**Repo:** public, MIT (`LICENSE`, visible in About)
+**Repo:** https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen (public, MIT - `LICENSE` visible in About)
 **Proof of Alibaba Cloud usage:** [`src/sift_sentinel/llm_provider.py`](src/sift_sentinel/llm_provider.py) - issues live HTTPS calls to the Alibaba Cloud DashScope API.
 
 ---

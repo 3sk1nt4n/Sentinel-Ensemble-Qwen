@@ -24,7 +24,7 @@ output before you ever see it**.
 | Requirement | Status | Location / note |
 |---|---|---|
 | Open-source license (MIT) | done | [`/LICENSE`](LICENSE) - detected by GitHub, visible in About |
-| Public code repository | **pending push** (local-only today) | this repo |
+| Public code repository | done | [github.com/3sk1nt4n/Sentinel-Ensemble-Qwen](https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen) |
 | Text description | done | [`QWEN-SUBMISSION.md`](QWEN-SUBMISSION.md) + [What it does](#-what-it-does) |
 | Run instructions for judges | done | [Quick Start](#-quick-start) + [`JUDGE-QUICKSTART.md`](JUDGE-QUICKSTART.md) |
 | Proof of Alibaba Cloud usage (code file) | done | [`src/sift_sentinel/llm_provider.py`](src/sift_sentinel/llm_provider.py) - issues live DashScope (Alibaba Cloud) HTTPS calls |
