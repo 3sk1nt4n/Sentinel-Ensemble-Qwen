@@ -6445,8 +6445,28 @@ elapsed = time.monotonic() - pipeline_start
 print(f"{M}{B}STEP 16: ANALYSIS COMPLETE{X} in {elapsed:.1f}s", flush=True)
 logger.info("Step 16: Pipeline complete in %.1fs", elapsed)
 
+# Record which LLM provider/model produced this run so the artifact PROVES it
+# executed on Qwen Cloud / Alibaba DashScope (provenance for the Track-4 claim).
+try:
+    from sift_sentinel.llm_provider import active_provider as _active_provider
+    _run_provider = _active_provider()
+except Exception:
+    _run_provider = "unknown"
+try:
+    from sift_sentinel.model_roles import resolve_model as _rm_model
+    _run_model = _rm_model("analysis")
+except Exception:
+    _run_model = ""
+_run_endpoint = ""
+if _run_provider in {"qwen", "dashscope", "alibaba", "qwencloud"}:
+    _run_endpoint = (os.environ.get("DASHSCOPE_BASE_URL") or
+                     "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions")
+
 summary = {
     "status": "completed",
+    "llm_provider": _run_provider,
+    "model": _run_model,
+    "llm_endpoint": _run_endpoint,
     "elapsed_s": round(elapsed, 3),
     "ssdt_trust": ssdt_trust,
     "tools_run": list(all_outputs.keys()),
@@ -7208,8 +7228,9 @@ try:
     print(f"  {B}Total: {summary['token_usage']['total_input']:,} in / {summary['token_usage']['total_output']:,} out{X}")
     try:
         from sift_sentinel.pricing import format_cost as _fmt_cost
+        from sift_sentinel.model_roles import resolve_model as _rm_model
         _tu = summary.get('token_usage', {})
-        _cost_line = _fmt_cost(summary.get('model') or '',
+        _cost_line = _fmt_cost(summary.get('model') or _rm_model("analysis"),
                                uncached_input=_tu.get('total_input', 0),
                                output=_tu.get('total_output', 0),
                                cache_read=_tu.get('total_cache_read', 0),

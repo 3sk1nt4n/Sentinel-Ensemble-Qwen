@@ -755,16 +755,28 @@ def render_severity_grouped_findings_table(
         in_tok  = cost_summary.get("input_tokens") or 0
         out_tok = cost_summary.get("output_tokens") or 0
         cost_usd = cost_summary.get("cost_usd")
-        import os as _os
-        p_in  = float(_os.environ.get("SIFT_PRICE_INPUT_PER_MTOK", "1.0"))
-        p_out = float(_os.environ.get("SIFT_PRICE_OUTPUT_PER_MTOK", "5.0"))
+        # Rate + label come from the RESOLVED model (was hardcoded "Haiku 4.5",
+        # which mislabeled + mispriced every Qwen run). resolve_rates honors the
+        # SIFT_PRICE_* overrides, so a pinned console rate still wins.
+        _model = cost_summary.get("model") or ""
+        try:
+            from sift_sentinel.pricing import resolve_rates as _rr
+            from sift_sentinel.model_roles import resolve_model as _rm
+            _model = _model or _rm("analysis")
+            p_in, p_out = _rr(_model)
+            _label = _model
+        except Exception:
+            import os as _os
+            p_in  = float(_os.environ.get("SIFT_PRICE_INPUT_PER_MTOK", "1.0"))
+            p_out = float(_os.environ.get("SIFT_PRICE_OUTPUT_PER_MTOK", "5.0"))
+            _label = _model or "est"
         if cost_usd is None:
             cost_usd = (in_tok / 1_000_000) * p_in + (out_tok / 1_000_000) * p_out
         banner_lines.append(
             f"{C['B']}PIPELINE STATS{C['R']}  \u2502  "
             f"Time: {C['B']}{elapsed_min:.1f} min{C['R']}  \u2502  "
             f"Tokens: {C['B']}{in_tok:,}{C['R']} in / {C['B']}{out_tok:,}{C['R']} out  \u2502  "
-            f"Cost: {C['B']}~${cost_usd:.4f}{C['R']}  (Haiku 4.5 @ ${p_in:.2f}/${p_out:.2f} per MTok)"
+            f"Cost: {C['B']}~${cost_usd:.4f}{C['R']}  ({_label} @ ${p_in:.2f}/${p_out:.2f} per MTok)"
         )
 
     return "\n".join([""] + banner_lines + ([""] if banner_lines else []) + [sev_summary, ""] + lines)
