@@ -6,35 +6,36 @@ of the data, and what it found.)*
 > The Sentinel Ensemble **pipeline is dataset-agnostic** - it embeds no case
 > names, IOCs, or answer keys (enforced by `audit/nocheat.py` + guard tests).
 > This document records the *results* of running that neutral pipeline against
-> evidence, which is exactly what the rules ask for.
+> evidence - the dataset documentation for this Qwen Cloud Track-4 submission.
 
 ## Datasets used
 
-**Source:** all evidence is drawn from the **official Find Evil! hackathon public
-image set** that SANS published for entrants - the
-[starter case data](https://sansorg.egnyte.com/fl/HhH7crTYT4JK) plus the
-[additional test images](https://findevil.devpost.com/forum_topics/43853-more-images-to-test-across)
-forum thread. Nothing in this submission was tested against private or
-self-generated evidence.
+**Source:** all evidence is drawn from **public SANS Windows incident-response
+images** (third-party DFIR image sets used to develop and validate the engine).
+Nothing in this submission was tested against private or self-generated evidence.
 
 The agent was developed and validated against these Windows incident-response
 images spanning multiple OS versions and evidence shapes (memory-only, disk-only,
-and paired memory+disk). The raw images are **not** redistributed in this
-repository (size + licensing); the repo ships one complete run's **output**
-artifacts under [`artifacts/`](../artifacts/) so judges can inspect results
-without running anything.
+and paired memory+disk). Neither the raw images nor the per-run outputs (which
+contain case-specific IOCs) are committed to this repo, per the **case-neutral
+policy** - reproduce a run with `./findevil.sh`; the demo video shows a live Qwen
+run end to end.
 
 | Case shape | OS | Evidence | Role |
 |---|---|---|---|
-| Paired | Windows 10 / Server 2016+ | memory (3 GB) + disk (11.9 GB E01) | primary validation (artifacts shipped) |
+| Paired | Windows 10 / Server 2016+ | memory (3 GB) + disk (11.9 GB E01) | primary validation (Claude reference run rd01) |
 | Memory-only | Windows 7 / XP baselines | memory image | memory-only path + floor validation |
 | Disk-only | Server 2012 R2 / Win7 / XP | disk (E01) | disk-only source-filter validation |
 
-## What the agent found - primary paired run
+## What the agent found - primary paired run (Claude reference)
 
-Full report: [`artifacts/run-rd01/report.md`](../artifacts/run-rd01/report.md) ·
-full execution log: [`artifacts/run-rd01/agent_execution_log.txt`](../artifacts/run-rd01/agent_execution_log.txt) ·
-[browse the whole run](../artifacts/run-rd01/) ·
+> ⚠️ This is the **Claude reference run** (rd01) used to prove the architecture
+> before the Qwen port - kept **local, not committed** (case-neutral policy). It
+> is **not** a Qwen result; the **Qwen Cloud run regenerates** these numbers
+> (shown in the demo). Paths below are local, after you run `./findevil.sh`.
+
+Local run: `artifacts/run-rd01/report.md` · execution log:
+`artifacts/run-rd01/agent_execution_log.txt` ·
 model: Claude Opus 4.8 (4-member ensemble) · run time 509s (8m 29s) · cost ~$15.45 (token-derived est.).
 
 **49 validator-backed findings/observations** → **2 confirmed malicious (atomic) · 42 suspicious / needs-review · 5 benign.**

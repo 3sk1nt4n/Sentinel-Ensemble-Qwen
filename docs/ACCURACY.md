@@ -6,17 +6,20 @@ hallucinations the validator blocked before they reached the report.)*
 
 ## Method
 
+> ⚠️ **Claude reference run.** These metrics are from the **rd01 Claude
+> reference run** (the architecture proven before the Qwen port), kept **local /
+> not committed** (case-neutral policy). They are **not** a Qwen result; the
+> **Qwen Cloud run regenerates** them, and no Qwen-specific number is claimed here.
+
 - Primary case: a paired Windows memory+disk image (see [`DATASET.md`](DATASET.md)).
-- Model: Claude Opus 4.8, 4-member ensemble (the rd01 reference run - the same
-  run shown in the demonstration recording).
-- Every finding is traced to its tool executions in
-  [`artifacts/run-rd01/`](../artifacts/run-rd01/) - the full investigative
-  `report.md`, the complete step-by-step `agent_execution_log.txt` (every tool
-  call, the 4-model ensemble, the deterministic validator verdicts, and the
-  Step-13AA self-correction with per-finding reasoning), the interactive
-  `summary_report.html`, and `run_summary.md` - so any claim is checkable in
-  seconds.
-  (https://github.com/3sk1nt4n/Sentinel-Ensemble/tree/main/artifacts/run-rd01)
+- Model: Claude Opus 4.8, 4-member ensemble (the rd01 reference run).
+- Every finding is traced to its tool executions in the local run directory
+  `artifacts/run-rd01/` - the full investigative `report.md`, the complete
+  step-by-step `agent_execution_log.txt` (every tool call, the 4-model ensemble,
+  the deterministic validator verdicts, and the Step-13AA self-correction with
+  per-finding reasoning), the interactive `summary_report.html`, and
+  `run_summary.md` - so any claim is checkable in seconds. Reproduce with
+  `./findevil.sh`.
 
 ## How accuracy was assessed (methodology)
 
@@ -208,8 +211,8 @@ data) and enforced case-neutral by guard tests + a commit-time audit.
   modify-a-byte case (`test_fingerprint_detects_change`) and the
   missing-file sentinels; the rd01 reference run shows **SHA256 MATCH** across
   both evidence files (pre == post) - see `report.md` §1 and the
-  `INTEGRITY VERIFIED: all hashes match` lines in
-  [`agent_execution_log.txt`](../artifacts/run-rd01/agent_execution_log.txt).
+  `INTEGRITY VERIFIED: all hashes match` lines in the local
+  `artifacts/run-rd01/agent_execution_log.txt`.
 
 ## Bottom line
 

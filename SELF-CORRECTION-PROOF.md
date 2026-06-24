@@ -1,9 +1,11 @@
 # 🔁 Self-Correction Proof - the AI overruled, on the record
 
 > **Judging criterion: Autonomous Execution Quality.** This page is the receipt.
-> Every number below is a timestamped line in the **published** execution log
-> [`artifacts/run-rd01/agent_execution_log.txt`](artifacts/run-rd01/agent_execution_log.txt)
-> (line numbers cited). Nothing here is narration - it's grep-able.
+> Every number below is a timestamped line in the execution log of the **Claude
+> reference run** (rd01) - `artifacts/run-rd01/agent_execution_log.txt`, a
+> **local** run not committed to the repo (case-neutral policy; reproduce with
+> `./findevil.sh`). The Qwen Cloud run regenerates it. Nothing here is narration -
+> it's grep-able.
 
 Sentinel Ensemble corrects itself **twice**: once while it's *thinking* (Layer 1,
 ReAct - the AI re-investigates its own findings and changes its mind), and once
@@ -211,17 +213,17 @@ needs-review - that, plus the 4 kept-as-needs-review-despite-`confirmed` rows
 - **[`README.md`](README.md)** - project overview + submission compliance checklist.
 - **[`JUDGE-QUICKSTART.md`](JUDGE-QUICKSTART.md)** - clone → run in five minutes (free `--demo`, no key).
 - **[`ARCHITECTURE.md` §"Where the self-correction credit is earned"](ARCHITECTURE.md)** - the design (two layers + the safety net).
-- **[`docs/DATASET.md`](docs/DATASET.md)** - evidence dataset (official Find Evil! public images) + what the agent found.
+- **[`docs/DATASET.md`](docs/DATASET.md)** - evidence dataset (public SANS Windows IR images) + what the agent found.
 - **[`docs/ACCURACY.md`](docs/ACCURACY.md)** - accuracy report / methodology.
-- **[`artifacts/run-rd01/agent_execution_log.txt`](artifacts/run-rd01/agent_execution_log.txt)** - the raw, timestamped trace cited throughout.
-- **[`artifacts/run-rd01/report.md`](artifacts/run-rd01/report.md)** - the analyst-facing report the corrections feed into.
+- **`artifacts/run-rd01/agent_execution_log.txt`** (local Claude reference run, not committed) - the raw, timestamped trace cited throughout.
+- **`artifacts/run-rd01/report.md`** (local) - the analyst-facing report the corrections feed into.
 - **`demo_self_correction.py`** - run the self-correction engine on mock evidence (real validator, no API key).
 
 ---
 
 > **Honest caveats.** *needs-review* is **not** *confirmed* - 36 findings went to
 > needs-review, only 2 to confirmed; this page never inflates that. The
-> `run-rd01` evidence is the **official Find Evil! public image** (see
+> `run-rd01` evidence is the **public SANS Windows IR image** (see
 > [`docs/DATASET.md`](docs/DATASET.md)); the detectors carry **no hardcoded
 > IOCs** (enforced by `audit/nocheat.py`). The corrections shown are one run's
 > real output - re-running on the same image reproduces the same gate behaviour,

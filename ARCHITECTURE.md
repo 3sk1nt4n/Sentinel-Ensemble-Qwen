@@ -1,7 +1,7 @@
 # ARCHITECTURE.md
 
 **Sentinel Ensemble** - System Architecture
-Find Evil! AI Hackathon 2026 | Adil Eskintan
+Global AI Hackathon with Qwen Cloud, Track 4 (Autopilot Agent) | Adil Eskintan
 *(internal Python package: `sift_sentinel`)*
 
 ![Sentinel Ensemble - System Architecture (Custom MCP Server pattern)](ARCH_VERTICAL.png)
@@ -10,16 +10,16 @@ Find Evil! AI Hackathon 2026 | Adil Eskintan
 
 ## Design Philosophy
 
-Sentinel Ensemble treats the AI (Claude, invoked via the Anthropic API) as a
+Sentinel Ensemble treats the AI - **Qwen models hosted on Alibaba Cloud
+(DashScope) by default; Anthropic supported via the same provider seam** - as a
 brilliant but **untrusted soloist**. Deterministic Python (the conductor)
-controls the entire pipeline. The AI reasons only when summoned, and every
+controls the entire pipeline. The model reasons only when summoned, and every
 claim it makes is verified against tool output before reaching the report.
 
-It is a custom **agentic architecture** (permitted "comparable agentic
-architecture" under the hackathon rules): a deterministic conductor drives a
-16-step pipeline and invokes Claude **5 times** - the 4 numbered invocations
+It is a custom **agentic architecture**: a deterministic conductor drives a
+16-step pipeline and invokes the model **5 times** - the 4 numbered invocations
 (tool-selection, analysis, ReAct, report) plus the Step-13AA self-correction
-finalize - it is not the Claude Code CLI.
+finalize - not an off-the-shelf agent CLI.
 
 > ### Architectural pattern - **Custom MCP Server**
 > Of the hackathon's four patterns (Direct Agent Extension · **Custom MCP
@@ -377,8 +377,9 @@ The finished report can never contradict itself:
 
 ## Invocation Flow
 
-The conductor invokes Claude **5 times** per run via the Anthropic API - the
-4 numbered invocations plus the Step-13AA self-correction finalize. Each is **stateless** --
+The conductor invokes the model **5 times** per run (Qwen on Alibaba Cloud
+DashScope by default; Anthropic via the same seam) - the 4 numbered invocations
+plus the Step-13AA self-correction finalize. Each is **stateless** --
 the AI never sees its own previous output; the conductor is the memory.
 
 ```
@@ -473,10 +474,11 @@ No majority vote. No "close enough." Fact disagreement = blocked.
 
 ## Proven Run Performance
 
-Measured on the paired Windows reference case (memory + disk, ~15 GB total)
-with the 4-member **Claude Opus 4.8** ensemble - the rd01 run shipped in
-[`artifacts/run-rd01/`](artifacts/run-rd01/); the case itself is documented in
-[`docs/DATASET.md`](docs/DATASET.md).
+Measured on the paired Windows reference case (memory + disk, ~15 GB total) with
+a 4-member ensemble. These are **Claude reference-run** numbers (rd01 - the
+architecture proven before the Qwen port), a **local** run not committed to this
+repo (case-neutral policy); the **Qwen Cloud run regenerates** them. The case is
+documented in [`docs/DATASET.md`](docs/DATASET.md).
 
 | Metric | Value |
 |---|---|
@@ -493,4 +495,4 @@ with the 4-member **Claude Opus 4.8** ensemble - the rd01 run shipped in
 
 ---
 
-*Sentinel Ensemble - Adil Eskintan - Find Evil! AI Hackathon 2026*
+*Sentinel Ensemble - Adil Eskintan - Global AI Hackathon with Qwen Cloud, Track 4 (Autopilot Agent)*
