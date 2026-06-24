@@ -12,29 +12,29 @@ evidence (memory image, disk image, event logs) and it investigates end-to-end -
 investigative report where **every single claim is validated against real tool
 output before you ever see it**.
 
-> Find Evil! AI Hackathon 2026 · Adil Eskintan · MIT License
+> Global AI Hackathon with Qwen Cloud · Track 4 (Autopilot Agent) · Adil Eskintan · MIT License
 > *Internal Python package name: `sift_sentinel` (stable import path; the product/repo name is Sentinel Ensemble).*
 
 ---
 
-## ✅ Submission Compliance Checklist
+## Submission status (Global AI Hackathon with Qwen Cloud, Track 4)
 
-| Requirement | Status | Location |
+> Honest status, not a blanket "done" - see [`QWEN-SUBMISSION.md`](QWEN-SUBMISSION.md) for the full writeup.
+
+| Requirement | Status | Location / note |
 |---|---|---|
-| Open-source license (MIT) | ✓ | [`/LICENSE`](LICENSE) - detected by GitHub, visible in About |
-| README with setup instructions | ✓ | this file - [Start from zero](#-start-from-zero-never-used-sift-before) + [Install](#-install) |
-| Run instructions for judges | ✓ | [Quick Start](#-quick-start) + [`JUDGE-QUICKSTART.md`](JUDGE-QUICKSTART.md) |
-| Text description | ✓ | [What it does](#-what-it-does) |
-| Demonstration video | ✓ | **▶ [YouTube demo](https://www.youtube.com/watch?v=Vqbt3Z4k6n0)** |
-| Architecture diagram | ✓ | [`ARCHITECTURE.md`](ARCHITECTURE.md) (16-step + MCP diagrams; PNG at submission) |
-| Evidence Dataset Documentation | ✓ | [`docs/DATASET.md`](docs/DATASET.md) |
-| Accuracy Report | ✓ | [`docs/ACCURACY.md`](docs/ACCURACY.md) |
-| Agent Execution Logs | ✓ | [`artifacts/run-rd01/`](artifacts/run-rd01/) (report + full step-by-step execution log + interactive HTML + summary) |
-| Self-correction demonstrated | ✓ | **[`SELF-CORRECTION-PROOF.md`](SELF-CORRECTION-PROOF.md)** - every correction listed, before→after, with log line refs · FP-sweep + ReAct cross-check |
-| Accuracy validation demonstrated | ✓ | deterministic validator - every finding traces to tool output (`src/sift_sentinel/validation/`) |
-| Analytical reasoning demonstrated | ✓ | structured investigative narrative report (not a raw log) |
+| Open-source license (MIT) | done | [`/LICENSE`](LICENSE) - detected by GitHub, visible in About |
+| Public code repository | **pending push** (local-only today) | this repo |
+| Text description | done | [`QWEN-SUBMISSION.md`](QWEN-SUBMISSION.md) + [What it does](#-what-it-does) |
+| Run instructions for judges | done | [Quick Start](#-quick-start) + [`JUDGE-QUICKSTART.md`](JUDGE-QUICKSTART.md) |
+| Proof of Alibaba Cloud usage (code file) | done | [`src/sift_sentinel/llm_provider.py`](src/sift_sentinel/llm_provider.py) - issues live DashScope (Alibaba Cloud) HTTPS calls |
+| Architecture diagram | **to update** (add the Qwen/DashScope box) | [`ARCHITECTURE.md`](ARCHITECTURE.md) |
+| Demonstration video (< 3 min) | **pending the live Qwen run** | will be a real Qwen Cloud terminal run |
+| Track identified | done | Track 4 - Autopilot Agent |
+| Trust layer (code, not the model, decides "confirmed") | done | deterministic validator + disposition gates; every finding traces to tool output (`src/sift_sentinel/validation/`, `src/sift_sentinel/analysis/disposition.py`) |
+| Self-correction | done | [`SELF-CORRECTION-PROOF.md`](SELF-CORRECTION-PROOF.md) - FP-sweep + ReAct cross-check |
 
-*All hackathon submission requirements are met.*
+> The architecture was proven end-to-end on a **Claude reference run** kept **local-only / git-ignored / not shipped** - no Qwen-specific numbers are claimed. The shipped proof will be the **Qwen Cloud run** generated once the DashScope key is active. The trust layer, the 195 typed forensic tools, and the 16-step conductor are model-agnostic and carry over unchanged - only the model provider differs.
 
 ---
 
@@ -58,33 +58,37 @@ EWF tools, and Plaso pre-installed, so you install almost nothing.
    **`sansforensics`**, password **`forensics`**.
 4. Open a terminal (you'll live here from now on).
 
-### 2️⃣ Get an Anthropic API key (the AI brain)
+### 2️⃣ Get a Qwen Cloud API key (the AI brain)
 
-1. Go to **https://console.anthropic.com** → sign up / log in.
-2. **API keys → Create key** → copy the `sk-ant-…` string.
-3. Give it to Sentinel Ensemble in **any one of three ways** - pick whatever's
-   easiest (you genuinely cannot get stuck: a real key always wins, and a bad one
-   falls through to the next option):
+This project runs on **Qwen models hosted on Alibaba Cloud (DashScope / Model
+Studio)**. Provider + model are chosen entirely by environment, so flipping the
+whole 16-step pipeline onto Qwen needs **no code change**.
 
-| | Option | How | Notes |
-|---|---|---|---|
-| **①** | **🚀 Just run it & paste** *(recommended)* | Run the launcher - at the `🔑 API key` step it asks you at a **hidden prompt**. Paste, press Enter. | Verified live · this session only · **never echoed, logged, or written to disk**. Nothing to find or edit. |
-| **②** | **📄 A visible file** *(set once)* | Open **`API_KEY.txt`** in the repo root, replace the placeholder on the **last line** with your key, **save**. | Created for you on first run · **gitignored**, so your key is never committed · no prompt next time. |
-| **③** | **🌐 Environment variable** | `export ANTHROPIC_API_KEY=sk-ant-…` (a hidden `.env` with `ANTHROPIC_API_KEY=…` works too). | For CI / power users. |
+1. Sign up at **https://qwencloud.com** (Alibaba Cloud International) and request
+   the hackathon **$40 Qwen Cloud voucher**.
+2. Open **Model Studio** (Singapore / International region) → **API Keys** →
+   **Create API Key** → copy the `sk-…` string.
+3. Give it to Sentinel Ensemble:
 
-   > **🔓 Order & self-healing.** The launcher checks **env var → `.env` →
-   > `API_KEY.txt`**. A real key always beats a leftover placeholder, and if the
-   > environment key is rejected - e.g. a stale `export` left in your shell - it
-   > **automatically falls back** to a valid key in your file *before* asking, so
-   > the file you just edited always works.
+```bash
+cp .env.qwen.example .env              # then set DASHSCOPE_API_KEY in .env
+# or export directly:
+export SIFT_LLM_PROVIDER=qwen
+export DASHSCOPE_API_KEY=sk-...        # QWEN_API_KEY is also accepted
+export SIFT_DEFAULT_MODEL=qwen3.7-max
+python3 scripts/qwen_smoke.py          # confirm connectivity before any full run
+```
 
-> ⚠️ **API tier matters.** The analysis stage runs a **4-model ensemble in
-> parallel** (4 concurrent API calls), so a **Tier-1** account ($5) is likely
-> to hit rate limits (HTTP 429) on a live run. Use **at least Tier-2** ($40) -
-> **Tier-3** ($200) for the smoothest run. Your tier auto-increases with account
-> age + spend; check / raise it at **https://platform.claude.com/settings/limits**. The
-> `--demo` mode needs **no key and no tier** (a typical full investigation costs
-> a few dollars; pick depth **2 / Haiku** for the cheapest live run).
+The international (Singapore) DashScope endpoint is the default; set
+`DASHSCOPE_BASE_URL` for the mainland-China endpoint.
+
+> **Models & budget.** Keystone analysis runs on a flagship (`qwen3.7-max`); the
+> high-call-volume stages run on `qwen-plus` so the **$40** credit lasts (~12-16
+> full runs even worst-case). Tiering is in [`.env.qwen.example`](.env.qwen.example).
+
+> **Anthropic fallback (optional).** The provider seam keeps `anthropic` as the
+> zero-regression default - unset `SIFT_LLM_PROVIDER` and set `ANTHROPIC_API_KEY`
+> to run the identical pipeline on Claude. Not needed for the Qwen Cloud submission.
 
 ### 3️⃣ Get evidence to investigate
 
@@ -109,7 +113,7 @@ A typical strong pair: one memory image + one disk image from the same machine.
 ## 📦 Install
 
 ```bash
-git clone https://github.com/3sk1nt4n/Sentinel-Ensemble.git
+git clone https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen.git
 cd Sentinel-Ensemble
 pip install -r requirements.txt
 ./findevil.sh --demo                     # smoke test - no evidence, no API key needed
@@ -138,8 +142,10 @@ A real run, start to finish - one command, two prompts:
 2. It asks **where the evidence is** - type your case folder path
    (example: `/cases/evidence/my-case` - the folder holding your memory/disk images).
 3. It scans the evidence and shows a **case card** (what it found, sizes, SHA256). Just read it.
-4. It asks the **analysis depth** - `1` (or Enter) = ⚡ HEAVY (Claude Opus 4.8, ~$8-15/case)
-   or `2` = 🪶 LIGHT (Claude Haiku 4.5, ~$2-3/case). **Choosing the depth launches the run.**
+4. It asks the **analysis depth** - `1` (or Enter) = ⚡ HEAVY (the flagship model;
+   `qwen3.7-max` on the Qwen config) or `2` = 🪶 LIGHT (`qwen-plus`, cheaper). The
+   model per tier is env-driven (see [`.env.qwen.example`](.env.qwen.example)).
+   **Choosing the depth launches the run.**
 5. The **API key** step - if you set it already (visible `API_KEY.txt`, `.env`, or
    `ANTHROPIC_API_KEY`) it's used automatically; otherwise paste it at the hidden
    prompt (blank screen while pasting is normal; never echoed, logged, or saved).
