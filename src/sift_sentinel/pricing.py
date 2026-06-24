@@ -21,14 +21,15 @@ _MODEL_RATES = {
 _CACHE_READ_MULT = 0.10        # cache HIT: 10% of the base input rate
 _CACHE_WRITE_MULT = 1.25       # 5-minute cache WRITE: 125% of the base input rate
 
-# Approximate Alibaba Cloud DashScope (international) list rates, USD/MTok, for
-# the cost READOUT only -- these are ESTIMATES, not an invoice. Pin your real
-# console rates via SIFT_PRICE_INPUT/OUTPUT_PER_MTOK. Matched by substring so
-# dated variants (qwen-max-2025-..) and qwen-max-latest resolve correctly;
-# more-specific keys first (vl-max before max).
+# Approximate Alibaba Cloud DashScope (international / Singapore) list rates,
+# USD/MTok, for the cost READOUT only -- these are ESTIMATES, not an invoice.
+# Pin your real console rates via SIFT_PRICE_INPUT/OUTPUT_PER_MTOK. Matched by
+# substring (FIRST match wins), so more-specific keys must come first:
+# "3.7-max" before the generic "max", and "vl-max" before "max".
 _QWEN_RATES = {
+    "3.7-max": (2.5, 7.5),   # qwen3.7-max list price (50% launch promo expired 2026-06-22)
     "vl-max": (1.6, 6.4),
-    "max": (1.6, 6.4),
+    "max": (1.6, 6.4),       # qwen-max / qwen3-max class
     "plus": (0.4, 1.2),
     "turbo": (0.05, 0.2),
     "long": (0.5, 2.0),

@@ -5,12 +5,20 @@ provider selection by env, Anthropic->OpenAI message translation (cache_control
 dropped), the duck-typed response shape the pipeline reads, and fail-closed
 behavior when no key is set. No network calls -- urlopen is mocked.
 """
+import io
 import json
+import urllib.error
 import urllib.request
 
 import pytest
 
 from sift_sentinel import llm_provider as lp
+
+
+def _http_error(code, body=b"err", headers=None):
+    """Build a urllib HTTPError whose .read() yields *body* (a DashScope 4xx/5xx)."""
+    return urllib.error.HTTPError("http://x", code, "err", headers or {},
+                                  io.BytesIO(body))
 
 
 def _fake_urlopen(payload):
@@ -108,3 +116,119 @@ def test_qwen_missing_key_raises(monkeypatch):
             model="qwen-max",
             messages=[{"role": "user", "content": "x"}],
         )
+
+
+def test_qwen_clamps_max_tokens_to_dashscope_cap(monkeypatch):
+    """max_tokens above the default 8192 cap is clamped (prevents the qwen-max 400)."""
+    monkeypatch.setenv("DASHSCOPE_API_KEY", "sk-test")
+    monkeypatch.delenv("SIFT_MAX_OUTPUT_TOKENS", raising=False)
+    fake = _fake_urlopen({"choices": [{"message": {"content": "{}"}}], "usage": {}})
+    monkeypatch.setattr(urllib.request, "urlopen", fake)
+    lp.QwenClient().messages.create(
+        model="qwen3.7-max", max_tokens=16384,
+        messages=[{"role": "user", "content": "x"}],
+    )
+    sent = json.loads(fake.captured.data.decode("utf-8"))
+    assert sent["max_tokens"] == 8192
+
+
+def test_qwen_max_output_tokens_override(monkeypatch):
+    monkeypatch.setenv("DASHSCOPE_API_KEY", "sk-test")
+    monkeypatch.setenv("SIFT_MAX_OUTPUT_TOKENS", "16384")
+    fake = _fake_urlopen({"choices": [{"message": {"content": "{}"}}], "usage": {}})
+    monkeypatch.setattr(urllib.request, "urlopen", fake)
+    lp.QwenClient().messages.create(
+        model="qwen3.7-max", max_tokens=16384,
+        messages=[{"role": "user", "content": "x"}],
+    )
+    sent = json.loads(fake.captured.data.decode("utf-8"))
+    assert sent["max_tokens"] == 16384
+
+
+def test_qwen_reasoning_content_fallback(monkeypatch):
+    """Reasoning models can return empty content with the answer in reasoning_content."""
+    monkeypatch.setenv("DASHSCOPE_API_KEY", "sk-test")
+    payload = {"choices": [{"message": {"content": "",
+                                        "reasoning_content": "the answer"},
+                            "finish_reason": "stop"}], "usage": {}}
+    fake = _fake_urlopen(payload)
+    monkeypatch.setattr(urllib.request, "urlopen", fake)
+    resp = lp.QwenClient().messages.create(
+        model="qwen3-thinking", messages=[{"role": "user", "content": "x"}])
+    assert resp.content[0].text == "the answer"
+
+
+def test_qwen_finish_reason_length_maps_to_max_tokens(monkeypatch):
+    monkeypatch.setenv("DASHSCOPE_API_KEY", "sk-test")
+    payload = {"choices": [{"message": {"content": "x"},
+                            "finish_reason": "length"}], "usage": {}}
+    fake = _fake_urlopen(payload)
+    monkeypatch.setattr(urllib.request, "urlopen", fake)
+    resp = lp.QwenClient().messages.create(
+        model="qwen-plus", messages=[{"role": "user", "content": "x"}])
+    assert resp.stop_reason == "max_tokens"
+
+
+def test_qwen_retries_on_429_then_succeeds(monkeypatch):
+    monkeypatch.setenv("DASHSCOPE_API_KEY", "sk-test")
+    monkeypatch.setattr(lp.time, "sleep", lambda *_a, **_k: None)
+    ok = {"choices": [{"message": {"content": "ok"}}],
+          "usage": {"prompt_tokens": 1, "completion_tokens": 1}}
+
+    class _Resp:
+        def __enter__(self): return self
+        def __exit__(self, *a): return False
+        def read(self): return json.dumps(ok).encode("utf-8")
+
+    calls = {"n": 0}
+
+    def _open(req, timeout=None):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise _http_error(429, b"rate limited")
+        return _Resp()
+
+    monkeypatch.setattr(urllib.request, "urlopen", _open)
+    resp = lp.QwenClient().messages.create(
+        model="qwen-plus", messages=[{"role": "user", "content": "x"}])
+    assert resp.content[0].text == "ok"
+    assert calls["n"] == 2   # retried exactly once
+
+
+def test_qwen_http_400_not_retried_and_keeps_body(monkeypatch):
+    monkeypatch.setenv("DASHSCOPE_API_KEY", "sk-test")
+    monkeypatch.setattr(lp.time, "sleep", lambda *_a, **_k: None)
+    calls = {"n": 0}
+
+    def _open(req, timeout=None):
+        calls["n"] += 1
+        raise _http_error(400, b"invalid_parameter: max_tokens exceeds limit")
+
+    monkeypatch.setattr(urllib.request, "urlopen", _open)
+    with pytest.raises(OSError) as ei:
+        lp.QwenClient().messages.create(
+            model="qwen3.7-max", max_tokens=10,
+            messages=[{"role": "user", "content": "x"}])
+    assert "400" in str(ei.value) and "max_tokens" in str(ei.value)
+    assert calls["n"] == 1   # 4xx is not retried
+
+
+def test_qwen_urlerror_raises_oserror(monkeypatch):
+    monkeypatch.setenv("DASHSCOPE_API_KEY", "sk-test")
+    monkeypatch.setattr(lp.time, "sleep", lambda *_a, **_k: None)
+
+    def _open(req, timeout=None):
+        raise urllib.error.URLError("timed out")
+
+    monkeypatch.setattr(urllib.request, "urlopen", _open)
+    with pytest.raises(OSError):
+        lp.QwenClient().messages.create(
+            model="qwen-plus", messages=[{"role": "user", "content": "x"}])
+
+
+def test_make_llm_client_default_is_anthropic(monkeypatch):
+    """Zero-regression: with no provider env, the factory returns the Anthropic SDK."""
+    monkeypatch.delenv("SIFT_LLM_PROVIDER", raising=False)
+    anthropic = pytest.importorskip("anthropic")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test")
+    assert isinstance(lp.make_llm_client(), anthropic.Anthropic)

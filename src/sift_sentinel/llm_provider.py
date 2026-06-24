@@ -28,7 +28,7 @@ is hardcoded -- `model_roles.py` already resolves model ids from env):
     SIFT_LLM_PROVIDER   = qwen | anthropic        (default: anthropic)
     DASHSCOPE_API_KEY   = <your Qwen Cloud key>    (or QWEN_API_KEY)
     DASHSCOPE_BASE_URL  = <override endpoint>      (default: intl compatible-mode)
-    SIFT_DEFAULT_MODEL  = qwen-max                 (model_roles resolves this)
+    SIFT_DEFAULT_MODEL  = qwen3.7-max              (model_roles resolves this)
 
 This is also the repository's **Proof of Alibaba Cloud usage** file: it issues
 live HTTPS requests to the Alibaba Cloud DashScope API.
@@ -37,6 +37,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 import urllib.error
 import urllib.request
 
@@ -49,6 +50,22 @@ _DEFAULT_BASE_URL_INTL = (
 )
 
 _QWEN_PROVIDERS = {"qwen", "dashscope", "alibaba", "qwencloud"}
+
+# Transient DashScope statuses worth retrying (the Anthropic SDK retries these
+# by default; the stdlib path must do it explicitly so one 429/5xx blip does
+# not hard-fail a pipeline step).
+_RETRY_STATUS = frozenset({429, 500, 502, 503, 504})
+_MAX_ATTEMPTS = 3
+
+
+def _retry_delay(retry_after, attempt: int) -> float:
+    """Backoff seconds: honor Retry-After when present, else exponential."""
+    if retry_after:
+        try:
+            return min(30.0, max(0.0, float(retry_after)))
+        except (TypeError, ValueError):
+            pass
+    return min(8.0, 0.5 * (2 ** attempt))
 
 
 def active_provider() -> str:
@@ -186,34 +203,72 @@ class QwenClient:
         # by this text-JSON pipeline -- accept and ignore them gracefully.
         **_ignored,
     ):
+        # DashScope rejects max_tokens above a model's per-model output cap
+        # (several Qwen text models cap around 8192) with a 400 that the
+        # temperature self-heal does NOT catch -- clamp to a safe ceiling.
+        # Raise it via SIFT_MAX_OUTPUT_TOKENS once you confirm the model's cap.
+        try:
+            cap = int(os.environ.get("SIFT_MAX_OUTPUT_TOKENS") or 8192)
+        except (TypeError, ValueError):
+            cap = 8192
+        requested = int(max_tokens) if max_tokens else 4096
         body = {
             "model": model,
             "messages": _to_openai_messages(messages, system),
-            "max_tokens": int(max_tokens) if max_tokens else 4096,
+            "max_tokens": max(1, min(requested, cap)),
         }
         if temperature is not None:
             body["temperature"] = temperature
         data = json.dumps(body).encode("utf-8")
-        req = urllib.request.Request(self.base_url, data=data, method="POST")
-        req.add_header("Authorization", f"Bearer {self._key()}")
-        req.add_header("Content-Type", "application/json")
-        try:
-            with urllib.request.urlopen(req, timeout=timeout) as resp:
-                payload = json.loads(resp.read().decode("utf-8"))
-        except urllib.error.HTTPError as exc:   # 4xx/5xx -- OSError subclass
-            detail = b""
+
+        # Bounded retry on transient 429/5xx + transport errors, mirroring the
+        # Anthropic SDK's default resilience. 4xx (auth / bad-request) are not
+        # retried so a real config error surfaces immediately.
+        payload = None
+        for attempt in range(_MAX_ATTEMPTS):
+            req = urllib.request.Request(self.base_url, data=data, method="POST")
+            req.add_header("Authorization", f"Bearer {self._key()}")
+            req.add_header("Content-Type", "application/json")
             try:
-                detail = exc.read()[:300]
-            except Exception:  # noqa: BLE001
-                pass
-            raise OSError(f"DashScope HTTP {exc.code}: {detail!r}") from exc
+                with urllib.request.urlopen(req, timeout=timeout) as resp:
+                    payload = json.loads(resp.read().decode("utf-8"))
+                break
+            except urllib.error.HTTPError as exc:   # 4xx/5xx -- OSError subclass
+                if exc.code in _RETRY_STATUS and attempt < _MAX_ATTEMPTS - 1:
+                    ra = exc.headers.get("Retry-After") if exc.headers else None
+                    time.sleep(_retry_delay(ra, attempt))
+                    continue
+                detail = b""
+                try:
+                    # capture enough body that error keywords (temperature,
+                    # max_tokens, ...) survive for the self-heal classifiers
+                    detail = exc.read()[:2000]
+                except Exception:  # noqa: BLE001
+                    pass
+                raise OSError(f"DashScope HTTP {exc.code}: {detail!r}") from exc
+            except urllib.error.URLError as exc:    # timeout / DNS / conn reset
+                if attempt < _MAX_ATTEMPTS - 1:
+                    time.sleep(_retry_delay(None, attempt))
+                    continue
+                raise OSError(f"DashScope transport error: {exc}") from exc
+        if payload is None:   # defensive: the loop either breaks or raises
+            raise OSError("DashScope: no response after retries")
+
         # OpenAI-compatible response shape
         choices = payload.get("choices") or []
         text = ""
+        finish = "stop"
         if choices:
             msg = choices[0].get("message") or {}
             text = msg.get("content") or ""
+            if not text:
+                # reasoning models (qwen3 thinking / qwq-*) can return empty
+                # content with the answer in reasoning_content.
+                text = msg.get("reasoning_content") or ""
+            finish = choices[0].get("finish_reason") or "stop"
         usage = payload.get("usage") or {}
+        stop_reason = {"length": "max_tokens", "stop": "end_turn"}.get(
+            finish, finish or "end_turn")
         return _Response(
             text,
             _Usage(
@@ -221,6 +276,7 @@ class QwenClient:
                 usage.get("completion_tokens", 0),
             ),
             model=payload.get("model", model) or model,
+            stop_reason=stop_reason,
         )
 
 

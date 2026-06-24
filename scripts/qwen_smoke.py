@@ -6,7 +6,7 @@ provider seam reaches Qwen on Alibaba Cloud before a full investigation:
 
     export SIFT_LLM_PROVIDER=qwen
     export DASHSCOPE_API_KEY=sk-...
-    python3 scripts/qwen_smoke.py            # uses SIFT_DEFAULT_MODEL or qwen-max
+    python3 scripts/qwen_smoke.py            # uses SIFT_DEFAULT_MODEL or qwen-plus
 
 It makes ONE tiny chat call through src/sift_sentinel/llm_provider.py (the same
 seam the 16-step pipeline uses) and prints the reply + token usage. No evidence,
@@ -37,7 +37,7 @@ def main() -> int:
         print("  Set: export DASHSCOPE_API_KEY=sk-...   then re-run.")
         return 2
 
-    model = os.environ.get("SIFT_DEFAULT_MODEL") or "qwen-max"
+    model = os.environ.get("SIFT_DEFAULT_MODEL") or "qwen-plus"
     endpoint = os.environ.get(
         "DASHSCOPE_BASE_URL",
         "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions",
