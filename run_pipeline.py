@@ -6654,6 +6654,11 @@ _db5_hard_fail = (
     or summary["gates"].get("REPORT_BUCKET_CONSISTENCY_GATE") == "FAIL"
     or summary["gates"].get("VALIDATION_TELEMETRY_CONSISTENCY_GATE")
     == "FAIL"
+    # 31E-DB.5.x: a confirmed-bucket eligibility re-check FAIL means post-routing
+    # corruption placed an ineligible finding in 'confirmed' -- never ship it.
+    # Healthy runs are always PASS (routing already gated eligibility), so this
+    # only fires on genuine bucket corruption.
+    or _disposition_gate == "FAIL"
 )
 if _db5_hard_fail:
     logger.error(
