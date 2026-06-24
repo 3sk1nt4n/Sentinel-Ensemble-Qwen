@@ -1278,7 +1278,7 @@ def _parse_rdp_evtx_file(
     except ImportError:
         return [], "library_unavailable"
 
-    import xml.etree.ElementTree as ET
+    from defusedxml import ElementTree as ET  # hardened parse of untrusted evidence XML (XXE / billion-laughs safe)
 
     ns = {"e": "http://schemas.microsoft.com/win/2004/08/events/event"}
 

@@ -612,7 +612,7 @@ def parse_event_logs(
             "error": "python-evtx not installed",
         }
 
-    import xml.etree.ElementTree as ET
+    from defusedxml import ElementTree as ET  # hardened parse of untrusted evidence XML (XXE / billion-laughs safe)
 
     from sift_sentinel.tools.common import resolve_path_ci as _ci  # SIFT_CI_PATH
     evtx_dir = _ci(disk_mount, "Windows", "System32", "winevt", "Logs")

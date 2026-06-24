@@ -1,3 +1,5 @@
 pydantic>=2.0
 mcp>=1.0
+defusedxml>=0.7        # hardened XML parsing of untrusted evidence (EVTX, scheduled tasks, RDP)
+pycryptodome>=3.0      # crypto helpers used by the coordinator
 # Dev dependencies (install with: pip install pytest>=8.0)
