@@ -52,10 +52,13 @@
 <body>
   <div class="head">
     <h1>🛡️ Sentinel Ensemble — How the Investigation Runs</h1>
-    <div class="sub">One autonomous run, top to bottom · Step 0 → 16 · the AI is called 5 times (✦), code checks it at every turn</div>
+    <div class="sub">One autonomous run, top to bottom · Step 0 → 16 · the AI (Qwen on Alibaba Cloud DashScope) is called 5 times (✦), code checks it at every turn</div>
   </div>
   <div class="cond"><b>⚙ CONDUCTOR · run_pipeline.py · deterministic Python</b>
     <div class="d">owns every step and is the only memory — the AI acts only inside the ✦ AI boxes, and never sees its own previous output</div>
+  </div>
+  <div class="cond" style="border-color:#06b6d4;background:linear-gradient(135deg,#ecfeff,#cffafe)"><b>🧠 INFERENCE · Qwen models on Alibaba Cloud (DashScope)</b>
+    <div class="d">the 5 ✦ AI calls run on Qwen — <b>qwen3.7-max</b> (keystone) · <b>qwen-plus</b> (volume) — over the provider seam <b>src/sift_sentinel/llm_provider.py</b> (chosen by env; Anthropic supported as a zero-regression fallback). Evidence and tools stay local; only prompts/responses cross to Qwen Cloud.</div>
   </div>
   <div class="legend">
     <span class="lg lgA">✦ AI call</span> the 5 invocations &nbsp;·&nbsp;
