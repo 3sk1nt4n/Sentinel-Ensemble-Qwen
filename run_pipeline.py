@@ -555,7 +555,7 @@ def generate_self_assessment(summary, findings_final, blocked_list,
     # so module-level names (resolve_model) are not visible here.
     from sift_sentinel.pricing import cost_usd as _cost_usd  # model-aware, cache-aware
     from sift_sentinel.model_roles import resolve_model as _rm_model
-    cost = _cost_usd(ti, summary.get("model") or _rm_model("analysis"))
+    cost = _cost_usd(ti, _rm_model("react"))
     inv_count = len(investigation_summaries) if investigation_summaries else 0
     inv_turns = sum(i.get("turns", 0) for i in (investigation_summaries or []))
     high = sum(1 for f in findings_final if f.get("confidence_level") == "HIGH")
@@ -874,7 +874,7 @@ def generate_html_report(summary, findings_final, blocked_list,
     ti = summary.get("token_usage", {})
     from sift_sentinel.pricing import cost_usd as _cost_usd  # model-aware, cache-aware
     from sift_sentinel.model_roles import resolve_model as _rm_model
-    cost = _cost_usd(ti, summary.get("model") or _rm_model("analysis"))
+    cost = _cost_usd(ti, _rm_model("react"))
     inv_count = len(investigation_summaries) if investigation_summaries else 0
     inv_turns = sum(i.get("turns", 0) for i in (investigation_summaries or []))
 
@@ -6811,7 +6811,7 @@ try:
     _out = _ti.get('total_output', 0)
     from sift_sentinel.pricing import cost_usd as _cost_usd  # model-aware, cache-aware
     from sift_sentinel.model_roles import resolve_model as _rm_model
-    _cost = _cost_usd(_ti, summary.get('model') or _rm_model("analysis"))
+    _cost = _cost_usd(_ti, _rm_model("react"))
 
     # Submission summary block (GOLD tier)
     _sev_counts = {'CRITICAL': 0, 'HIGH': 0, 'MEDIUM': 0, 'LOW': 0, '?': 0}
@@ -7235,7 +7235,7 @@ try:
         from sift_sentinel.pricing import format_cost as _fmt_cost
         from sift_sentinel.model_roles import resolve_model as _rm_model
         _tu = summary.get('token_usage', {})
-        _cost_line = _fmt_cost(summary.get('model') or _rm_model("analysis"),
+        _cost_line = _fmt_cost(_rm_model("react"),
                                uncached_input=_tu.get('total_input', 0),
                                output=_tu.get('total_output', 0),
                                cache_read=_tu.get('total_cache_read', 0),
@@ -7245,7 +7245,7 @@ try:
         from sift_sentinel.model_roles import resolve_model as _rm_model
         _cost_line = "~$%.2f" % _cost_usd(
             summary.get('token_usage', {}),
-            summary.get('model') or _rm_model("analysis"))
+            _rm_model("react"))
     print(f"  {B}Est. cost: {_cost_line}{X}")
 
     print(f"""

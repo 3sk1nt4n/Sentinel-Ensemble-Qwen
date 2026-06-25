@@ -118,26 +118,38 @@ Python.
 | Proof-of-Alibaba-Cloud code file | done (`llm_provider.py`) |
 | Architecture diagram (Qwen box) | done (`ARCH_VERTICAL.png`) |
 | **Live Qwen run + artifacts** | **done** - see "Verified Qwen Cloud run" below |
-| Demo video (<3 min, YouTube/Vimeo/Youku) | built (`docs/sentinel-qwen-demo.mp4`, 1:51) - upload to YouTube + add the link |
+| Demo video (<3 min, YouTube/Vimeo/Youku) | built (`docs/sentinel-qwen-demo.mp4`, 1:55, paired run + real dynamic footage) - upload to YouTube + add the link |
 | Alibaba ECS deployment + proof recording | optional / pending ECS |
 | Legacy-doc reframe to Track 4 | done |
 
 ### Verified Qwen Cloud run (proof)
 
-A full investigation ran end-to-end on **Qwen models on Alibaba Cloud DashScope**
-(rd01 Windows memory image, opened read-only):
+A full **paired (memory + disk)** investigation ran end-to-end on **Qwen models
+on Alibaba Cloud DashScope** (rd01 Windows case: memory image + C: drive image,
+both opened read-only):
 
 - `pipeline_summary.json` records **`llm_provider=qwen`**, `model=qwen3.7-max`,
   `llm_endpoint=https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions`
   - the artifact-level proof the run executed on Qwen Cloud.
-- 4-member **qwen-plus** ensemble + **qwen3.7-max** Step-13AA adjudication.
-- 841,651 input / 35,638 output tokens · runtime 6m 44s · **~$0.38** at qwen-plus rates.
-- **SHA-256 MATCH** (evidence unmodified) · `FINAL_DISPOSITION_BUCKET_GATE=PASS`.
-- Disposition: 0 confirmed · 4 benign · 23 inconclusive - the self-correction
-  assessed weak/historical indicators benign (no over-calling on a memory-only set).
+- 4-member **qwen-plus** ensemble + ReAct cross-check; **33 forensic tools** run
+  across memory and disk.
+- 779,821 input / 27,700 output tokens · runtime **6m 22s** (382s) · **~$0.35** at qwen-plus rates.
+- **SHA-256 MATCH on both images** (`memory_integrity=True`, `disk_integrity=verified`)
+  · `FINAL_DISPOSITION_BUCKET_GATE=PASS` · all four confirmation gates PASS.
 
-> **Honesty note:** the earlier **Claude reference run** (rd01, paired
-> memory+disk) remains **local-only / not shipped** (case-neutral policy) and is
-> not a Qwen result. The trust layer, the typed forensic tools, and the 16-step
-> conductor are model-agnostic, so they carry over unchanged - only the model
-> provider differs.
+**The trust layer overruled the AI.** The Qwen ensemble surfaced **19 findings** -
+including its strongest lead, code injection in `powershell.exe` (PID 8712, RWX
+private memory). Code promoted **0** of them to *confirmed*: that lead carried no
+atomic proof tuple, so `NO_SPECULATIVE_CONFIRMED_GATE` /
+`MISSING_RAW_EVIDENCE_CONFIRMED_GATE` routed it to *inconclusive*; `macmnsvc.exe`
+on ports 8081/8082 the agent re-investigated and assessed *benign* (McAfee agent).
+Final disposition: **0 confirmed · 1 needs-review · 1 benign · 18 inconclusive**.
+The AI proposed; the code disposed. (The demo video shows this happening live -
+`docs/sentinel-qwen-demo.mp4`; the run's own dashboard is `docs/qwen_paired_dashboard.png`.)
+
+> **Honesty note:** this is the honest result - **zero confirmed** on this case,
+> because none of the AI's leads cleared the atomic-proof bar. That is the design
+> working, not a gap: no evidence, no confirm. An earlier **Claude reference run**
+> (same case) remains **local-only / not shipped** (case-neutral policy) and is not
+> a Qwen result. The trust layer, the typed forensic tools, and the 16-step
+> conductor are model-agnostic, so they carry over unchanged - only the provider differs.

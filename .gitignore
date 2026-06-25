@@ -76,3 +76,6 @@ SUBMISSION-RUNBOOK.md
 
 # Submission deliverable -- keep tracked despite the broad DATASET.md ignore
 !docs/DATASET.md
+
+# session handover (working state, not shipped)
+HANDOVER-QWEN.md
