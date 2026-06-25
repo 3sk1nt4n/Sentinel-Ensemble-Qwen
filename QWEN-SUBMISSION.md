@@ -114,18 +114,30 @@ Python.
 |---|---|
 | Qwen/DashScope provider + wiring | done (zero-regression) |
 | Qwen config + cost model | done |
-| Public repo + MIT license | done |
+| Public repo + MIT license | done (github.com/3sk1nt4n/Sentinel-Ensemble-Qwen) |
 | Proof-of-Alibaba-Cloud code file | done (`llm_provider.py`) |
-| Architecture diagram (Qwen box) | to update |
-| Live Qwen run + artifacts | pending `DASHSCOPE_API_KEY` |
-| Alibaba ECS deployment + proof recording | pending ECS |
-| Demo video (<3 min, YouTube/Vimeo/Youku) | pending live run |
-| Legacy-doc reframe to Track 4 (README/ARCHITECTURE/etc.) | in progress |
+| Architecture diagram (Qwen box) | done (`ARCH_VERTICAL.png`) |
+| **Live Qwen run + artifacts** | **done** - see "Verified Qwen Cloud run" below |
+| Demo video (<3 min, YouTube/Vimeo/Youku) | pending recording of a live Qwen run |
+| Alibaba ECS deployment + proof recording | optional / pending ECS |
+| Legacy-doc reframe to Track 4 | done |
 
-> **Honesty note:** the architecture was proven end-to-end on a **Claude
-> reference run**, kept **local-only** (git-ignored) and **not shipped** in this
-> repo - it is not a Qwen run and no Qwen-specific numbers are claimed. The
-> shipped proof will be the **Qwen run** generated once the DashScope key is
-> active. The trust layer, the typed forensic tools, and the 16-step conductor
-> are model-agnostic, so they carry over unchanged - only the model provider
-> differs.
+### Verified Qwen Cloud run (proof)
+
+A full investigation ran end-to-end on **Qwen models on Alibaba Cloud DashScope**
+(rd01 Windows memory image, opened read-only):
+
+- `pipeline_summary.json` records **`llm_provider=qwen`**, `model=qwen3.7-max`,
+  `llm_endpoint=https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions`
+  - the artifact-level proof the run executed on Qwen Cloud.
+- 4-member **qwen-plus** ensemble + **qwen3.7-max** Step-13AA adjudication.
+- 841,651 input / 35,638 output tokens · runtime 6m 44s · **~$0.38** at qwen-plus rates.
+- **SHA-256 MATCH** (evidence unmodified) · `FINAL_DISPOSITION_BUCKET_GATE=PASS`.
+- Disposition: 0 confirmed · 4 benign · 23 inconclusive - the self-correction
+  assessed weak/historical indicators benign (no over-calling on a memory-only set).
+
+> **Honesty note:** the earlier **Claude reference run** (rd01, paired
+> memory+disk) remains **local-only / not shipped** (case-neutral policy) and is
+> not a Qwen result. The trust layer, the typed forensic tools, and the 16-step
+> conductor are model-agnostic, so they carry over unchanged - only the model
+> provider differs.
