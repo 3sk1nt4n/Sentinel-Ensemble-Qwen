@@ -1173,12 +1173,14 @@ def render_findings_terminal(buckets, width=None, summary=None, image_path=None,
         # MTok. Still env-overridable (SIFT_PRICE_*) to pin exact billing. The figure
         # is an UNCACHED estimate -- prompt caching (a 4-member ensemble reuses one
         # cached prompt) makes the real billed cost lower.
-        _ml = str(model or "").lower()
-        if "opus" in _ml:
-            _d_in, _d_out = "15.0", "75.0"
-        elif "sonnet" in _ml:
-            _d_in, _d_out = "3.0", "15.0"
-        else:
+        # Rate label is MODEL-AWARE via pricing.resolve_rates (Qwen, Opus,
+        # Sonnet, Haiku, ...) so the printed rate always matches the cost figure
+        # -- not a hardcoded Haiku fallback that mislabeled every Qwen run.
+        try:
+            from sift_sentinel.pricing import resolve_rates as _rr
+            _ri, _ro = _rr(model)
+            _d_in, _d_out = ("%g" % _ri), ("%g" % _ro)
+        except Exception:
             _d_in, _d_out = "1.0", "5.0"
         p_in = _os.environ.get("SIFT_PRICE_INPUT_PER_MTOK", _d_in)
         p_out = _os.environ.get("SIFT_PRICE_OUTPUT_PER_MTOK", _d_out)
