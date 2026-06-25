@@ -51,4 +51,4 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 # Volatility 3 ships the `vol` console script the pipeline calls (config.py VOL_CMD)
-RUN pip install volatility3
+RUN pip install volatility3==2.28.0

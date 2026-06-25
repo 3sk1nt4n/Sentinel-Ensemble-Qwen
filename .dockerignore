@@ -11,16 +11,14 @@ API_KEY.txt
 .github
 .gitignore
 
-# Heavy media + generated artifacts (not needed at runtime)
-docs/*.mp4
-docs/*.png
-docs/*.pdf
-*.mp4
-*.png
-*.E01
-*.img
-*.raw
-*.vmem
+# Heavy media + generated artifacts (not needed at runtime) - recursive
+**/*.mp4
+**/*.png
+**/*.pdf
+**/*.E01
+**/*.img
+**/*.raw
+**/*.vmem
 
 # Run outputs / local state
 reports/
@@ -29,10 +27,10 @@ exports/
 /tmp
 *.log
 
-# Python caches / local envs
-__pycache__/
-*.pyc
-*.pyo
+# Python caches / local envs - recursive
+**/__pycache__/
+**/*.pyc
+**/*.pyo
 .pytest_cache/
 .venv/
 venv/

@@ -84,6 +84,7 @@ mounted via `ewfmount`, which needs FUSE inside the container, so add:
 docker run --rm -it \
   --cap-add SYS_ADMIN --device /dev/fuse --security-opt apparmor:unconfined \
   -e SIFT_LLM_PROVIDER=qwen -e DASHSCOPE_API_KEY=sk-... \
+  -e SIFT_DEFAULT_MODEL=qwen3.7-max \
   -v /path/to/your/case:/evidence:ro \
   sentinel-qwen /evidence
 ```
@@ -103,6 +104,11 @@ capabilities; the demo and pure-memory runs do not.)
   this image (licensing + size). For those specific artifact parsers, use the
   SIFT path - everything else runs the same in Docker.
 - Plaso (`log2timeline`) is likewise a SIFT-native heavy add; not in the image.
+- **The container runs as root by design** - it mounts forensic images
+  (`ewfmount`/FUSE for `.E01`, loop mounts), which require elevated capabilities.
+  The blast radius is bounded: the container is ephemeral and single-purpose,
+  **evidence is mounted read-only** (`:ro`), and the image carries **no API key**
+  (`.env` excluded). Run one case per container and discard it (`--rm`).
 
 For full forensic coverage out-of-the-box, the **SANS SIFT VM** path in the
 [README](../README.md) remains the most complete environment. Docker is the
