@@ -28,13 +28,26 @@ output before you ever see it**.
 | Text description | done | [`QWEN-SUBMISSION.md`](QWEN-SUBMISSION.md) + [What it does](#-what-it-does) |
 | Run instructions for judges | done | [Quick Start](#-quick-start) + [`JUDGE-QUICKSTART.md`](JUDGE-QUICKSTART.md) |
 | Proof of Alibaba Cloud usage (code file) | done | [`src/sift_sentinel/llm_provider.py`](src/sift_sentinel/llm_provider.py) - issues live DashScope (Alibaba Cloud) HTTPS calls |
-| Architecture diagram | **to update** (add the Qwen/DashScope box) | [`ARCHITECTURE.md`](ARCHITECTURE.md) |
-| Demonstration video (< 3 min) | **pending the live Qwen run** | will be a real Qwen Cloud terminal run |
+| Architecture diagram | done | [`ARCHITECTURE.md`](ARCHITECTURE.md) + `ARCH_VERTICAL.png` (Qwen/DashScope inference box) |
+| Demonstration video (< 3 min) | done | [`docs/sentinel-qwen-demo.mp4`](docs/sentinel-qwen-demo.mp4) - 1:55, real paired Qwen run + live footage |
 | Track identified | done | Track 4 - Autopilot Agent |
 | Trust layer (code, not the model, decides "confirmed") | done | deterministic validator + disposition gates; every finding traces to tool output (`src/sift_sentinel/validation/`, `src/sift_sentinel/analysis/disposition.py`) |
 | Self-correction | done | [`SELF-CORRECTION-PROOF.md`](SELF-CORRECTION-PROOF.md) - FP-sweep + ReAct cross-check |
 
-> The architecture was proven end-to-end on a **Claude reference run** kept **local-only / git-ignored / not shipped** - no Qwen-specific numbers are claimed. The shipped proof will be the **Qwen Cloud run** generated once the DashScope key is active. The trust layer, the 195 typed forensic tools, and the 16-step conductor are model-agnostic and carry over unchanged - only the model provider differs.
+> Proven end-to-end on a real **paired (memory + disk) Qwen Cloud run**: 19 AI findings -> **0 confirmed** (the trust layer overruled the AI's strongest lead - RWX code injection in `powershell.exe` - for lack of atomic proof), **SHA-256 MATCH on both images**, ~$0.35, ~6m 22s. Full writeup in [`QWEN-SUBMISSION.md`](QWEN-SUBMISSION.md). An earlier Claude reference run on the same case stays local-only / not shipped. The trust layer, the 195 typed forensic tools, and the 16-step conductor are model-agnostic and carry over unchanged - only the model provider differs.
+
+---
+
+## ⚡ Three ways to run it
+
+Pick whichever fits - the agent and every command are identical across all three.
+The zero-cost **`--demo`** (synthetic case, no API key, no evidence) works in *all three*; try it first.
+
+| Path | Best for | You need | Jump to |
+|---|---|---|---|
+| 🐳 **Docker** | Trying it on any PC (Windows/macOS/Linux), no forensic install | Docker Desktop | [Run it in Docker](#-run-it-in-docker-any-os) |
+| 💽 **SANS SIFT VM** | Real casework - everything (incl. EZ Tools, Plaso) pre-installed | VirtualBox/VMware + SIFT `.ova` | [Start from zero](#-start-from-zero-never-used-sift-before) |
+| 🐧 **Local Linux** | An existing Ubuntu 22.04 box | `pip` + a few apt tools | [Install](#-install) |
 
 ---
 
@@ -110,11 +123,38 @@ A typical strong pair: one memory image + one disk image from the same machine.
 
 ---
 
+## 🐳 Run it in Docker (any OS)
+
+No SIFT VM, no toolchain install - works on Windows/macOS/Linux with Docker Desktop.
+Full guide (evidence mounting, `.E01`/FUSE note, Windows paths): [`docs/DOCKER.md`](docs/DOCKER.md).
+
+```bash
+git clone https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen.git
+cd Sentinel-Ensemble-Qwen
+
+# zero-cost demo - no API key, no evidence, no forensic tools
+docker build --target demo -t sentinel-qwen:demo .
+docker run --rm -it sentinel-qwen:demo
+
+# full image (Volatility 3 + Sleuth Kit + EWF + YARA) for real runs
+docker build -t sentinel-qwen .
+docker run --rm -it \
+  -e SIFT_LLM_PROVIDER=qwen -e DASHSCOPE_API_KEY=sk-... \
+  -e SIFT_DEFAULT_MODEL=qwen3.7-max \
+  -v /path/to/your/case:/evidence:ro \
+  sentinel-qwen /evidence
+```
+
+> 🔒 The image never bakes in a key (`.env` is excluded by `.dockerignore`); the
+> key is passed at runtime and evidence is mounted read-only (`:ro`).
+
+---
+
 ## 📦 Install
 
 ```bash
 git clone https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen.git
-cd Sentinel-Ensemble
+cd Sentinel-Ensemble-Qwen
 pip install -r requirements.txt
 ./findevil.sh --demo                     # smoke test - no evidence, no API key needed
 ```

@@ -1,0 +1,40 @@
+# Never bake secrets into the image
+.env
+.env.*
+!.env.qwen.example
+API_KEY.txt
+*_API_KEY*
+*.key
+
+# Version control / CI
+.git
+.github
+.gitignore
+
+# Heavy media + generated artifacts (not needed at runtime)
+docs/*.mp4
+docs/*.png
+docs/*.pdf
+*.mp4
+*.png
+*.E01
+*.img
+*.raw
+*.vmem
+
+# Run outputs / local state
+reports/
+analysis/
+exports/
+/tmp
+*.log
+
+# Python caches / local envs
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.venv/
+venv/
+.mypy_cache/
+.ruff_cache/
