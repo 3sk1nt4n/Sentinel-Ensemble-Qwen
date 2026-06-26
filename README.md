@@ -45,8 +45,8 @@ The zero-cost **`--demo`** (synthetic case, no API key, no evidence) works in *a
 
 | Path | Best for | You need | Jump to |
 |---|---|---|---|
-| 🐳 **Docker** | Trying it on any PC (Windows/macOS/Linux), no forensic install | Docker Desktop | [Run it in Docker](#-run-it-in-docker-any-os) |
-| 💽 **SANS SIFT VM** | Real casework - everything (incl. EZ Tools, Plaso) pre-installed | VirtualBox/VMware + SIFT `.ova` | [Start from zero](#-start-from-zero-never-used-sift-before) |
+| 🐳 **Docker** | Any PC (Windows/macOS/Linux), no forensic install - the `full-plus` image bundles **every** tool the agent calls | Docker Desktop | [Run it in Docker](#-run-it-in-docker-any-os) |
+| 💽 **SANS SIFT VM** | Real casework on a full native forensic OS | VirtualBox/VMware + SIFT `.ova` | [Start from zero](#-start-from-zero-never-used-sift-before) |
 | 🐧 **Local Linux** | An existing Ubuntu 22.04 box | `pip` + a few apt tools | [Install](#-install) |
 
 ---
@@ -126,17 +126,22 @@ A typical strong pair: one memory image + one disk image from the same machine.
 ## 🐳 Run it in Docker (any OS)
 
 No SIFT VM, no toolchain install - works on Windows/macOS/Linux with Docker Desktop.
-Full guide (evidence mounting, `.E01`/FUSE note, Windows paths): [`docs/DOCKER.md`](docs/DOCKER.md).
+The default **`full-plus`** image bundles **every forensic tool the agent calls**
+(Volatility 3, Sleuth Kit, YARA, EWF, **bulk_extractor, EZ Tools, Plaso, RegRipper,
+pff-tools, photorec**). Full guide (targets, evidence mounting, `.E01`/FUSE,
+Windows paths, all-Max env): [`docs/DOCKER.md`](docs/DOCKER.md).
 
 ```bash
 git clone https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen.git
 cd Sentinel-Ensemble-Qwen
 
-# zero-cost demo - no API key, no evidence, no forensic tools
+# zero-cost demo - no API key, no evidence, no forensic tools (~290 MB)
 docker build --target demo -t sentinel-qwen:demo .
 docker run --rm -it sentinel-qwen:demo
 
-# full image (Volatility 3 + Sleuth Kit + EWF + YARA) for real runs
+# toolchain image for real runs:
+#   --target full  = memory+disk core (Vol3 + Sleuth Kit + EWF + YARA), ~465 MB
+#   (default)      = full-plus: EVERYTHING the agent calls, ~990 MB
 docker build -t sentinel-qwen .
 docker run --rm -it \
   -e SIFT_LLM_PROVIDER=qwen -e DASHSCOPE_API_KEY=sk-... \
