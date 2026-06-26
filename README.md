@@ -29,7 +29,7 @@ output before you ever see it**.
 | Run instructions for judges | done | [Quick Start](#-quick-start) + [`JUDGE-QUICKSTART.md`](JUDGE-QUICKSTART.md) |
 | Proof of Alibaba Cloud usage (code file) | done | [`src/sift_sentinel/llm_provider.py`](src/sift_sentinel/llm_provider.py) - issues live DashScope (Alibaba Cloud) HTTPS calls |
 | Architecture diagram | done | [`ARCHITECTURE.md`](ARCHITECTURE.md) + `ARCH_VERTICAL.png` (Qwen/DashScope inference box) |
-| Demonstration video (< 3 min) | done | [`docs/sentinel-qwen-demo.mp4`](docs/sentinel-qwen-demo.mp4) - 1:55, real paired Qwen run + live footage |
+| Demonstration video (< 3 min) | done | [`docs/sentinel-qwen-demo.mp4`](docs/sentinel-qwen-demo.mp4) - 2:43, full-name intro + the 0-vs-4 two-tier reveal, real footage from both runs |
 | Track identified | done | Track 4 - Autopilot Agent |
 | Trust layer (code, not the model, decides "confirmed") | done | deterministic validator + disposition gates; every finding traces to tool output (`src/sift_sentinel/validation/`, `src/sift_sentinel/analysis/disposition.py`) |
 | Self-correction | done | [`SELF-CORRECTION-PROOF.md`](SELF-CORRECTION-PROOF.md) - FP-sweep + ReAct cross-check |

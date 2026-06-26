@@ -118,7 +118,7 @@ Python.
 | Proof-of-Alibaba-Cloud code file | done (`llm_provider.py`) |
 | Architecture diagram (Qwen box) | done (`ARCH_VERTICAL.png`) |
 | **Live Qwen run + artifacts** | **done** - see "Verified Qwen Cloud run" below |
-| Demo video (<3 min, YouTube/Vimeo/Youku) | built (`docs/sentinel-qwen-demo.mp4`, 1:55, paired run + real dynamic footage) - upload to YouTube + add the link |
+| Demo video (<3 min, YouTube/Vimeo/Youku) | built (`docs/sentinel-qwen-demo.mp4`, 2:43, full name intro + the 0-vs-4 two-tier reveal, real footage from both runs) - upload to YouTube + add the link |
 | Alibaba ECS deployment + proof recording | optional / pending ECS |
 | Legacy-doc reframe to Track 4 | done |
 
