@@ -125,41 +125,49 @@ Python.
 ### Verified Qwen Cloud runs (proof)
 
 Two full **paired (memory + disk)** investigations ran end-to-end on **Qwen models
-on Alibaba Cloud DashScope** (rd01 Windows case: memory image + C: drive image,
-both opened read-only) - the **same deterministic trust layer**, two model tiers.
-Both record `llm_provider=qwen`, the DashScope endpoint, and **SHA-256 MATCH on
-both images** in `pipeline_summary.json`.
+on Alibaba Cloud DashScope** (rd01 Windows case: memory + C: drive image, both
+read-only), through the **full trust-layer pipeline** (Step-13AA finalize +
+review-all, cross-bucket dedup, signature reconcile, baseline gate) - the same
+deterministic layer, two model tiers. Both record `llm_provider=qwen`, the
+DashScope endpoint, and **SHA-256 MATCH on both images** in `pipeline_summary.json`.
 
 | | Light tier (`qwen-plus` ×4) | **Heavy tier (`qwen3.7-max` everywhere)** |
 |---|---|---|
-| Models | qwen-plus ensemble + ReAct | qwen3.7-max for Inv1 / Inv2×4 / Inv3A / ReAct / Report |
-| Findings (final) | 19 | 25 |
+| Findings (final) | 11 | 34 |
 | **Confirmed malicious** | **0** | **4** |
-| needs-review / benign / inconclusive | 1 / 1 / 18 | 3 / 5 / 13 |
-| Tokens (in / out) | 779,821 / 27,700 | 738,243 / 85,508 |
-| Runtime | 6m 22s | 13m 07s |
-| Cost | ~$0.35 | ~$2.49 |
+| needs-review / benign / inconclusive | 9 / 1 / 1 | 21 / 9 / **0** |
+| Tokens (uncached in / out) | 614,336 / 23,668 | 306,727 / 89,451 |
+| Prompt-cache reuse (cache-read) | 32,512 | **381,696** |
+| Runtime | 5m 37s | 14m 44s |
+| Cost (cache-aware) | ~$0.28 | ~$1.53 |
 | Integrity (mem + disk) | MATCH | MATCH |
 | Disposition + 4 confirm gates | PASS | PASS |
 
+**13AA gives a final verdict on everything.** Step-13AA (inv3a) review-all
+re-judges every ambiguous finding to a final TP / FP / needs-review disposition,
+so the heavy run leaves **zero inconclusive** (it reclassified 22 of 36 ambiguous
+findings; a proven-evil floor keeps confirmed findings in the table regardless of
+the model's verdict). The light tier's 13AA still confirmed **nothing** - no
+atomic proof, no confirm.
+
 **Same gates, different depth.** On the light tier the ensemble's strongest lead -
-code injection in `powershell.exe` (PID 8712, RWX private memory) - carried no
-atomic proof, so `NO_SPECULATIVE_CONFIRMED_GATE` / `MISSING_RAW_EVIDENCE_CONFIRMED_GATE`
-routed it to *inconclusive*: **0 confirmed**. The AI proposed; the code disposed.
+RWX code injection in `powershell.exe` (PID 8712) - never cleared the atomic-proof
+bar: **0 confirmed**. The AI proposed; the code disposed. On the heavy tier the
+flagship reconstructed a real intrusion chain and **4 findings cleared every
+confirmation gate**:
 
-On the heavy tier the flagship's deeper analysis surfaced a real, provable
-intrusion chain and **4 findings cleared every confirmation gate**:
-
-- **F004 / F012 (CRITICAL)** - `PsExec.exe` / `PSEXESVC.exe` staged and executed from a temp dir (lateral movement)
-- **F016 (CRITICAL)** - staged credential-access binaries (credential dumping + lateral movement)
-- **F003 (MEDIUM)** - `PWDumpX.exe` executed from a temp dir (credential dumping)
+- **F009 (CRITICAL)** - `PsExec.exe` - lateral movement
+- **F005 (CRITICAL)** - `PWDumpX.exe` staged - credential dumping
+- **F016 (HIGH)** - IFEO `sethc.exe` debugger - sticky-keys backdoor persistence
+- **F004 (HIGH)** - `p.exe` executed from a temp directory
 
 Each traces to its proof tools (`extract_mft_timeline`, `get_amcache`,
-`parse_event_logs`, `parse_registry_persistence`, `run_appcompatcacheparser`,
-`vol_pstree`). Even at full power the gates still rejected the unproven
-(5 benign, 13 inconclusive) - **the trust layer is the constant; the model tier
-just changes how much clears the bar.** Dashboards: `docs/qwen_paired_dashboard.png`
-(light), `docs/qwen_allmax_dashboard.png` (heavy); demo video `docs/sentinel-qwen-demo.mp4`.
+`parse_event_logs`, `run_appcompatcacheparser`, `vol_pstree`). **Automatic
+DashScope prompt caching** reused 381,696 tokens on the heavy run (the shared
+ensemble / ReAct / 13AA prefix), cutting its cost ~36%. **The trust layer is the
+constant; the model tier just changes how much clears the bar.** Dashboards:
+`docs/qwen_paired_dashboard.png` (light), `docs/qwen_allmax_dashboard.png` (heavy);
+demo video `docs/sentinel-qwen-demo.mp4`.
 
 > **Honesty note:** both are real Qwen Cloud runs (numbers straight from
 > `pipeline_summary.json`). The light tier's **0 confirmed** is the design working,
