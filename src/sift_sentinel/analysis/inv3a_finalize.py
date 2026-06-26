@@ -100,17 +100,35 @@ def _finding_id(f) -> str:
     return ""
 
 
+def _review_all_enabled() -> bool:
+    import os
+    return os.environ.get("SIFT_INV3A_REVIEW_ALL", "").strip().lower() in (
+        "1", "true", "yes", "on")
+
+
 def select_ambiguous(buckets: dict) -> list:
-    """The findings inv3a may adjudicate: the non-terminal tiers (needs-review,
-    inconclusive, synthesis/context). confirmed (proven) and benign (cleared FPs)
-    are excluded by design so the pass can only RECOVER, never re-litigate."""
+    """The findings inv3a may adjudicate. By default the non-terminal tiers
+    (needs-review, inconclusive, synthesis/context); confirmed (proven) and benign
+    (cleared FPs) are excluded so the pass can only RECOVER, never re-litigate.
+
+    SIFT_INV3A_REVIEW_ALL=1 -> inv3a SEES every finding (confirmed + benign too), so
+    one AI pass gives a final TP/FP verdict on ALL of them. Proven evil is still
+    protected: a deterministic-confirm finding cannot be DEMOTED out of confirmed by
+    the model (the floor in finalize_dispositions), and promotion stays
+    eligibility-gated -- so 'review all' widens visibility without letting a bad
+    sample bury a confirmed detection (keeps it reproducible across PCs)."""
     out = []
-    for bucket in AMBIGUOUS_BUCKETS:
+    scan = AMBIGUOUS_BUCKETS
+    if _review_all_enabled():
+        scan = (BUCKET_CONFIRMED, BUCKET_SUSPICIOUS, BUCKET_INCONCLUSIVE,
+                BUCKET_SYNTHESIS, BUCKET_BENIGN)
+    for bucket in scan:
         for f in (buckets.get(bucket) or []):
             if isinstance(f, dict):
                 out.append(f)
-    # R1C: floor-buried benign rows (never adjudicated) get the second look.
-    if _floored_sweep_enabled():
+    # R1C: floor-buried benign rows (never adjudicated) get the second look
+    # (covered already when review-all includes BUCKET_BENIGN).
+    if not _review_all_enabled() and _floored_sweep_enabled():
         for f in (buckets.get(BUCKET_BENIGN) or []):
             if _is_floor_buried_benign(f):
                 out.append(f)
@@ -409,6 +427,13 @@ def _badge(f: dict, src: str, dest: str, disposition: str, reason: str) -> None:
     f["self_corrected"] = True
     f["_ai_finalize_from"] = src
     f["_ai_finalize_to"] = dest
+    # Keep the disposition field consistent with the bucket the finding is moved
+    # INTO. Without this, a finding 13AA moves OUT of benign (e.g. benign ->
+    # needs-review) keeps its stale pre-move final_disposition, and downstream
+    # consumers (the FP/benign display) re-read that stale benign marker and
+    # mis-render an escalated finding as a false positive. Universal: keyed on the
+    # move's destination bucket, never case data.
+    f["final_disposition"] = dest
     f["self_correction"] = {
         "applied": True,
         "status": "finalized",
@@ -458,6 +483,24 @@ def finalize_dispositions(
     ambiguous = select_ambiguous(new)
     if not ambiguous:
         return new, ledger
+    # The per-call adjudication budget is env-tunable, and a truncation is NEVER
+    # silent: if more non-terminal findings need a final cross-check than the cap
+    # allows, the dropped tail (the lowest-priority floored rows, appended last by
+    # select_ambiguous) stays in its original bucket and the drop is announced --
+    # so no SPECULATIVE/LOW finding can be quietly skipped. Universal: a count cap
+    # + a log, no case data.
+    import os as _os
+    _env_cap = _os.environ.get("SIFT_INV3A_MAX_FINDINGS", "").strip()
+    if _env_cap.isdigit() and int(_env_cap) > 0:
+        max_findings = int(_env_cap)
+    if len(ambiguous) > max_findings:
+        try:
+            print("INV3A_FINALIZE_TRUNCATED considered=%d cap=%d dropped=%d "
+                  "(raise SIFT_INV3A_MAX_FINDINGS to review all)"
+                  % (len(ambiguous), max_findings, len(ambiguous) - max_findings),
+                  flush=True)
+        except Exception:
+            pass
 
     _profiles = None
     if xref_profiles_fn is not None:
@@ -479,8 +522,14 @@ def finalize_dispositions(
     # swept floor-buried finding's verdict could never be applied. Safe:
     # verdicts exist only for adjudicated_ids, so untouched benign rows
     # (ReAct-cleared, gate-cleared) are never re-routed.
-    _scan_buckets = AMBIGUOUS_BUCKETS + (
-        (BUCKET_BENIGN,) if _floored_sweep_enabled() else ())
+    if _review_all_enabled():
+        # inv3a SEES every finding; the confirmed-demotion floor below keeps proven
+        # evil in the findings table regardless of the model's verdict.
+        _scan_buckets = (BUCKET_CONFIRMED, BUCKET_SUSPICIOUS, BUCKET_INCONCLUSIVE,
+                         BUCKET_SYNTHESIS, BUCKET_BENIGN)
+    else:
+        _scan_buckets = AMBIGUOUS_BUCKETS + (
+            (BUCKET_BENIGN,) if _floored_sweep_enabled() else ())
     moves: dict = {}  # fid -> (src, dest, disposition, reason, finding_ref)
     adjudicated_ids = {_finding_id(f) for f in ambiguous[:max_findings]}
     for src in _scan_buckets:
@@ -499,6 +548,13 @@ def finalize_dispositions(
                 continue
             if disp == "confirmed" and not (eligibility_fn and eligibility_fn(f)):
                 dest = BUCKET_SUSPICIOUS  # clamp: never fabricate a confirmation
+            # FLOOR (review-all): a proven CONFIRMED finding is NEVER demoted out of
+            # the findings table by the model -- protects real evil from a bad LLM
+            # sample and keeps the confirmed set reproducible across PCs. inv3a still
+            # SEES it for context; it just cannot bury it.
+            if (src == BUCKET_CONFIRMED
+                    and _BUCKET_RANK.get(dest, 0) < _BUCKET_RANK.get(src, 0)):
+                continue
             if dest == src:
                 continue  # no-op reclassify => not a correction, not badged
             # D7: a guard veto blocks PROMOTION only (higher rank); downgrades
