@@ -197,12 +197,21 @@ class QwenClient:
         messages=None,
         max_tokens=4096,
         temperature=None,
-        timeout=120,
+        timeout=None,
         system=None,
         # thinking / tools / cache hints etc. are Anthropic-specific and unused
         # by this text-JSON pipeline -- accept and ignore them gracefully.
         **_ignored,
     ):
+        # Read timeout. qwen3.7-max with reasoning + a large evidence context can
+        # take well over the old 120s default (the whole 4-member ensemble timed
+        # out at 120s on a paired memory+disk case). Env-tunable; default 120s
+        # keeps the lighter models' behaviour unchanged.
+        if timeout is None:
+            try:
+                timeout = int(os.environ.get("SIFT_HTTP_TIMEOUT") or 120)
+            except (TypeError, ValueError):
+                timeout = 120
         # DashScope rejects max_tokens above a model's per-model output cap
         # (several Qwen text models cap around 8192) with a 400 that the
         # temperature self-heal does NOT catch -- clamp to a safe ceiling.
@@ -246,6 +255,14 @@ class QwenClient:
                 except Exception:  # noqa: BLE001
                     pass
                 raise OSError(f"DashScope HTTP {exc.code}: {detail!r}") from exc
+            except TimeoutError as exc:             # socket READ timed out
+                # A timeout during resp.read() raises a bare TimeoutError that is
+                # NOT a urllib URLError, so it must be handled explicitly or it
+                # escapes unretried (this silently zeroed the qwen3.7-max ensemble).
+                if attempt < _MAX_ATTEMPTS - 1:
+                    time.sleep(_retry_delay(None, attempt))
+                    continue
+                raise OSError(f"DashScope read timeout after {timeout}s: {exc}") from exc
             except urllib.error.URLError as exc:    # timeout / DNS / conn reset
                 if attempt < _MAX_ATTEMPTS - 1:
                     time.sleep(_retry_delay(None, attempt))

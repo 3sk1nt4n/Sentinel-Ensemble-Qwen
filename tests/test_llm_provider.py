@@ -232,3 +232,72 @@ def test_make_llm_client_default_is_anthropic(monkeypatch):
     anthropic = pytest.importorskip("anthropic")
     monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test")
     assert isinstance(lp.make_llm_client(), anthropic.Anthropic)
+
+
+def test_qwen_retries_on_read_timeout_then_succeeds(monkeypatch):
+    """A socket READ timeout raises a bare TimeoutError (NOT a urllib.URLError),
+    so it must be caught and retried -- otherwise it escapes unretried and
+    silently zeroes the qwen3.7-max ensemble (real bug seen on a paired run)."""
+    monkeypatch.setenv("DASHSCOPE_API_KEY", "sk-test")
+    monkeypatch.setattr(lp.time, "sleep", lambda *_a, **_k: None)
+    ok = {"choices": [{"message": {"content": "ok"}}],
+          "usage": {"prompt_tokens": 1, "completion_tokens": 1}}
+
+    class _Resp:
+        def __enter__(self): return self
+        def __exit__(self, *a): return False
+        def read(self): return json.dumps(ok).encode("utf-8")
+
+    calls = {"n": 0}
+
+    def _open(req, timeout=None):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise TimeoutError("The read operation timed out")
+        return _Resp()
+
+    monkeypatch.setattr(urllib.request, "urlopen", _open)
+    resp = lp.QwenClient().messages.create(
+        model="qwen3.7-max", messages=[{"role": "user", "content": "x"}])
+    assert resp.content[0].text == "ok"
+    assert calls["n"] == 2   # retried once after the read timeout
+
+
+def test_qwen_read_timeout_exhausts_to_oserror(monkeypatch):
+    monkeypatch.setenv("DASHSCOPE_API_KEY", "sk-test")
+    monkeypatch.setattr(lp.time, "sleep", lambda *_a, **_k: None)
+    calls = {"n": 0}
+
+    def _open(req, timeout=None):
+        calls["n"] += 1
+        raise TimeoutError("The read operation timed out")
+
+    monkeypatch.setattr(urllib.request, "urlopen", _open)
+    with pytest.raises(OSError) as ei:
+        lp.QwenClient().messages.create(
+            model="qwen3.7-max", messages=[{"role": "user", "content": "x"}])
+    assert "timeout" in str(ei.value).lower()
+    assert calls["n"] == lp._MAX_ATTEMPTS   # retried up to the cap, then surfaced
+
+
+def test_qwen_http_timeout_env_honored(monkeypatch):
+    """SIFT_HTTP_TIMEOUT must flow through to urlopen so qwen3.7-max gets enough
+    time (the old 120s default timed out the entire flagship ensemble)."""
+    monkeypatch.setenv("DASHSCOPE_API_KEY", "sk-test")
+    monkeypatch.setenv("SIFT_HTTP_TIMEOUT", "600")
+    seen = {}
+    ok = {"choices": [{"message": {"content": "ok"}}], "usage": {}}
+
+    class _Resp:
+        def __enter__(self): return self
+        def __exit__(self, *a): return False
+        def read(self): return json.dumps(ok).encode("utf-8")
+
+    def _open(req, timeout=None):
+        seen["timeout"] = timeout
+        return _Resp()
+
+    monkeypatch.setattr(urllib.request, "urlopen", _open)
+    lp.QwenClient().messages.create(
+        model="qwen3.7-max", messages=[{"role": "user", "content": "x"}])
+    assert seen["timeout"] == 600
