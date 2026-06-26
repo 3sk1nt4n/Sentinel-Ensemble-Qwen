@@ -93,13 +93,18 @@ class _Usage:
         "cache_read_input_tokens", "cache_creation_input_tokens",
     )
 
-    def __init__(self, input_tokens: int, output_tokens: int):
+    def __init__(self, input_tokens: int, output_tokens: int,
+                 cache_read: int = 0, cache_creation: int = 0):
         self.input_tokens = int(input_tokens or 0)
         self.output_tokens = int(output_tokens or 0)
-        # The pipeline reads these for Anthropic prompt-cache accounting. Qwen's
-        # caching is server-side / billed differently, so 0 is the honest value.
-        self.cache_read_input_tokens = 0
-        self.cache_creation_input_tokens = 0
+        # Qwen/DashScope does AUTOMATIC prefix caching and reports the cached
+        # subset in usage.prompt_tokens_details.cached_tokens. We surface it as
+        # cache_read so the pipeline's cache accounting + cache-aware pricing
+        # credit it, exactly like the Anthropic path. input_tokens here is the
+        # UNCACHED remainder (cost_usd treats total_input as uncached). Qwen's
+        # implicit cache bills no separate "write", so cache_creation stays 0.
+        self.cache_read_input_tokens = int(cache_read or 0)
+        self.cache_creation_input_tokens = int(cache_creation or 0)
 
 
 class _Response:
@@ -284,13 +289,24 @@ class QwenClient:
                 text = msg.get("reasoning_content") or ""
             finish = choices[0].get("finish_reason") or "stop"
         usage = payload.get("usage") or {}
+        # Qwen auto-caches shared prefixes; the cached subset rides in
+        # prompt_tokens_details.cached_tokens. Split prompt_tokens into the
+        # uncached remainder (billed at base) + the cached read (billed at the
+        # cache-read discount) so the pipeline credits the reuse.
+        prompt_toks = int(usage.get("prompt_tokens", 0) or 0)
+        details = usage.get("prompt_tokens_details") or {}
+        cached = int(details.get("cached_tokens", 0) or 0)
+        cached = max(0, min(cached, prompt_toks))
+        uncached = prompt_toks - cached
         stop_reason = {"length": "max_tokens", "stop": "end_turn"}.get(
             finish, finish or "end_turn")
         return _Response(
             text,
             _Usage(
-                usage.get("prompt_tokens", 0),
+                uncached,
                 usage.get("completion_tokens", 0),
+                cache_read=cached,
+                cache_creation=0,
             ),
             model=payload.get("model", model) or model,
             stop_reason=stop_reason,

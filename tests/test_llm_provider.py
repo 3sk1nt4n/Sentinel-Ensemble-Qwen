@@ -301,3 +301,33 @@ def test_qwen_http_timeout_env_honored(monkeypatch):
     lp.QwenClient().messages.create(
         model="qwen3.7-max", messages=[{"role": "user", "content": "x"}])
     assert seen["timeout"] == 600
+
+
+def test_qwen_surfaces_cached_tokens(monkeypatch):
+    """Qwen auto-caches shared prefixes and reports cached_tokens; the adapter
+    must split prompt_tokens into uncached input + cache_read so the pipeline's
+    cache-aware accounting + pricing credit the reuse (was hardcoded to 0).
+    Verified live: a repeated 2430-token prefix returned cached_tokens=2304."""
+    monkeypatch.setenv("DASHSCOPE_API_KEY", "sk-test")
+    payload = {"choices": [{"message": {"content": "ok"}}],
+               "usage": {"prompt_tokens": 2430, "completion_tokens": 5,
+                         "prompt_tokens_details": {"cached_tokens": 2304}}}
+    monkeypatch.setattr(urllib.request, "urlopen", _fake_urlopen(payload))
+    resp = lp.QwenClient().messages.create(
+        model="qwen-plus", messages=[{"role": "user", "content": "x"}])
+    u = resp.usage
+    assert u.cache_read_input_tokens == 2304
+    assert u.input_tokens == 2430 - 2304   # uncached remainder, not the full prompt
+    assert u.cache_creation_input_tokens == 0   # Qwen implicit cache has no write charge
+    assert u.output_tokens == 5
+
+
+def test_qwen_no_cache_details_is_all_uncached(monkeypatch):
+    """No prompt_tokens_details (cache miss / unsupported) -> all input uncached."""
+    monkeypatch.setenv("DASHSCOPE_API_KEY", "sk-test")
+    payload = {"choices": [{"message": {"content": "ok"}}],
+               "usage": {"prompt_tokens": 100, "completion_tokens": 2}}
+    monkeypatch.setattr(urllib.request, "urlopen", _fake_urlopen(payload))
+    u = lp.QwenClient().messages.create(
+        model="qwen-plus", messages=[{"role": "user", "content": "x"}]).usage
+    assert u.input_tokens == 100 and u.cache_read_input_tokens == 0

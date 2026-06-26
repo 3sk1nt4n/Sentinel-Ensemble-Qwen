@@ -18,7 +18,13 @@ _MODEL_RATES = {
     "sonnet": (3.0, 15.0),
     "haiku": (1.0, 5.0),
 }
-_CACHE_READ_MULT = 0.10        # cache HIT: 10% of the base input rate
+# cache HIT multiplier vs base input rate. Default 0.10 (Anthropic ephemeral).
+# Qwen/DashScope automatic context-cache hits bill at a different (provider-set)
+# rate, so make it env-overridable to track the real cached-token cost.
+try:
+    _CACHE_READ_MULT = float(os.environ.get("SIFT_CACHE_READ_MULT") or 0.10)
+except (TypeError, ValueError):
+    _CACHE_READ_MULT = 0.10
 _CACHE_WRITE_MULT = 1.25       # 5-minute cache WRITE: 125% of the base input rate
 
 # Approximate Alibaba Cloud DashScope (international / Singapore) list rates,
