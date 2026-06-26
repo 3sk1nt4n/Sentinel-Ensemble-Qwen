@@ -122,34 +122,49 @@ Python.
 | Alibaba ECS deployment + proof recording | optional / pending ECS |
 | Legacy-doc reframe to Track 4 | done |
 
-### Verified Qwen Cloud run (proof)
+### Verified Qwen Cloud runs (proof)
 
-A full **paired (memory + disk)** investigation ran end-to-end on **Qwen models
+Two full **paired (memory + disk)** investigations ran end-to-end on **Qwen models
 on Alibaba Cloud DashScope** (rd01 Windows case: memory image + C: drive image,
-both opened read-only):
+both opened read-only) - the **same deterministic trust layer**, two model tiers.
+Both record `llm_provider=qwen`, the DashScope endpoint, and **SHA-256 MATCH on
+both images** in `pipeline_summary.json`.
 
-- `pipeline_summary.json` records **`llm_provider=qwen`**, `model=qwen3.7-max`,
-  `llm_endpoint=https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions`
-  - the artifact-level proof the run executed on Qwen Cloud.
-- 4-member **qwen-plus** ensemble + ReAct cross-check; **33 forensic tools** run
-  across memory and disk.
-- 779,821 input / 27,700 output tokens · runtime **6m 22s** (382s) · **~$0.35** at qwen-plus rates.
-- **SHA-256 MATCH on both images** (`memory_integrity=True`, `disk_integrity=verified`)
-  · `FINAL_DISPOSITION_BUCKET_GATE=PASS` · all four confirmation gates PASS.
+| | Light tier (`qwen-plus` ×4) | **Heavy tier (`qwen3.7-max` everywhere)** |
+|---|---|---|
+| Models | qwen-plus ensemble + ReAct | qwen3.7-max for Inv1 / Inv2×4 / Inv3A / ReAct / Report |
+| Findings (final) | 19 | 25 |
+| **Confirmed malicious** | **0** | **4** |
+| needs-review / benign / inconclusive | 1 / 1 / 18 | 3 / 5 / 13 |
+| Tokens (in / out) | 779,821 / 27,700 | 738,243 / 85,508 |
+| Runtime | 6m 22s | 13m 07s |
+| Cost | ~$0.35 | ~$2.49 |
+| Integrity (mem + disk) | MATCH | MATCH |
+| Disposition + 4 confirm gates | PASS | PASS |
 
-**The trust layer overruled the AI.** The Qwen ensemble surfaced **19 findings** -
-including its strongest lead, code injection in `powershell.exe` (PID 8712, RWX
-private memory). Code promoted **0** of them to *confirmed*: that lead carried no
-atomic proof tuple, so `NO_SPECULATIVE_CONFIRMED_GATE` /
-`MISSING_RAW_EVIDENCE_CONFIRMED_GATE` routed it to *inconclusive*; `macmnsvc.exe`
-on ports 8081/8082 the agent re-investigated and assessed *benign* (McAfee agent).
-Final disposition: **0 confirmed · 1 needs-review · 1 benign · 18 inconclusive**.
-The AI proposed; the code disposed. (The demo video shows this happening live -
-`docs/sentinel-qwen-demo.mp4`; the run's own dashboard is `docs/qwen_paired_dashboard.png`.)
+**Same gates, different depth.** On the light tier the ensemble's strongest lead -
+code injection in `powershell.exe` (PID 8712, RWX private memory) - carried no
+atomic proof, so `NO_SPECULATIVE_CONFIRMED_GATE` / `MISSING_RAW_EVIDENCE_CONFIRMED_GATE`
+routed it to *inconclusive*: **0 confirmed**. The AI proposed; the code disposed.
 
-> **Honesty note:** this is the honest result - **zero confirmed** on this case,
-> because none of the AI's leads cleared the atomic-proof bar. That is the design
-> working, not a gap: no evidence, no confirm. An earlier **Claude reference run**
-> (same case) remains **local-only / not shipped** (case-neutral policy) and is not
-> a Qwen result. The trust layer, the typed forensic tools, and the 16-step
-> conductor are model-agnostic, so they carry over unchanged - only the provider differs.
+On the heavy tier the flagship's deeper analysis surfaced a real, provable
+intrusion chain and **4 findings cleared every confirmation gate**:
+
+- **F004 / F012 (CRITICAL)** - `PsExec.exe` / `PSEXESVC.exe` staged and executed from a temp dir (lateral movement)
+- **F016 (CRITICAL)** - staged credential-access binaries (credential dumping + lateral movement)
+- **F003 (MEDIUM)** - `PWDumpX.exe` executed from a temp dir (credential dumping)
+
+Each traces to its proof tools (`extract_mft_timeline`, `get_amcache`,
+`parse_event_logs`, `parse_registry_persistence`, `run_appcompatcacheparser`,
+`vol_pstree`). Even at full power the gates still rejected the unproven
+(5 benign, 13 inconclusive) - **the trust layer is the constant; the model tier
+just changes how much clears the bar.** Dashboards: `docs/qwen_paired_dashboard.png`
+(light), `docs/qwen_allmax_dashboard.png` (heavy); demo video `docs/sentinel-qwen-demo.mp4`.
+
+> **Honesty note:** both are real Qwen Cloud runs (numbers straight from
+> `pipeline_summary.json`). The light tier's **0 confirmed** is the design working,
+> not a gap - no evidence, no confirm. An earlier Claude reference run on the same
+> case stays local-only / not shipped (case-neutral policy); the heavy-tier Qwen
+> run independently reproduced that intrusion chain. The trust layer, the typed
+> forensic tools, and the 16-step conductor are model-agnostic - only the
+> provider/tier differs.

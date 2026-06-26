@@ -34,7 +34,7 @@ output before you ever see it**.
 | Trust layer (code, not the model, decides "confirmed") | done | deterministic validator + disposition gates; every finding traces to tool output (`src/sift_sentinel/validation/`, `src/sift_sentinel/analysis/disposition.py`) |
 | Self-correction | done | [`SELF-CORRECTION-PROOF.md`](SELF-CORRECTION-PROOF.md) - FP-sweep + ReAct cross-check |
 
-> Proven end-to-end on a real **paired (memory + disk) Qwen Cloud run**: 19 AI findings -> **0 confirmed** (the trust layer overruled the AI's strongest lead - RWX code injection in `powershell.exe` - for lack of atomic proof), **SHA-256 MATCH on both images**, ~$0.35, ~6m 22s. Full writeup in [`QWEN-SUBMISSION.md`](QWEN-SUBMISSION.md). An earlier Claude reference run on the same case stays local-only / not shipped. The trust layer, the 195 typed forensic tools, and the 16-step conductor are model-agnostic and carry over unchanged - only the model provider differs.
+> Proven end-to-end on **two real paired (memory + disk) Qwen Cloud runs** - same deterministic trust layer, two tiers: **light** (`qwen-plus` ×4 ensemble) -> **0 confirmed** (the gates overruled the AI's unproven leads; ~$0.35, 6m 22s) and **heavy** (`qwen3.7-max` on every step) -> **4 confirmed** PsExec/PWDumpX intrusion findings, each cleared every confirmation gate (~$2.49, 13m 07s). **SHA-256 MATCH on both images** in each. Full numbers + comparison in [`QWEN-SUBMISSION.md`](QWEN-SUBMISSION.md). An earlier Claude reference run on the same case stays local-only / not shipped. The trust layer, the 195 typed forensic tools, and the 16-step conductor are model-agnostic and carry over unchanged - only the model provider/tier differs.
 
 ---
 
