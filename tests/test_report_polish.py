@@ -190,3 +190,36 @@ def test_benign_findings_dropped_from_timeline():
     assert "F033" in out and "real backdoor" in out      # real event kept
     assert "benign svchost" not in out                    # all-benign row dropped
     assert "partly benign" in out                         # mixed row kept
+
+
+def test_attack_timeline_drops_only_false_positives():
+    """Universal: an ATTACK timeline drops ONLY false-positive/benign events.
+    Confirmed, needs-review and inconclusive events stay (they may be attack-
+    relevant). Dataset-agnostic -- keyed on the disposition annotation, not on
+    case values."""
+    md = (
+        "## 2. Attack Timeline\n"
+        "- All timestamps are in UTC.\n"
+        "- 2018-01-12 14:51:23: Inbound RDP sessions observed (Benign/False Positive)\n"
+        "- 2018-03-14 20:48:48: Security Event Log cleared 1102 (Requires Further Investigation).\n"
+        "- 2018-08-08 15:57:18: Sysmon from unexpected path (inconclusive).\n"
+        "- 2018-08-30 22:15:18: CONFIRMED MALICIOUS: PWDumpX.exe and PsExec.exe staged and executed.\n"
+        "- 2018-09-06 18:28:30: F-Response subject_srv.exe listening (Benign/False Positive)\n\n"
+        "## 3. Key Findings\n- x\n"
+    )
+    out = polish_report(md)
+    tl = out.split("Key Findings")[0]
+    assert "PWDumpX" in tl                        # confirmed stays
+    assert "20:48:48" in tl                       # needs-review STAYS
+    assert "15:57:18" in tl                       # inconclusive STAYS
+    assert "14:51:23" not in tl                   # benign/FP RDP dropped
+    assert "F-Response" not in tl                 # benign/FP listener dropped
+
+
+def test_attack_timeline_keeps_benign_word_in_description():
+    """A stray 'benign' inside a description (not an FP disposition) is kept."""
+    md = ("## Attack Timeline\n"
+          "- 2018-08-30 13:00:00: process spawned a benign-looking child (Inconclusive)\n\n"
+          "## Key Findings\n- x\n")
+    out = polish_report(md)
+    assert "13:00:00" in out.split("Key Findings")[0]

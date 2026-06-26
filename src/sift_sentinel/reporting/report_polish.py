@@ -229,6 +229,46 @@ def _event_tactic(text: str) -> str:
     return ""
 
 
+# Universal disposition vocabulary (NEVER case/host/product values). A
+# FALSE-POSITIVE / benign disposition does not belong on an ATTACK timeline;
+# confirmed, needs-review and inconclusive events may all be attack-relevant and
+# stay. We match the disposition ANNOTATION the report attaches to each event
+# (e.g. "(Benign/False Positive)", "Dispositioned as benign") -- NOT a stray
+# "benign" inside a description -- so it is precise and dataset-agnostic.
+_FP_DISPO = re.compile(
+    r"false[\s/_-]*positive|dispositioned\s+(?:as\s+)?benign|\(\s*benign\b|"
+    r"benign\s*/\s*false|benign\s*\)",
+    re.IGNORECASE)
+_CONFIRMED_DISPO = re.compile(r"confirmed[\s-]*malicious|\bconfirmed\b", re.IGNORECASE)
+_TS_RE = re.compile(r"\d{4}-\d{2}-\d{2}|\b\d{2}:\d{2}:\d{2}\b")
+
+
+def _attack_timeline_drop_fp(body: list[str]) -> list[str]:
+    """Drop ONLY false-positive / benign-dispositioned events from the ATTACK
+    timeline. Confirmed, needs-review and inconclusive events stay -- an FP is
+    the one disposition that does not belong on an attack timeline.
+
+    Universal + dataset-agnostic: keyed on the disposition-annotation vocabulary,
+    never on case values, and only on lines that carry a timestamp (events).
+    Headers, notes and separators are untouched. (Complements the FID-based
+    all-benign drop in _timeline_arrows, which handles table rows that carry an
+    explicit Finding-ID column.)"""
+    out, dropped = [], 0
+    for ln in body:
+        if (_TS_RE.search(ln) and _FP_DISPO.search(ln)
+                and not _CONFIRMED_DISPO.search(ln)):
+            dropped += 1
+            continue
+        out.append(ln)
+    # If literally every event was an FP, leave an honest note rather than a
+    # blank section (rare: an all-FP "attack" timeline).
+    if dropped and not any(_TS_RE.search(x) for x in out):
+        out.append("")
+        out.append("- No attack events remain after false-positive disposition; "
+                   "see the Findings sections.")
+    return out
+
+
 def _timeline_arrows(body: list[str], benign_fids=None) -> list[str]:
     """Render the Attack Timeline table as a chronological chain of bordered event
     boxes joined by flowing ▼ arrows -- each event a self-contained row-box.
@@ -383,6 +423,10 @@ def polish_report(md: str, benign_fids=None) -> str:
                 continue
             body = _strip_trailer(_strip_subsections(body))
             if nt in _TIMELINE_TITLES:
+                # An ATTACK timeline excludes false-positive/benign events (only
+                # FP is removed; confirmed, needs-review and inconclusive stay).
+                # Universal, disposition-annotation based; THEN render the chain.
+                body = _attack_timeline_drop_fp(body)
                 body = _timeline_arrows(body, benign_fids)
             if nt in _BOX_SECTIONS:
                 body = _box(body, _BOX_SECTIONS[nt])
