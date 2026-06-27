@@ -5268,6 +5268,28 @@ else:
     print("FINAL_DISPOSITION_BUCKET_GATE=FAIL %s" % _viol_str, flush=True)
     logger.warning("FINAL_DISPOSITION_BUCKET_GATE=FAIL %s", _viol_str)
 
+# ── Human-in-the-loop checkpoint (Track-4: an approval gate at the critical
+# decision point). Opt-in via SIFT_HITL_CHECKPOINT=1 and TTY-gated, so the
+# autonomous path stays byte-identical. Runs AFTER the deterministic disposition
+# and BEFORE anything downstream (entity map, report_truth, report) reads the
+# buckets, so an analyst override propagates everywhere. The agent still never
+# auto-confirms without atomic proof; this layers an explicit human approval on top.
+try:
+    from sift_sentinel.hitl_checkpoint import (
+        checkpoint_enabled as _hitl_on, run_checkpoint as _hitl_run)
+    if _hitl_on():
+        _disposition_buckets, _hitl_overrode = _hitl_run(_disposition_buckets, findings_final)
+        if _hitl_overrode:
+            _disposition_counts = {k: len(v) for k, v in _disposition_buckets.items()}
+            write_state(STATE_DIR, "finding_disposition_buckets.json", _disposition_buckets)
+            for _bk, _bn in _disposition_counts.items():
+                logger.info("  disposition[%s] = %d (analyst-reviewed)", _bk, _bn)
+            print("  HITL checkpoint: analyst override applied; report reflects it.", flush=True)
+except SystemExit:
+    raise
+except Exception as _hitl_e:  # noqa: BLE001
+    logger.warning("HITL checkpoint skipped: %s", _hitl_e)
+
 # ── Partition gate: buckets MUST partition findings_final ─────────────
 # 31AI: entity-context map — additive A++ presentation aid.
 # Builds per-finding entity overlap tags so downstream report clustering

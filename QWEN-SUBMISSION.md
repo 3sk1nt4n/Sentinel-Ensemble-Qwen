@@ -19,13 +19,21 @@ end-to-end ... from system alerts to automated remediation," handling ambiguous
 inputs, invoking external tools, with human-in-the-loop checkpoints, and
 production-readiness over toy demos. SOC/DFIR triage is exactly that:
 
-| Track-4 requirement | How Sentinel Ensemble meets it |
-|---|---|
-| Ambiguous inputs | Raw memory/disk evidence or an alert - the agent profiles it and decides what to investigate |
-| Invoke external tools | 195 typed forensic tools (Volatility 3, Sleuth Kit, EZ Tools, Plaso) on a custom MCP server - **zero shell access** |
-| Human-in-the-loop checkpoints | The deterministic validator routes unproven claims to a **needs-review** bucket instead of asserting them - the analyst decides |
-| End-to-end automation | A 16-step deterministic conductor runs the whole pipeline; the model is invoked only inside well-bounded steps |
-| Production-readiness | Read-only evidence + SHA256 chain-of-custody, fail-closed gates, a 4-layer trust pipeline, and an auditable report |
+| Track-4 requirement | How Sentinel Ensemble meets it | Where (code / artifact) |
+|---|---|---|
+| Ambiguous inputs | Raw memory/disk evidence (or an alert) - the onboarding engine auto-detects memory-only / disk-only / paired, mounts read-only, profiles the OS, and decides what to investigate | `src/sift_sentinel/onboard/`, Inv1 tool selection |
+| Invoke external tools | **195 typed forensic tools** (Volatility 3, Sleuth Kit, EZ Tools, Plaso, bulk_extractor, RegRipper, YARA) on a custom **MCP server - zero shell access** | `src/server.py`, `src/sift_sentinel/tools/` |
+| Human-in-the-loop **at critical decision points** | Two layers: (1) the deterministic disposition **escalates** unproven claims to a *needs-review* bucket instead of asserting them; (2) an **opt-in approval gate** (`SIFT_HITL_CHECKPOINT=1`) **pauses at the disposition decision - before the report -** for the analyst to **approve or override** any finding's verdict; plus the launch checkpoints (evidence / depth / key) | `src/sift_sentinel/hitl_checkpoint.py`, `analysis/disposition.py`, `step0_onboard.py` |
+| End-to-end automation | A **16-step deterministic conductor** runs the whole pipeline with zero steering; the model is invoked only inside bounded steps | `run_pipeline.py` |
+| Production-readiness (not a toy) | Read-only evidence + **SHA-256 chain of custody**, ~13 fail-closed gates, automatic prompt caching, **4,768 passing tests**, two real Qwen-Cloud runs, Docker (demo/full/full-plus) | `analysis/`, `tests/`, `Dockerfile` |
+
+**Read-only by design is a feature, not a gap.** Track-4's examples mention
+"automated remediation," but in high-stakes incident response, auto-acting on a
+live host is exactly the failure mode to avoid. Sentinel Ensemble keeps a
+**SHA-256 chain of custody** and **gates remediation behind the human**: it runs
+the full triage autonomously, then hands the analyst a proof-linked report and -
+with the checkpoint enabled - an explicit approve/override gate. **The agent
+automates the judgement; the human authorises the action.**
 
 The differentiator is the **anti-hallucination trust layer**: code - not the
 model - decides what is "confirmed," and every finding traces to the exact tool
