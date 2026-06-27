@@ -3320,10 +3320,13 @@ if MCP_MODE:
             _vt = 0
         return max(_vt, _s31h_heavy.get(_sn, 0)) or 30
 
-    raw_to_run = [
-        _t for _, _t in sorted(
-            enumerate(raw_to_run), key=lambda _p: (-_s31h_weight(_p[1]), _p[0]))
-    ]
+    if str(os.environ.get("SIFT_STEP6_HEAVY_FIRST", "1")).strip().lower() not in (
+        "0", "false", "no", "off",
+    ):
+        raw_to_run = [
+            _t for _, _t in sorted(
+                enumerate(raw_to_run), key=lambda _p: (-_s31h_weight(_p[1]), _p[0]))
+        ]
 
     ordered_results, step6_parallel_summary = _slot31d_parallel_dispatch(raw_to_run)
 

@@ -202,7 +202,59 @@ def mode_launch_env(mode: dict) -> dict:
     env["SIFT_CONFIRMED_DEDUP"] = "1"      # lever 1: same-artifact confirmed dedup (C2)
     env["SIFT_XBUCKET_DEDUP"] = "1"        # A1: cross-bucket same-event/artifact collapse (C2)
     env["SIFT_NETWORK_SALIENCE"] = "1"     # network-IOC salience SHADOW (measure only)
+    # PARALLELISM: give every level 8-16 workers where it is SAFE, adapting to the
+    # host. Operator env always wins (only set when the shell has not pinned it).
+    # Step-6 runs Vol3 SUBPROCESSES (CPU+RAM heavy) -- floor it ONLY when RAM has
+    # headroom, else leave it core-aware (oversubscribing heavy Vol3 on a small box
+    # OOM-kills children -> "tool failure" -> junk findings). Step-10 (local
+    # validators) is safe to raise. Step-11/12 are API fan-outs -- a moderate
+    # core-matched count (lower via env on a 529-rate-limited tier). Heavy tools
+    # already submit first via SIFT_STEP6_HEAVY_FIRST.
+    # NB: do NOT set SIFT_PARSE_EVENT_LOGS_INNER_WORKERS here -- EVTX parsing is
+    # serial BY DESIGN (31Y: parallel GIL contention cost 96% of event_log coverage).
+    # ReAct/SC are LLM API fan-outs: firing more simultaneous calls than the host
+    # has cores just self-collides into HTTP 529s on a rate-limited tier, and each
+    # 529 backoff inflates wall time. Match concurrency to cores (cap 8) so a 4-core
+    # box fires 4, not 8 -- the correct 529 lever (NOT fewer retries, which would drop
+    # a whole stage to fallback). No detection change: same calls, less collision.
+    _api_fanout = str(max(2, min(os.cpu_count() or 4, 8)))
+    _para_defaults = {
+        "SIFT_STEP10_MAX_WORKERS": "12",            # local validators -- safe high
+        "SIFT_STEP11_MAX_WORKERS": _api_fanout,     # ReAct API fan-out -- core-matched
+        "SIFT_STEP12_MAX_WORKERS": _api_fanout,     # self-correction API fan-out
+        "SIFT_STEP6_HEAVY_FIRST": "1",              # long-pole tools submit first
+    }
+    # RAM-AWARE Step-6 worker floor (host-agnostic). Vol3 plugins mmap the image and
+    # are IO/parse-bound, so up to 2x CPU oversubscription overlaps their IO waits
+    # WITHOUT CPU-starving them below the 240s heavy-tool timeout (malfind ~136s even
+    # at 1.5x = ~204s < 240s). Each heavy plugin holds ~1.25GB resident (symbols +
+    # scan buffers, NOT the shared mmap), so spare RAM -- not cores -- is the real
+    # cap. rec = min(2*cpu, avail_GB/1.25, 16): a 4-core/12GB VM gets 8 workers (was
+    # core-bound at 4); peak 8*1.25=10GB < 12GB, no OOM. Only set when it beats the
+    # bare core count (else the code stays core-aware).
+    _cpu = os.cpu_count() or 1
+    _avail = _onboard_avail_ram_gb()
+    if _avail >= 4.0:
+        _rec_workers = max(1, min(2 * _cpu, int(_avail / 1.25), 16))
+        if _rec_workers > _cpu:
+            _para_defaults["SIFT_STEP6_MIN_WORKERS"] = str(_rec_workers)
+    for _pk, _pv in _para_defaults.items():
+        if _pk not in os.environ:
+            env[_pk] = _pv
     return env
+
+
+def _onboard_avail_ram_gb() -> float:
+    """Available RAM in GiB (Linux /proc/meminfo); 0.0 if unreadable. Used only to
+    decide whether the Step-6 Vol3 floor is safe -- never raises."""
+    try:
+        with open("/proc/meminfo") as _mf:
+            for _ln in _mf:
+                if _ln.startswith("MemAvailable:"):
+                    return int(_ln.split()[1]) / (1024 * 1024)
+    except (OSError, ValueError, IndexError):
+        pass
+    return 0.0
 
 
 def _ensemble_size_default() -> int:

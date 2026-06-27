@@ -20,6 +20,18 @@ logger = logging.getLogger(__name__)
 
 SCHEMA_VERSION = "candidate_observations_v1"
 
+# PERF: high-volume fact types that empirically produce ZERO candidate signals
+# (profiled on a 201k-fact paired run: these are ~66% of all facts). They are
+# skipped from per-fact SCORING only -- still grouped for corroboration, and
+# filesystem_timeline_fact still feeds the mass-encryption-burst pass. Kill-switch
+# SIFT_CANDOBS_SKIP_NONSCORING=0 restores scoring every fact.
+import os as _candobs_os
+_NONSCORING_FACT_TYPES = frozenset({
+    "handle_fact", "filesystem_timeline_fact", "filesystem_listing_fact",
+})
+_CANDOBS_SKIP_NONSCORING = _candobs_os.environ.get(
+    "SIFT_CANDOBS_SKIP_NONSCORING", "1") != "0"
+
 # 31E-CANDIDATE-REVIEW-WORTHY-TELEMETRY: candidate_type values that are
 # context-only by design and must never count toward the validation-ready
 # ceiling regardless of their score.
@@ -1696,6 +1708,15 @@ def build_candidate_observations(
         signal_budget: Counter = Counter()
 
         for fact in group_facts:
+            # PERF: the high-volume fact types below (66% of facts on a paired run:
+            # handles + the two filesystem corpora) empirically NEVER produce a
+            # candidate signal, yet _score_fact/_blob over them dominate Step-7. Skip
+            # SCORING them here -- they still participated in the _entity_keys grouping
+            # above (corroboration intact) and filesystem_timeline_fact already fed the
+            # mass-encryption-burst pass. Byte-identical output; kill-switch off.
+            if (_CANDOBS_SKIP_NONSCORING
+                    and _sval(fact.get("fact_type")) in _NONSCORING_FACT_TYPES):
+                continue
             local_score, signals, suppressions = _score_fact(fact)
             all_suppressions.extend(suppressions)
             # Fix A: a top-K self-relative egress outlier is retained even if its

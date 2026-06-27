@@ -2067,8 +2067,23 @@ _STEP6_WORKER_MAX = 16
 
 
 def _step6_default_max_workers() -> int:
-    """Core-aware default: min(host CPUs, 16), at least 1."""
-    return max(1, min(int(os.cpu_count() or 1), _STEP6_WORKER_MAX))
+    """Core-aware default: min(host CPUs, 16), at least 1.
+
+    Optional floor SIFT_STEP6_MIN_WORKERS (default UNSET = pure core-aware) lets a
+    deployment guarantee >=N workers on a low/mis-reported cpu_count box -- e.g. a
+    4-core VM that wants 8 slots so the heavy-first poles plus the light high-value
+    backfill tools all run concurrently instead of queueing. The floor is itself
+    clamped to the 16 ceiling. UNSET keeps the legacy min(cpu,16) exactly (so the
+    core-aware contract test holds); the launcher sets the floor where RAM allows."""
+    base = max(1, min(int(os.cpu_count() or 1), _STEP6_WORKER_MAX))
+    floor_raw = os.environ.get("SIFT_STEP6_MIN_WORKERS")
+    if floor_raw is not None:
+        try:
+            floor = max(1, min(int(str(floor_raw).strip()), _STEP6_WORKER_MAX))
+            return max(floor, base)
+        except (TypeError, ValueError):
+            pass
+    return base
 
 
 def step6_max_workers() -> int:
@@ -2096,6 +2111,52 @@ def step6_max_workers() -> int:
 # still read the module attribute see the same core-aware number.
 DEFAULT_STEP6_MAX_WORKERS = _step6_default_max_workers()
 STEP6_DEFAULT_MAX_WORKERS = DEFAULT_STEP6_MAX_WORKERS
+
+
+def _resolve_pool_workers(env_name: str, default: int, *, hi: int = 16, env=None) -> int:
+    """Resolve a ThreadPool worker count from ``env_name``, clamped to [1, hi].
+
+    Universal pattern for the post-Step-6 pools (validation / ReAct / SC): an
+    invalid or out-of-range value falls back to ``default``. These pools are NOT
+    Vol3 subprocesses -- Step-10 is local validators (safe up to 16); Step-11/12
+    are API fan-outs (raise only if the LLM tier can absorb it, else the env
+    can LOWER them to dodge HTTP 529s). Default-preserving: unset -> ``default``."""
+    e = os.environ if env is None else env
+    raw = e.get(env_name)
+    if raw is not None:
+        try:
+            v = int(str(raw).strip())
+            if 1 <= v <= hi:
+                return v
+        except (TypeError, ValueError):
+            pass
+    return max(1, min(default, hi))
+
+
+def step10_max_workers(env=None) -> int:
+    """Step-10 validation pool (local validators, no API) -- safe to 16."""
+    return _resolve_pool_workers("SIFT_STEP10_MAX_WORKERS", 8, env=env)
+
+
+def step11_max_workers(env=None) -> int:
+    """Step-11 ReAct pool (API fan-out). Default 8; lower on a 529-prone tier."""
+    return _resolve_pool_workers("SIFT_STEP11_MAX_WORKERS", 8, env=env)
+
+
+def step12_max_workers(default: int = 8, env=None) -> int:
+    """Step-12 self-correction pool (API fan-out). Default mirrors the caller."""
+    return _resolve_pool_workers("SIFT_STEP12_MAX_WORKERS", default, env=env)
+
+
+# Light, high-value MEMORY rootkit detectors that backfill the worker slot freed
+# by dropping vol_hollowprocesses on a disk-present case ("light high-value tools
+# instead of hollow; no idle worker"). Both are fast (~5-12s), fully DB+validation
+# wired (kernel_module_fact / kernel_callback_fact), and cover a class hollow never
+# did (malicious kernel driver / notify-routine hooks). They sit at the END of the
+# priority floor and are routinely squeezed out by the tool cap, so the freed slot
+# is exactly where they belong. Ordered by value (modscan -> conclusive
+# kernel_driver_nonstandard_path detector first).
+HOLLOW_BACKFILL_LIGHT_TOOLS = ("vol_modscan", "vol_callbacks")
 
 
 # Big-memory tool gate: tools that are slow on a large image AND whose detection
@@ -3501,7 +3562,8 @@ def step_10_validate(
                                evidence_db=evidence_db)
         return res, time.monotonic() - t0
 
-    with ThreadPoolExecutor(max_workers=8) as executor:
+    _step10_workers = step10_max_workers()
+    with ThreadPoolExecutor(max_workers=_step10_workers) as executor:
         future_to_finding = {
             executor.submit(_timed_validate, f): f
             for f in findings
@@ -3540,9 +3602,9 @@ def step_10_validate(
     _step10_avg = (_step10_wall / _step10_n) if _step10_n else 0.0
     _step10_max = max(_step10_per_finding) if _step10_per_finding else 0.0
     logger.info(
-        "Step 10 PARALLEL PROOF: validated %d findings via ThreadPoolExecutor(max_workers=8) "
+        "Step 10 PARALLEL PROOF: validated %d findings via ThreadPoolExecutor(max_workers=%d) "
         "wall=%.2fs avg_per_finding=%.3fs max_per_finding=%.3fs",
-        len(findings), _step10_wall, _step10_avg, _step10_max,
+        len(findings), _step10_workers, _step10_wall, _step10_avg, _step10_max,
     )
     logger.info(
         "Step 10 typed-validator telemetry: typed_evidence_db_used=%s "
@@ -4160,7 +4222,7 @@ def step_11_investigate(
     _skip_savings_s = 0.0
 
     from concurrent.futures import ThreadPoolExecutor, as_completed
-    with ThreadPoolExecutor(max_workers=8) as executor:
+    with ThreadPoolExecutor(max_workers=step11_max_workers()) as executor:
         futures = [executor.submit(_investigate_one_finding, f) for f in findings]
         for future in as_completed(futures):
             try:
@@ -4599,7 +4661,8 @@ def step_12_self_correct(
     dropped_honest_count = 0
     failed_count = 0
 
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+    _sc_workers = step12_max_workers(default=max_workers)
+    with ThreadPoolExecutor(max_workers=_sc_workers) as executor:
         futures = {
             executor.submit(_correct_one, item): _sc_item_finding_id(item)
             for item in blocked
