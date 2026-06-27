@@ -195,6 +195,7 @@ def mode_launch_env(mode: dict) -> dict:
     env["SIFT_INV3A_FINALIZE"] = "1"
     env["SIFT_INV3A_REVIEW_ALL"] = "1"     # inv3a gives a final TP/FP verdict on ALL findings (proven evil floored)
     env["SIFT_INV3A_ENRICH"] = "1"         # + deterministic cross-reference (tools/domains/strength) so it CROSS-CHECKS the big picture; case-neutral counts only
+    env["SIFT_LLM_DEDUP"] = "1"            # final LLM semantic dedup (LLM proposes, deterministic guard verifies; never crosses TP/FP)
     env["SIFT_JIT_RWX"] = "1"
     env["SIFT_TOOL_STATUS_NOISE"] = "1"
     env["SIFT_SIGNATURE_RECONCILE"] = "1"  # lever 2: verdict consistency (C1)

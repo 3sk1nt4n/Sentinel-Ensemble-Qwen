@@ -5208,6 +5208,44 @@ if os.environ.get("SIFT_XBUCKET_DEDUP", "").strip().lower() in ("1", "true", "ye
         print("XBUCKET_DEDUP=SKIPPED %r" % _xbucket_exc, flush=True)
         logger.error("Step 13AC cross-bucket dedup skipped: %s", _xbucket_exc)
 
+# Step 13AD: LLM SEMANTIC DEDUP (the LAST dedup, after the deterministic passes).
+# Collapses the SAME finding worded differently across ensemble members that the
+# structural keys can't catch. The LLM only PROPOSES duplicate groups; a
+# deterministic guard verifies each (shared entity OR title-core) before any merge,
+# and merges never cross the TP/FP boundary -- so an over-merge is rejected, not
+# applied, and no evil is ever hidden by dedup. Env-gated SIFT_LLM_DEDUP.
+if os.environ.get("SIFT_LLM_DEDUP", "").strip().lower() in ("1", "true", "yes", "on"):
+    try:
+        from sift_sentinel.analysis.llm_dedup import apply_llm_dedup as _apply_llm_dedup
+
+        def _llm_dedup_adjudicator(_prompt):
+            _r = _live_call(_prompt, 2048, "LLM dedup (13AD)")
+            if _r is None:
+                return ""
+            return _r if isinstance(_r, str) else json.dumps(_r)
+
+        _disposition_buckets, _llm_dedup_ledger = _apply_llm_dedup(
+            _disposition_buckets, _llm_dedup_adjudicator, evidence_db=_disp_evdb)
+        if _llm_dedup_ledger:
+            # partition-gate discipline (mirrors 13AC): merged-away ids must also drop
+            # from findings_final or the PARTITION_GATE fails closed.
+            _ld_ids = {str(m.get("dropped")) for m in _llm_dedup_ledger if m.get("dropped")}
+            if _ld_ids:
+                findings_final = [
+                    f for f in findings_final
+                    if str((f or {}).get("finding_id") or (f or {}).get("id") or "")
+                    not in _ld_ids]
+            write_state(STATE_DIR, "llm_dedup_ledger.json", {"merged": _llm_dedup_ledger})
+            print("LLM_DEDUP merged=%d (semantic duplicates collapsed; LLM proposed, "
+                  "deterministic guard verified)" % len(_llm_dedup_ledger), flush=True)
+            logger.info("Step 13AD LLM dedup: merged %d semantic duplicates",
+                        len(_llm_dedup_ledger))
+        else:
+            print("LLM_DEDUP merged=0 (no verified semantic duplicates)", flush=True)
+    except Exception as _llm_dedup_exc:
+        print("LLM_DEDUP=SKIPPED %r" % _llm_dedup_exc, flush=True)
+        logger.error("Step 13AD LLM dedup skipped: %s", _llm_dedup_exc)
+
 print(f"{M}{B}STEP 13B: FINAL DISPOSITION ROUTING{X} (writing reconciled truth buckets)", flush=True)
 logger.info("Step 13B: Final disposition routing")
 _disposition_counts = {
