@@ -5068,6 +5068,34 @@ if os.environ.get("SIFT_SIGNATURE_RECONCILE", "").strip().lower() in ("1", "true
         logger.error("Step 13AA-post consistency reconcile skipped: %s", _recon2_exc)
 
 # ════════════════════════════════════════════════════════════════════════
+# STEP 13AA-ENT: Entity-disposition consistency (the SAME entity, ONE table)
+# ════════════════════════════════════════════════════════════════════════
+# After inv3a finalizes verdicts, resolve every entity (process PID / registry key /
+# event) that is SPLIT across the findings table and the benign table to ONE table,
+# by verdict STRENGTH: strong malice -> findings (a weak benign never buries it);
+# strong ReAct FP, no strong-malice sibling -> benign (a legit tool leaves the
+# findings table); both weak -> needs-review. Universal: keys only on verdict
+# strength + entity shape, no finding-IDs, no case data -> the same evidence places
+# the same way on every PC. Env-gated SIFT_ENTITY_DISPOSITION_CONSISTENCY.
+if os.environ.get("SIFT_ENTITY_DISPOSITION_CONSISTENCY", "").strip().lower() in ("1", "true", "yes", "on"):
+    try:
+        from sift_sentinel.analysis.entity_consistency import (
+            apply_entity_disposition_consistency as _entity_consistency,
+        )
+        _disposition_buckets, _ec_ledger = _entity_consistency(
+            _disposition_buckets, evidence_db=_disp_evdb)
+        if _ec_ledger:
+            write_state(STATE_DIR, "entity_consistency_ledger.json", {"moved": _ec_ledger})
+            print("ENTITY_DISPOSITION_CONSISTENCY moved=%d (same entity -> one table by verdict strength)"
+                  % len(_ec_ledger), flush=True)
+            logger.info("Step 13AA-ENT entity-disposition consistency: moved %d findings", len(_ec_ledger))
+        else:
+            print("ENTITY_DISPOSITION_CONSISTENCY moved=0 (no split-table entities)", flush=True)
+    except Exception as _ec_exc:
+        print("ENTITY_DISPOSITION_CONSISTENCY=SKIPPED %r" % _ec_exc, flush=True)
+        logger.error("Step 13AA-ENT entity-disposition consistency skipped: %s", _ec_exc)
+
+# ════════════════════════════════════════════════════════════════════════
 # STEP 13AB: Baseline-artifact precision gate (lever 3 / C2)
 # ════════════════════════════════════════════════════════════════════════
 # A System32/SysWOW64 binary known ONLY from execution-history tools (ShimCache /

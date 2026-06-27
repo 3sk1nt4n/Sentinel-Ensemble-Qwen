@@ -201,6 +201,7 @@ def mode_launch_env(mode: dict) -> dict:
     env["SIFT_BASELINE_GATE"] = "1"        # lever 3: baseline-artifact precision (C2)
     env["SIFT_CONFIRMED_DEDUP"] = "1"      # lever 1: same-artifact confirmed dedup (C2)
     env["SIFT_XBUCKET_DEDUP"] = "1"        # A1: cross-bucket same-event/artifact collapse (C2)
+    env["SIFT_ENTITY_DISPOSITION_CONSISTENCY"] = "1"  # same entity -> ONE table (kills split-table contradictions, universal)
     env["SIFT_NETWORK_SALIENCE"] = "1"     # network-IOC salience SHADOW (measure only)
     # PARALLELISM: give every level 8-16 workers where it is SAFE, adapting to the
     # host. Operator env always wins (only set when the shell has not pinned it).
