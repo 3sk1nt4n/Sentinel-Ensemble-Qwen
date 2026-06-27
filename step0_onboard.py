@@ -223,6 +223,10 @@ def mode_launch_env(mode: dict) -> dict:
         "SIFT_STEP11_MAX_WORKERS": _api_fanout,     # ReAct API fan-out -- core-matched
         "SIFT_STEP12_MAX_WORKERS": _api_fanout,     # self-correction API fan-out
         "SIFT_STEP6_HEAVY_FIRST": "1",              # long-pole tools submit first
+        # EVTX: the fast Rust `evtx` wheel finishes in seconds; this larger budget
+        # only binds on the slow python-evtx fallback (no wheel) so all crown-jewel
+        # channels (Security/WinRM/WMI/...) complete instead of being cut at 90s.
+        "SIFT_EVTX_TOTAL_BUDGET_S": "180",
     }
     # RAM-AWARE Step-6 worker floor (host-agnostic). Vol3 plugins mmap the image and
     # are IO/parse-bound, so up to 2x CPU oversubscription overlaps their IO waits
