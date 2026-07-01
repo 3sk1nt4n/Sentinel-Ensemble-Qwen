@@ -1,0 +1,57 @@
+{
+  "_note": "Sanitized aggregate metrics extracted from the live Qwen Cloud run summary. Case-specific IOCs are deliberately excluded per the case-neutral repo policy. Reproduce the full run with ./findevil.sh on your own evidence.",
+  "_tier": "light",
+  "corrections_attempted": 0,
+  "corrections_contained": 0,
+  "corrections_errored": 0,
+  "corrections_succeeded": 0,
+  "disk_integrity": "verified",
+  "disposition_counts": {
+    "benign_or_false_positive": 1,
+    "confirmed_malicious_atomic": 0,
+    "inconclusive_unresolved": 1,
+    "suspicious_needs_review": 9,
+    "synthesis_narrative": 0
+  },
+  "elapsed_s": 336.931,
+  "final_disposition_bucket_gate": "PASS",
+  "findings_blocked": 0,
+  "findings_final_count": 11,
+  "findings_passed": 11,
+  "findings_total": 10,
+  "integrity_match": true,
+  "llm_endpoint": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions",
+  "llm_provider": "qwen",
+  "memory_integrity": true,
+  "model": "qwen-plus",
+  "status": "completed",
+  "token_breakdown": {
+    "inv1": {
+      "input": 10472,
+      "output": 469
+    },
+    "inv2": {
+      "input": 471136,
+      "output": 17060
+    },
+    "inv4": {
+      "input": 3980,
+      "output": 1777
+    },
+    "react": {
+      "input": 127656,
+      "output": 3956
+    },
+    "sc": {
+      "input": 0,
+      "output": 0
+    }
+  },
+  "token_usage": {
+    "total_cache_creation": 0,
+    "total_cache_read": 32512,
+    "total_input": 614336,
+    "total_output": 23668
+  },
+  "tools_count": 34
+}
