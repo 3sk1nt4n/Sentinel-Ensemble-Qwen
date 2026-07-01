@@ -111,6 +111,35 @@ _HEAVY_MODEL = os.environ.get("SIFT_HEAVY_MODEL") or ("claude-" + "opus" + "-4-8
 # contiguous model literal enters source; overridable via SIFT_LIGHT_MODEL.
 _LIGHT_MODEL = os.environ.get("SIFT_LIGHT_MODEL") or ("claude-haiku" + "-4-5-20251001")
 
+# ── provider awareness (Qwen Cloud / DashScope) ───────────────────────────────
+# Mirrors src/sift_sentinel/llm_provider.py's provider resolution so the
+# launcher's key gate, menu names, and cost hints match the configured provider.
+_QWEN_PROVIDER_NAMES = {"qwen", "dashscope", "alibaba", "qwencloud"}
+
+
+def _qwen_mode() -> bool:
+    """True when the run is configured for Qwen Cloud (Alibaba DashScope)."""
+    return os.environ.get("SIFT_LLM_PROVIDER", "").strip().lower() in _QWEN_PROVIDER_NAMES
+
+
+def _key_env_name() -> str:
+    """The provider's key environment variable."""
+    return "DASHSCOPE_API_KEY" if _qwen_mode() else "ANTHROPIC_API_KEY"
+
+
+def _provider_label() -> str:
+    return "Qwen Cloud (DashScope)" if _qwen_mode() else "Anthropic"
+
+
+if _qwen_mode():
+    # Menu names + costs reflect the QWEN tiering (env-overridable), and the
+    # measured live-run costs (~$1.53 heavy / ~$0.28 light on the reference case).
+    _HEAVY_MODEL = (os.environ.get("SIFT_HEAVY_MODEL")
+                    or os.environ.get("SIFT_MODEL_ANALYSIS")
+                    or os.environ.get("SIFT_DEFAULT_MODEL")
+                    or "qwen3.7-max")
+    _LIGHT_MODEL = os.environ.get("SIFT_LIGHT_MODEL") or "qwen-plus"
+
 
 def _model_display(model: str) -> str:
     """Human label for a model id -- always reflects the ACTUAL selected model,
@@ -129,21 +158,30 @@ def _model_display(model: str) -> str:
         return "Claude Sonnet 4.6"
     if "haiku" in m:
         return "Claude Haiku 4.5"
+    if "qwen3.7-max" in m:
+        return "Qwen3.7-Max (flagship)"
+    if "qwen3-max" in m:
+        return "Qwen3-Max"
+    if "qwen-plus" in m:
+        return "Qwen-Plus"
     return str(model)
 
 
 _HEAVY_NAME = _model_display(_HEAVY_MODEL)
 _LIGHT_NAME = _model_display(_LIGHT_MODEL)
 
+_HEAVY_COST = "~$1.5–3 / case" if _qwen_mode() else "~$8–15 / case"
+_LIGHT_COST = "~$0.3–1 / case" if _qwen_mode() else "~$2–3 / case"
+
 ANALYSIS_MODES: dict = {
     "1": {"key": "heavy", "icon": "⚡", "label": "HEAVY",
           "name": _HEAVY_NAME, "tag": "deepest reasoning",
           "blurb": "all 4 invocations on %s + 4-model ensemble (Inv 1-2-3-4)" % _HEAVY_NAME,
-          "cost": "~$8–15 / case", "ensemble": True, "model": _HEAVY_MODEL},
+          "cost": _HEAVY_COST, "ensemble": True, "model": _HEAVY_MODEL},
     "2": {"key": "light", "icon": "🪶", "label": "LIGHT",
           "name": _LIGHT_NAME, "tag": "fast & economical",
           "blurb": "all 4 invocations on %s + 4-model ensemble (Inv 1-2-3-4)" % _LIGHT_NAME,
-          "cost": "~$2–3 / case", "ensemble": True, "model": _LIGHT_MODEL},
+          "cost": _LIGHT_COST, "ensemble": True, "model": _LIGHT_MODEL},
 }
 _DEFAULT_MODE = ANALYSIS_MODES["1"]
 
@@ -342,6 +380,21 @@ def validate_api_key(key: str) -> tuple:
     k = (key or "").strip()
     if not k:
         return False, "empty"
+    if _qwen_mode():
+        # DashScope (Qwen Cloud) keys: 'sk-…' (NOT 'sk-ant-…'), URL-safe + dots.
+        if k.startswith("sk-ant-"):
+            return False, ("looks like an ANTHROPIC key (sk-ant-…) — the Qwen "
+                           "path needs your DashScope key from Model Studio")
+        if not k.startswith("sk-"):
+            return False, "must start with 'sk-' (got '%s…')" % k[:6]
+        if len(k) < 20:
+            return False, "too short — %d chars (a DashScope key is longer)" % len(k)
+        if len(k) > 250:
+            return False, ("too long — %d chars. Did you paste it twice or "
+                           "include extra text?" % len(k))
+        if not re.fullmatch(r"[A-Za-z0-9_\-.]+", k):
+            return False, "has characters a DashScope key never contains"
+        return True, ""
     if not k.startswith("sk-ant-"):
         return False, "must start with 'sk-ant-' (got '%s…')" % k[:6]
     _n = k.count("sk-ant-")
@@ -376,6 +429,26 @@ def verify_api_key_live(key, *, _client_factory=None, timeout: float = 10.0) -> 
             return "unverified"
         if os.environ.get("PYTEST_CURRENT_TEST"):     # never hit the network during tests
             return "unverified"
+        if _qwen_mode():
+            # DashScope: a cheap authenticated GET on the OpenAI-compatible
+            # /models endpoint (no token cost). 401/403 = rejected; anything
+            # else fails open, same contract as the Anthropic path.
+            import urllib.error
+            import urllib.request
+            base = os.environ.get(
+                "DASHSCOPE_BASE_URL",
+                "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions",
+            )
+            root = base.split("/chat/completions")[0].rstrip("/")
+            req = urllib.request.Request(
+                root + "/models", headers={"Authorization": "Bearer " + (key or "")})
+            try:
+                with urllib.request.urlopen(req, timeout=timeout) as resp:
+                    return "ok" if 200 <= resp.status < 300 else "unverified"
+            except urllib.error.HTTPError as e:
+                return "rejected" if e.code in (401, 403) else "unverified"
+            except Exception:
+                return "unverified"
         try:
             import anthropic
             client = anthropic.Anthropic(api_key=key, timeout=timeout)
@@ -403,7 +476,9 @@ def _load_env_file_api_key(path=None) -> bool:
     picked up automatically. Returns True iff it set the key. The value is never printed;
     .env is gitignored. The default repo/CWD scan is skipped under tests (pass an
     explicit ``path`` to exercise the parser)."""
-    if os.environ.get("ANTHROPIC_API_KEY"):
+    env_name = _key_env_name()
+    accepted = ("DASHSCOPE_API_KEY", "QWEN_API_KEY") if _qwen_mode() else ("ANTHROPIC_API_KEY",)
+    if os.environ.get(env_name):
         return False
     if path is None and os.environ.get("PYTEST_CURRENT_TEST"):
         return False
@@ -419,10 +494,10 @@ def _load_env_file_api_key(path=None) -> bool:
                     if not ln or ln.startswith("#") or "=" not in ln:
                         continue
                     k, v = ln.split("=", 1)
-                    if k.strip().replace("export ", "").strip() == "ANTHROPIC_API_KEY":
+                    if k.strip().replace("export ", "").strip() in accepted:
                         v = v.strip().strip('"').strip("'")
                         if v:
-                            os.environ["ANTHROPIC_API_KEY"] = v
+                            os.environ[env_name] = v
                             return True
         except OSError:
             continue
@@ -462,7 +537,8 @@ def _is_placeholder_key(key) -> bool:
             run = 1
     # obvious template / 'replace me' words.
     for w in ("xxxx", "yourkey", "your-key", "your_key", "placeholder",
-              "replace", "example", "changeme", "change-me"):
+              "replace", "example", "changeme", "change-me",
+              "your-dashscope", "dashscope-key", "key-here"):
         if w in kl:
             return True
     return False
@@ -471,6 +547,8 @@ def _is_placeholder_key(key) -> bool:
 # ── visible key file (judge-friendly; no hidden dot-file to hunt for) ─────────
 _VISIBLE_KEY_FILE = "API_KEY.txt"
 _SK_ANT_TOKEN_RE = re.compile(r"sk-ant-[A-Za-z0-9_\-]+")
+# DashScope keys are 'sk-…' with dots allowed (and NOT 'sk-ant-…').
+_SK_QWEN_TOKEN_RE = re.compile(r"sk-[A-Za-z0-9_\-.]{16,}")
 _VISIBLE_KEY_FILE_TEMPLATE = (
     "# ─────────────────────────────────────────────────────────────────────────────\n"
     "#  SIFT Sentinel — your Anthropic API key\n"
@@ -497,12 +575,37 @@ _VISIBLE_KEY_FILE_TEMPLATE = (
     "sk-ant-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n"
 )
 
+_VISIBLE_KEY_FILE_TEMPLATE_QWEN = (
+    "# ─────────────────────────────────────────────────────────────────────────────\n"
+    "#  SIFT Sentinel — your Qwen Cloud (DashScope) API key\n"
+    "# ─────────────────────────────────────────────────────────────────────────────\n"
+    "#  Paste YOUR key on the LAST line below (replace the placeholder), then SAVE.\n"
+    "#  Get one at  https://qwencloud.com  →  Model Studio (Singapore/Intl region)\n"
+    "#  →  API Keys  →  Create API Key.\n"
+    "#  Read locally only — never uploaded, logged, or committed (this file is\n"
+    "#  gitignored). You can also just run ./findevil.sh and paste it when asked.\n"
+    "#\n"
+    "#  Cost expectations (measured on the reference paired case): a full LIGHT\n"
+    "#  run ~$0.28 (qwen-plus), a full HEAVY run ~$1.53 (qwen3.7-max) — the $40\n"
+    "#  hackathon voucher covers many runs. `--demo` is free (no key needed).\n"
+    "# ─────────────────────────────────────────────────────────────────────────────\n"
+    "\n"
+    "sk-your-dashscope-key-here\n"
+)
+
+
+def _visible_key_file_template() -> str:
+    return _VISIBLE_KEY_FILE_TEMPLATE_QWEN if _qwen_mode() else _VISIBLE_KEY_FILE_TEMPLATE
+
 
 def _scan_text_for_anthropic_key(path):
     """First Anthropic key token in a file: ``ANTHROPIC_API_KEY=<v>`` OR a bare
     ``sk-ant-…`` token on any non-comment line (so a judge can paste the key by
     itself). Returns the token string, or None. Comments (``#``) are ignored.
     Never raises."""
+    qwen = _qwen_mode()
+    accepted = ("DASHSCOPE_API_KEY", "QWEN_API_KEY") if qwen else ("ANTHROPIC_API_KEY",)
+    token_re = _SK_QWEN_TOKEN_RE if qwen else _SK_ANT_TOKEN_RE
     try:
         with open(path, "r", encoding="utf-8", errors="ignore") as fh:
             for ln in fh:
@@ -511,13 +614,13 @@ def _scan_text_for_anthropic_key(path):
                     continue
                 if "=" in line:
                     k, v = line.split("=", 1)
-                    if k.strip().replace("export ", "").strip() == "ANTHROPIC_API_KEY":
+                    if k.strip().replace("export ", "").strip() in accepted:
                         v = v.strip().strip('"').strip("'")
                         if v:
                             return v
                         continue
-                m = _SK_ANT_TOKEN_RE.search(line)
-                if m:
+                m = token_re.search(line)
+                if m and not (qwen and m.group(0).startswith("sk-ant-")):
                     return m.group(0)
     except OSError:
         return None
@@ -574,7 +677,7 @@ def _ensure_visible_key_file():
         return path
     try:
         with open(path, "w", encoding="utf-8") as fh:
-            fh.write(_VISIBLE_KEY_FILE_TEMPLATE)
+            fh.write(_visible_key_file_template())
         try:
             os.chmod(path, 0o600)
         except OSError:
@@ -609,16 +712,21 @@ def _ensure_api_key(getpass_fn=None, max_tries: int = 3, verifier=None) -> bool:
     launch. The key is never printed, logged, or persisted to disk."""
     getpass_fn = getpass_fn or getpass.getpass
     verify = verifier or verify_api_key_live
+    _env_name = _key_env_name()
+    # Qwen path: QWEN_API_KEY is an accepted alias for DASHSCOPE_API_KEY.
+    if _qwen_mode() and not os.environ.get("DASHSCOPE_API_KEY") \
+            and os.environ.get("QWEN_API_KEY"):
+        os.environ["DASHSCOPE_API_KEY"] = os.environ["QWEN_API_KEY"]
     # Resolve a key from files, preferring a REAL key over any placeholder. Order:
     # environment variable > .env > visible API_KEY.txt. A placeholder anywhere never
     # beats a real key found elsewhere, so a leftover .env placeholder is harmless.
     _src = "your environment"
-    if not os.environ.get("ANTHROPIC_API_KEY"):
+    if not os.environ.get(_env_name):
         _fk, _flabel, _fis_ph = _find_key_in_files()
         if _fk:
-            os.environ["ANTHROPIC_API_KEY"] = _fk
+            os.environ[_env_name] = _fk
             _src = _flabel
-    existing = os.environ.get("ANTHROPIC_API_KEY")
+    existing = os.environ.get(_env_name)
     print(_c("\n  🔑 API key", "1;33")
           + _c("  (hidden — never shown, this session only)", "2"))
     # Frictionless skip: a key already configured (environment, .env, or API_KEY.txt)
@@ -635,11 +743,12 @@ def _ensure_api_key(getpass_fn=None, max_tries: int = 3, verifier=None) -> bool:
             # A placeholder in the environment must not hide a real key in a file.
             _fk, _flabel = _first_verifying_file_key(verify, exclude=existing)
             if _fk:
-                os.environ["ANTHROPIC_API_KEY"] = _fk
+                os.environ[_env_name] = _fk
                 print(_c("  ✓ using the verified key in %s." % _flabel, "1;32"))
                 return True
-            print(_c("  ⚠ %s still has the placeholder key (sk-ant-xxxx…) — replace it "
-                     "with your real key. Paste one below for this run:" % _src, "1;33"))
+            _ph_hint = ("sk-your-dashscope-key…" if _qwen_mode() else "sk-ant-xxxx…")
+            print(_c("  ⚠ %s still has the placeholder key (%s) — replace it "
+                     "with your real key. Paste one below for this run:" % (_src, _ph_hint), "1;33"))
             existing = None
         else:
             status = verify(existing)
@@ -655,7 +764,7 @@ def _ensure_api_key(getpass_fn=None, max_tries: int = 3, verifier=None) -> bool:
             # common 'stale export shadows my edited file' case.
             _fk, _flabel = _first_verifying_file_key(verify, exclude=existing)
             if _fk:
-                os.environ["ANTHROPIC_API_KEY"] = _fk
+                os.environ[_env_name] = _fk
                 print(_c("  ✓ the key in %s was rejected, but %s has a valid one — using it."
                          % (_src, _flabel), "1;32"))
                 return True
@@ -674,11 +783,11 @@ def _ensure_api_key(getpass_fn=None, max_tries: int = 3, verifier=None) -> bool:
         print(_c("    Prefer a file? Open this visible file, paste your key on its own "
                  "line, and save:", "2"))
         print("        " + _c(_kf, "36"))
-        print(_c("    (a hidden .env with ANTHROPIC_API_KEY=… also works.)", "2"))
+        print(_c("    (a hidden .env with %s=… also works.)" % _env_name, "2"))
     for _ in range(max_tries):
         prompt = ("  ▸ Press Enter to use the key already set, or paste a different "
                   "one (hidden): " if existing
-                  else "  ▸ Paste your Anthropic API key (hidden, not echoed): ")
+                  else "  ▸ Paste your %s API key (hidden, not echoed): " % _provider_label())
         try:
             key = (getpass_fn(prompt) or "").strip()
         except (EOFError, OSError, KeyboardInterrupt):
@@ -699,8 +808,9 @@ def _ensure_api_key(getpass_fn=None, max_tries: int = 3, verifier=None) -> bool:
         ok, why = validate_api_key(key)
         if not ok:
             tail = (" — or press Enter to use the existing key" if existing else "")
-            print(_c("  ✗ that doesn't look like an Anthropic key: %s. Try again%s."
-                     % (why, tail), "31"))
+            _lbl = ("a Qwen Cloud (DashScope)" if _qwen_mode() else "an Anthropic")
+            print(_c("  ✗ that doesn't look like %s key: %s. Try again%s."
+                     % (_lbl, why, tail), "31"))
             continue
         status = verify(key)
         if status == "rejected":
@@ -708,11 +818,12 @@ def _ensure_api_key(getpass_fn=None, max_tries: int = 3, verifier=None) -> bool:
             print(_c("  ✗ the API rejected that key (401 invalid x-api-key) — it may be "
                      "revoked or for the wrong workspace. Paste a valid one%s." % tail, "31"))
             continue
-        os.environ["ANTHROPIC_API_KEY"] = key
+        os.environ[_env_name] = key
         if status == "ok":
             print(_c("  ✓ key verified with the API (accepted, %d chars)." % len(key), "32"))
         else:
-            print(_c("  ✓ key format looks valid (sk-ant-…, %d chars)." % len(key), "32")
+            _pfx = "sk-…" if _qwen_mode() else "sk-ant-…"
+            print(_c("  ✓ key format looks valid (%s, %d chars)." % (_pfx, len(key)), "32")
                   + _c("  (could not verify online; proceeding)", "2"))
         return True
     print(_c("  ✗ no valid API key after %d attempts — cannot launch." % max_tries, "31"))
