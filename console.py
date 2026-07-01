@@ -774,7 +774,7 @@ def render_welcome(mode: str) -> None:
     panel = Panel(
         "\n".join(lines),
         title="[bold cyan]SIFT SENTINEL[/bold cyan] - Agentic DFIR Terminal",
-        subtitle="Find Evil! AI Hackathon 2026",
+        subtitle="Global AI Hackathon with Qwen Cloud - Track 4",
         border_style="cyan",
         padding=(1, 2),
     )
