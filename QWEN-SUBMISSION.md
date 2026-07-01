@@ -1,6 +1,6 @@
 # Sentinel Ensemble - Qwen Cloud edition (Track 4: Autopilot Agent)
 
-> An autonomous DFIR / SOC triage agent that turns raw evidence (or an alert)
+> An autonomous DFIR / SOC triage agent that turns the raw evidence behind an alert
 > into a verified, analyst-ready incident report - running on **Qwen models
 > hosted on Alibaba Cloud**, with a deterministic trust layer so the agent never
 > reports a finding it cannot prove.
@@ -9,6 +9,20 @@
 **Track:** 4 - Autopilot Agent
 **Repo:** https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen (public, MIT - `LICENSE` visible in About)
 **Proof of Alibaba Cloud usage:** [`src/sift_sentinel/llm_provider.py`](src/sift_sentinel/llm_provider.py) - issues live HTTPS calls to the Alibaba Cloud DashScope API.
+
+## Where it sits in a SOC (the business case)
+
+An alert fires. Evidence gets captured (memory, disk). Then the expensive part
+begins: a trained analyst spends hours - often a full shift - reconstructing
+what actually happened, and a hallucinated AI "finding" is worse than no answer,
+because a false attribution in an incident report burns response hours and
+credibility. Sentinel Ensemble runs that entire triage autonomously in **5-15
+minutes for $0.28-$1.53 per full paired investigation** (measured; both runs
+shipped in [`docs/qwen-runs/`](docs/qwen-runs/)), refuses to confirm anything it
+cannot prove from tool output, and gives the analyst an approve/override
+checkpoint before the report. **Incident-response agents fix outages; Sentinel
+Ensemble investigates compromises.** The analyst's hours move from evidence
+grinding to decision-making.
 
 ---
 
@@ -25,11 +39,12 @@ Per the Devpost x Qwen Cloud rules, proof has two parts:
    record that same `llm_endpoint`, `llm_provider: qwen`, and the model
    (`qwen3.7-max` / `qwen-plus`) - so the runs demonstrably went to Alibaba Cloud.
 
-2. **Screenshot of running resources on Alibaba Cloud.** See
-   [`docs/proof/`](docs/proof/) for the Workbench screenshot (ECS instance in the
-   *Running* state and/or the Model Studio / DashScope usage from a run).
-   [`DEPLOY-ALIBABA.md`](DEPLOY-ALIBABA.md) is the turnkey runbook to run the
-   backend on Alibaba Cloud **ECS** and capture that screenshot.
+2. **Screenshot of running resources on Alibaba Cloud.** The Workbench
+   screenshot (an **ECS or Simple Application Server instance in the *Running*
+   state**, matching the official guide's sample screenshots) lands in
+   [`docs/proof/`](docs/proof/) per the capture runbook -
+   [`DEPLOY-ALIBABA.md`](DEPLOY-ALIBABA.md) is the turnkey path to deploy the
+   backend on Alibaba Cloud compute and capture it.
 
 ---
 
@@ -42,11 +57,11 @@ production-readiness over toy demos. SOC/DFIR triage is exactly that:
 
 | Track-4 requirement | How Sentinel Ensemble meets it | Where (code / artifact) |
 |---|---|---|
-| Ambiguous inputs | Raw memory/disk evidence (or an alert) - the onboarding engine auto-detects memory-only / disk-only / paired, mounts read-only, profiles the OS, and decides what to investigate | `src/sift_sentinel/onboard/`, Inv1 tool selection |
+| Ambiguous inputs | Raw memory/disk evidence, exactly as captured behind an alert - the onboarding engine auto-detects memory-only / disk-only / paired, mounts read-only, profiles the OS, and decides what to investigate | `src/sift_sentinel/onboard/`, Inv1 tool selection |
 | Invoke external tools | **195 typed forensic tools** (Volatility 3, Sleuth Kit, EZ Tools, Plaso, bulk_extractor, RegRipper, YARA) on a custom **MCP server - zero shell access** | `src/server.py`, `src/sift_sentinel/tools/` |
 | Human-in-the-loop **at critical decision points** | Two layers: (1) the deterministic disposition **escalates** unproven claims to a *needs-review* bucket instead of asserting them; (2) an **opt-in approval gate** (`SIFT_HITL_CHECKPOINT=1`) **pauses at the disposition decision - before the report -** for the analyst to **approve or override** any finding's verdict; plus the launch checkpoints (evidence / depth / key) | `src/sift_sentinel/hitl_checkpoint.py`, `analysis/disposition.py`, `step0_onboard.py` |
 | End-to-end automation | A **16-step deterministic conductor** runs the whole pipeline with zero steering; the model is invoked only inside bounded steps | `run_pipeline.py` |
-| Production-readiness (not a toy) | Read-only evidence + **SHA-256 chain of custody**, ~13 fail-closed gates, automatic prompt caching, a **~4,900-test suite** (green core proofs in `JUDGE-QUICKSTART.md` §7), two real Qwen-Cloud runs, Docker (demo/full/full-plus) | `analysis/`, `tests/`, `Dockerfile` |
+| Production-readiness (not a toy) | Read-only evidence + **SHA-256 chain of custody**, ~13 fail-closed gates, automatic prompt caching, a green **4,700+ passing** test suite (`pytest tests/` is green by default; legacy quarantine documented in `tests/QUARANTINE.md`), two real Qwen-Cloud runs, Docker (demo/full/full-plus) | `analysis/`, `tests/`, `Dockerfile` |
 
 **Read-only by design is a feature, not a gap.** Track-4's examples mention
 "automated remediation," but in high-stakes incident response, auto-acting on a
@@ -114,6 +129,35 @@ flagship. Confirm the exact current IDs in your DashScope model list.)*
 
 ---
 
+## Qwen-specific engineering (not just a provider swap)
+
+Four pieces of DashScope-specific engineering, all exercised by the live runs:
+
+- **Automatic prompt-cache accounting** - DashScope's implicit prefix caching is
+  read from `usage.prompt_tokens_details.cached_tokens`, clamped to the prompt
+  size, and credited as cache-read in the cost model
+  ([`llm_provider.py`](src/sift_sentinel/llm_provider.py)). The heavy run reused
+  **381,696 tokens** on the shared ensemble / ReAct / 13AA prefix (~36% cost
+  cut, est. at the configured cache rate).
+- **`reasoning_content` fallback** - Qwen thinking-mode responses that return an
+  empty `content` are recovered from `reasoning_content`, so deep-reasoning
+  tiers never silently zero out.
+- **Per-model output-cap clamp** - DashScope returns 400 when `max_tokens`
+  exceeds a model's output ceiling; the client clamps to
+  `SIFT_MAX_OUTPUT_TOKENS` so ensemble members never die on a cap mismatch.
+- **Read-timeout resilience** - the all-`qwen3.7-max` ensemble initially died on
+  socket read timeouts mid-generation (reasoning calls routinely exceed 120s);
+  bounded retries honoring `Retry-After` plus explicit bare-`TimeoutError`
+  handling fixed the live run (`SIFT_HTTP_TIMEOUT`, default 600s).
+
+**And a designed ablation, not two lucky runs:** the light (`qwen-plus` ×4) vs
+heavy (`qwen3.7-max`) pair holds the deterministic trust layer constant and
+varies only the Qwen model tier - measuring what each tier can *prove*, not
+what it says. Result: **0 vs 4 confirmed**. The bar does not move; the model's
+ability to clear it does.
+
+---
+
 ## Architecture (Qwen Cloud + Alibaba)
 
 ```
@@ -151,8 +195,8 @@ Python.
 | Public repo + MIT license | done (github.com/3sk1nt4n/Sentinel-Ensemble-Qwen) |
 | Proof-of-Alibaba-Cloud code file | done (`llm_provider.py`) |
 | Architecture diagram (Qwen box) | done (`ARCH_VERTICAL.png`) |
-| **Live Qwen run + artifacts** | **done** - see "Verified Qwen Cloud run" below |
-| Demo video (<3 min, YouTube/Vimeo/Youku) | built (`docs/sentinel-qwen-demo.mp4`, 2:44, full-name intro + the 0-vs-4 two-tier reveal, real footage from both runs). **Hosted link:** `<ADD-YOUTUBE-URL>` - upload (public/unlisted) and paste on the Devpost form before submitting |
+| **Live Qwen runs + artifacts** | **done** - see "Verified Qwen Cloud runs" below |
+| Demo video (<3 min, YouTube/Vimeo/Youku) | built (`docs/sentinel-qwen-demo.mp4`, 2:44, title-card intro + the 0-vs-4 two-tier reveal, real run output from both runs). **Hosted link:** `<ADD-YOUTUBE-URL>` - upload to YouTube as **Public** (the overview page requires "made public"; unlisted is a gamble) and paste on the Devpost form before submitting |
 | Proof of Deployment on Alibaba Cloud | code-file + Base URL: **done** (`llm_provider.py`; endpoint also in `docs/qwen-runs/`). Workbench screenshot: add to `docs/proof/` before submitting (runbook: `DEPLOY-ALIBABA.md`) |
 | Legacy-doc reframe to Track 4 | done |
 

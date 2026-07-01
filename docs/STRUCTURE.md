@@ -4,7 +4,7 @@ A map of the repository, so a new contributor knows where everything lives.
 Package name is `sift_sentinel`; the product/repo is **Sentinel Ensemble**.
 
 ```
-Sentinel-Ensemble/
+Sentinel-Ensemble-Qwen/
 ├── findevil.sh / findevil.py     # ⭐ the one-command front door (delegates to step0_onboard)
 ├── step0_onboard.py              # conversational onboarding: find + profile + mount evidence
 ├── run_pipeline.py               # the 16-step conductor (deterministic Python)
@@ -21,6 +21,8 @@ Sentinel-Ensemble/
 │   ├── server.py                 # MCP server entry point (advertises 195 typed tools)
 │   └── sift_sentinel/
 │       ├── coordinator.py        # core pipeline engine (steps, invocations, ReAct loop)
+│       ├── llm_provider.py       # ⭐ provider seam: Qwen/DashScope (Alibaba Cloud) adapter
+│       │                         #   - the Proof-of-Deployment code file (Base URL inside)
 │       ├── ensemble.py           # Inv2 multi-model fan-out + merge
 │       ├── mcp_client.py         # typed MCP client (the AI's only tool channel)
 │       ├── model_roles.py        # per-stage model resolution (env-driven, no hardcoded ids)
@@ -50,10 +52,12 @@ Sentinel-Ensemble/
 │   └── nocheat.py               # commit-time guard: bans answer-key vocab + case-specific artifacts
 │
 ├── docs/                        # ACCURACY.md, this file, DATASET.md, INVOCATIONS.md,
-│                                #   VALIDATOR.md + design/
+│   │                            #   VALIDATOR.md + design/
+│   ├── qwen-runs/               # shipped sanitized metrics of the two live Qwen Cloud runs
+│   └── proof/                   # Proof-of-Deployment: Alibaba Cloud Workbench screenshot slot
 ├── yara_rules/                  # behavioural YARA signatures
-├── scripts/ · bin/              # operational helpers
-└── artifacts/                   # one complete run's outputs (report, findings, audit log)
+├── scripts/ · bin/              # operational helpers (incl. scripts/qwen_smoke.py)
+└── artifacts/                   # local run outputs (gitignored - never committed, case-neutral policy)
 ```
 
 ## The five things a new user touches
@@ -62,7 +66,7 @@ Sentinel-Ensemble/
 |---|---|
 | **Run it** | `./findevil.sh` → `step0_onboard.py` |
 | Understand the pipeline | [`ARCHITECTURE.md`](../ARCHITECTURE.md) (16 steps + diagrams) |
-| Understand a finding's provenance | `src/sift_sentinel/validation/` + `artifacts/<run>/agent_execution_log.txt` |
+| Understand a finding's provenance | `src/sift_sentinel/validation/` + your local run's `agent_execution_log.txt` (run outputs are never committed) |
 | See what it was tested on | [`DATASET.md`](DATASET.md) |
 | See how accurate it is | [`ACCURACY.md`](ACCURACY.md) |
 

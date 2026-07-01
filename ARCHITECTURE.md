@@ -28,7 +28,7 @@ finalize - not an off-the-shelf agent CLI.
 > function on our own Model-Context-Protocol server, and the agent has **zero
 > shell access**. Guardrails are classified as **architectural** (a guarantee
 > the model *cannot* bypass - e.g. no shell exists to call) vs **prompt-based**
-> (the honest weakest layer) - see [Guardrail classification](#guardrail-classification-required-disclosure--what-kind-of-guarantee-each-layer-gives).
+> (the honest weakest layer) - see [Guardrail classification](#guardrail-classification-required-disclosure---what-kind-of-guarantee-each-layer-gives).
 
 **Key differentiator**: Zero shell access. The AI never constructs or
 executes command-line syntax. All forensic tools are exposed as typed

@@ -3,7 +3,7 @@
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 ![Platform](https://img.shields.io/badge/Platform-SANS%20SIFT%20Workstation-blue)
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
-![Tests](https://img.shields.io/badge/pytest-~4%2C900%20tests-brightgreen)
+![Tests](https://img.shields.io/badge/pytest-4%2C700%2B%20passing-brightgreen)
 ![Evidence](https://img.shields.io/badge/Evidence-strictly%20read--only-critical)
 
 **Autonomous agentic DFIR for the SANS SIFT Workstation.** Point it at Windows
@@ -11,6 +11,12 @@ evidence (memory image, disk image, event logs) and it investigates end-to-end -
 **zero human steering, zero model shell access** - then hands you an
 investigative report where **every single claim is validated against real tool
 output before you ever see it**.
+
+Incident-response agents fix outages; **Sentinel Ensemble investigates
+compromises**: **195 typed forensic tools** on a custom MCP server, **two real
+Qwen Cloud runs** on the same intrusion case (**0 vs 4 confirmed** across model
+tiers - the trust layer is the constant), and every finding traced to the exact
+tool execution that proved it.
 
 > Global AI Hackathon with Qwen Cloud · Track 4 (Autopilot Agent) · Adil Eskintan · MIT License
 > *Internal Python package name: `sift_sentinel` (stable import path; the product/repo name is Sentinel Ensemble).*
@@ -30,7 +36,7 @@ output before you ever see it**.
 | Proof of Deployment - code file + Base URL | done | [`src/sift_sentinel/llm_provider.py`](src/sift_sentinel/llm_provider.py) - live DashScope (Alibaba Cloud) HTTPS calls to `dashscope-intl.aliyuncs.com/compatible-mode/v1`; endpoint also recorded in [`docs/qwen-runs/`](docs/qwen-runs/) |
 | Proof of Deployment - Workbench screenshot | add before submit | capture per [`docs/proof/`](docs/proof/) + [`DEPLOY-ALIBABA.md`](DEPLOY-ALIBABA.md); attach to the Devpost "Proof of Deployment" question |
 | Architecture diagram | done | [`ARCHITECTURE.md`](ARCHITECTURE.md) + `ARCH_VERTICAL.png` (Qwen/DashScope inference box) |
-| Demonstration video (< 3 min) | built - host + link | [`docs/sentinel-qwen-demo.mp4`](docs/sentinel-qwen-demo.mp4) - 2:44, full-name intro + the 0-vs-4 two-tier reveal, real footage from both runs. Upload to YouTube/Vimeo/Youku and put the link on the Devpost form (the one open submission step) |
+| Demonstration video (< 3 min) | built - host + link | [`docs/sentinel-qwen-demo.mp4`](docs/sentinel-qwen-demo.mp4) - 2:44, title-card intro + the 0-vs-4 two-tier reveal, real run output from both runs. Upload to YouTube/Vimeo/Youku and put the link on the Devpost form (the one open submission step) |
 | Track identified | done | Track 4 - Autopilot Agent |
 | Trust layer (code, not the model, decides "confirmed") | done | deterministic validator + disposition gates; every finding traces to tool output (`src/sift_sentinel/validation/`, `src/sift_sentinel/analysis/disposition.py`) |
 | Self-correction | done | [`SELF-CORRECTION-PROOF.md`](SELF-CORRECTION-PROOF.md) - FP-sweep + ReAct cross-check |

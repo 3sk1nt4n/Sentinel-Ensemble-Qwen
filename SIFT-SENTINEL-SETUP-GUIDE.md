@@ -44,10 +44,15 @@ ewfinfo -h | head -2    # EWF tools
 
 ---
 
-## Phase B - The AI brain (Anthropic API key)
+## Phase B - The AI brain (Qwen Cloud API key)
 
-1. Go to **https://console.anthropic.com** → sign up / log in.
-2. **API keys → Create key** → copy the `sk-ant-…` string.
+This edition runs on **Qwen models hosted on Alibaba Cloud (DashScope / Model
+Studio)** by default.
+
+1. Sign up at **https://qwencloud.com** (Alibaba Cloud Model Studio) - hackathon
+   participants can request the **$40 Qwen Cloud voucher**.
+2. **Model Studio (Singapore / International region) → API Keys → Create API
+   Key** → copy the `sk-…` string.
 3. Give it to Sentinel Ensemble in **any one of three ways** - you can't get
    stuck (a real key always wins; a bad one falls through to the next):
 
@@ -55,7 +60,11 @@ ewfinfo -h | head -2    # EWF tools
 |---|---|---|---|
 | **①** | **🚀 Just run it & paste** *(recommended)* | At the `🔑 API key` step the launcher asks you at a **hidden prompt** - paste, press Enter. | Verified live · session only · **never echoed, logged, or saved to disk**. |
 | **②** | **📄 A visible file** *(set once)* | Open **`API_KEY.txt`** in the repo root, replace the placeholder on the **last line**, **save**. | Auto-created on first run · **gitignored** (never committed) · no prompt next time. |
-| **③** | **🌐 Environment variable** | `export ANTHROPIC_API_KEY=sk-ant-…` (a hidden `.env` works too). | For CI / power users. |
+| **③** | **🌐 Environment file** | `cp .env.qwen.example .env`, set `DASHSCOPE_API_KEY=sk-…` (provider + model tiering are preset), then `python3 scripts/qwen_smoke.py` to verify connectivity. | For CI / power users. |
+
+> **Anthropic fallback (optional):** unset `SIFT_LLM_PROVIDER` and set
+> `ANTHROPIC_API_KEY=sk-ant-…` to run the identical pipeline on Claude via the
+> same provider seam. Not needed for the Qwen Cloud submission.
 
 > **🔓 Order & self-healing:** the launcher checks **env var → `.env` →
 > `API_KEY.txt`**. A real key always beats a placeholder, and if the environment
@@ -72,8 +81,8 @@ to each option, and the finished report shows the **real** bill.
 ## Phase C - Install Sentinel Ensemble
 
 ```bash
-git clone https://github.com/3sk1nt4n/Sentinel-Ensemble.git
-cd Sentinel-Ensemble
+git clone https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen.git
+cd Sentinel-Ensemble-Qwen
 pip install -r requirements.txt
 ```
 
@@ -174,7 +183,7 @@ survives that walk; that's the whole point of the architecture.
 | Demo doesn't end with "Everything verified and ready." | read the line it printed instead - the launcher names the missing piece |
 | Typing `FIND` doesn't launch | you ran `step0_onboard.py` directly (staged by default for developers) - use `./findevil.sh` |
 | "Vol3 ISF profile not found" during a run | expected on some images - the pipeline falls back to profile-independent scanning |
-| API key rejected (401) | the key is invalid/expired - create a fresh one at console.anthropic.com; the launcher re-prompts |
+| API key rejected (401) | the key is invalid/expired, or its region doesn't match the endpoint (intl key ↔ intl endpoint) - create a fresh one in Model Studio; the launcher re-prompts |
 
 ---
 
@@ -186,4 +195,4 @@ survives that walk; that's the whole point of the architecture.
 - [`ONBOARDING.md`](ONBOARDING.md) - contributing to the codebase
 - [`docs/`](docs/) - dataset, accuracy report, schema, pipeline internals
 
-*Sentinel Ensemble - Adil Eskintan - Find Evil! AI Hackathon 2026*
+*Sentinel Ensemble - Adil Eskintan - Global AI Hackathon with Qwen Cloud, Track 4 (Autopilot Agent)*

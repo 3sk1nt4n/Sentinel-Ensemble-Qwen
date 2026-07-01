@@ -62,7 +62,7 @@ parsers. The pipeline degrades gracefully when a tool is absent.)
 ## 3) Get the code + Python deps
 
 ```bash
-git clone <your-public-qwen-repo-url> Sentinel-Ensemble-Qwen
+git clone https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen.git
 cd Sentinel-Ensemble-Qwen
 python3 -m venv .venv && . .venv/bin/activate
 pip install -r requirements.txt

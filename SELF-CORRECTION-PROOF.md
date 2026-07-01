@@ -114,13 +114,17 @@ to mark its own homework - Layer 1 and Layer 2 both sit on top of this code gate
 
 ---
 
-## ✅ Verify it yourself (60 seconds, no API key)
+## ✅ Verify it yourself (no API key needed for the second block)
 
-Everything above is in the published log. Run these against the repo:
+The log itself is **not committed** (case-neutral policy - run outputs carry
+case IOCs). Regenerate a run with `./findevil.sh` on your own evidence, then
+run these greps against **your local** execution log (the counts below are from
+the rd01 reference run and will differ on your case; the *line types* are what
+to look for):
 
 ```bash
-cd Sentinel-Ensemble
-LOG=artifacts/run-rd01/agent_execution_log.txt
+cd Sentinel-Ensemble-Qwen
+LOG=/path/to/your-run/agent_execution_log.txt
 
 # Layer 1: ReAct re-investigated its own findings, and caught 4 false positives
 grep -n "15 investigations, 49 total turns" "$LOG"

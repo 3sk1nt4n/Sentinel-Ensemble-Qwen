@@ -3,9 +3,9 @@
 # Three build targets (pick by size / completeness):
 #   demo       ~290 MB  python + 4 deps. `findevil.sh --demo` (NO key, NO
 #                       evidence, NO forensic tools). The fastest "just try it".
-#   full       ~490 MB  demo + the memory/disk core: Volatility 3, Sleuth Kit,
+#   full       ~465 MB  demo + the memory/disk core: Volatility 3, Sleuth Kit,
 #                       EWF tools, YARA. Real memory/disk runs.
-#   full-plus  ~1.1 GB  full + every high-value tool the pipeline invokes:
+#   full-plus  ~990 MB  full + every high-value tool the pipeline invokes:
 #                       bulk_extractor, EZ Tools (EvtxECmd/RECmd via .NET 9),
 #                       Plaso (log2timeline), RegRipper, pff-tools, photorec.
 #                       This is the DEFAULT target (everything-in-Docker).

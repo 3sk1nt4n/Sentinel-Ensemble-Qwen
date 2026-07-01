@@ -16,6 +16,13 @@ Each file records `llm_provider: qwen`, the live `llm_endpoint`
 `model`, `disposition_counts`, `token_usage` (including DashScope
 `total_cache_read`), and `integrity_match` - straight from the run's summary JSON.
 
+**Field semantics** (so the JSON arithmetic reads correctly): `findings_total`
+snapshots the candidate set entering Step-10 validation; the ReAct investigation
+threads can *add* findings after that point, so `findings_passed` can exceed
+`findings_total`; and `findings_final_count` is the post-dedup,
+post-reconciliation report set. The three counters legitimately differ
+(`run_pipeline.py` builds them at different pipeline stages).
+
 **Why only aggregates?** Per the repo's **case-neutral policy**, full run outputs
 (which contain case-specific IOCs: hostnames, paths, PIDs) are never committed.
 These files carry only provider/model/endpoint, counts, timings, tokens, and the
