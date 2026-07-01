@@ -9,11 +9,19 @@ requires-python = ">=3.10"
 dependencies = [
     "pydantic>=2.0",
     "mcp>=1.0",
+    "defusedxml>=0.7",   # hardened XML parsing of untrusted evidence
+    "pycryptodome>=3.20",  # crypto helpers used by the coordinator
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0",
+]
+# Optional: the Anthropic fallback provider. The default Qwen/DashScope path is
+# stdlib-only and needs none of this -- install with `pip install .[anthropic]`
+# only if you run SIFT_LLM_PROVIDER=anthropic.
+anthropic = [
+    "anthropic>=0.40",
 ]
 
 [tool.setuptools.packages.find]

@@ -22,10 +22,16 @@ import logging
 import re
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
-import anthropic
 import os
+
+if TYPE_CHECKING:
+    # `anthropic` is used only for the type hint on _call_one_model's client
+    # parameter. With `from __future__ import annotations` above, that annotation
+    # is never evaluated at runtime, so a Qwen-only install needs no anthropic
+    # package. Importing it here keeps a hard dependency out of the Qwen path.
+    import anthropic
 
 from .model_roles import extract_response_text
 
