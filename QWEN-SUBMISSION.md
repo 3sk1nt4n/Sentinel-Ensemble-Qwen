@@ -249,6 +249,16 @@ constant; the model tier just changes how much clears the bar.** Dashboards:
 `docs/qwen_paired_dashboard.png` (light), `docs/qwen_allmax_dashboard.png` (heavy);
 demo video `docs/sentinel-qwen-demo.mp4`.
 
+**Reproduced, and ablated (2026-07-01).** An independent rerun on the same case
+re-confirmed the intrusion chain (0 inconclusive, integrity MATCH, gate PASS;
+3 confirmed - one fewer than June's 4, normal model non-determinism). More
+importantly, we ran the **same case, same `qwen3.7-max`, with the trust-layer
+finalization flags turned OFF**: findings left inconclusive jumped **0 -> 11**
+and confirmations fell **3 -> 1**. That is the trust layer's job made measurable:
+it **resolves uncertainty without ever manufacturing a confirmation** - every
+promotion in both runs still passed the identical deterministic eligibility gate.
+Both are shipped in [`docs/qwen-runs/`](docs/qwen-runs/) (repro + ablation).
+
 > **Honesty note:** both are real Qwen Cloud runs (numbers straight from each
 > run's summary JSON; sanitized aggregates shipped in
 > [`docs/qwen-runs/`](docs/qwen-runs/)). The light tier's **0 confirmed** is the design working,

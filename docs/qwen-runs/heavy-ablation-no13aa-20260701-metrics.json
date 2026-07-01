@@ -1,0 +1,57 @@
+{
+  "_note": "ABLATION (2026-07-01): identical case/model with the trust-layer finalization flags OFF. Result: 11 findings left inconclusive and only 1 cleared confirmation. Proves the 13AA layer RESOLVES uncertainty and never manufactures confirmations - every promotion still passes the deterministic eligibility gate.",
+  "_tier": "heavy-ablation",
+  "corrections_attempted": 0,
+  "corrections_contained": 0,
+  "corrections_errored": 0,
+  "corrections_succeeded": 0,
+  "disk_integrity": "verified",
+  "disposition_counts": {
+    "benign_or_false_positive": 3,
+    "confirmed_malicious_atomic": 1,
+    "inconclusive_unresolved": 11,
+    "suspicious_needs_review": 6,
+    "synthesis_narrative": 0
+  },
+  "elapsed_s": 661.873,
+  "final_disposition_bucket_gate": "PASS",
+  "findings_blocked": 0,
+  "findings_final_count": 21,
+  "findings_passed": 21,
+  "findings_total": 21,
+  "integrity_match": true,
+  "llm_endpoint": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions",
+  "llm_provider": "qwen",
+  "memory_integrity": true,
+  "model": "qwen3.7-max",
+  "status": "completed",
+  "token_breakdown": {
+    "inv1": {
+      "input": 10652,
+      "output": 3893
+    },
+    "inv2": {
+      "input": 234120,
+      "output": 31913
+    },
+    "inv4": {
+      "input": 7263,
+      "output": 5710
+    },
+    "react": {
+      "input": 108987,
+      "output": 20352
+    },
+    "sc": {
+      "input": 0,
+      "output": 0
+    }
+  },
+  "token_usage": {
+    "total_cache_creation": 0,
+    "total_cache_read": 257280,
+    "total_input": 361022,
+    "total_output": 61868
+  },
+  "tools_count": 33
+}
