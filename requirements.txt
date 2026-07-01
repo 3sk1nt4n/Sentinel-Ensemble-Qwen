@@ -2,4 +2,4 @@ pydantic==2.13.4
 mcp==1.28.0
 defusedxml==0.7.1      # hardened XML parsing of untrusted evidence (EVTX, scheduled tasks, RDP)
 pycryptodome==3.23.0   # crypto helpers used by the coordinator
-# Dev dependencies (install with: pip install pytest>=8.0)
+pytest==9.0.3          # kept installable out of the box: judges run the verify commands in JUDGE-QUICKSTART §7

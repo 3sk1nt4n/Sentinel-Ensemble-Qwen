@@ -5,7 +5,7 @@ from _TOOL_REGISTRY plus 9 hardcoded meta/orphan tools.
 
 ZERO bash access. 100% typed functions. AI never constructs command syntax.
 
-MCP surface: 172 registry-driven + 9 hardcoded = 181 tools.
+MCP surface: 186 registry-driven + 9 hardcoded = 195 tools.
 """
 
 from __future__ import annotations
