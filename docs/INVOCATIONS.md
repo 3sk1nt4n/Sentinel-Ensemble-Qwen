@@ -6,8 +6,11 @@ use MCP tools; even invocations (2, 4) are text-only reasoning. Each invocation
 is **stateless** - Claude never sees its own previous output; the conductor is
 the memory.
 
-> **Current implementation note.** Calls go **directly to the Anthropic API**
-> (`claude-opus-4-8` / `claude-haiku-4-5`), not the Claude Code CLI. The
+> **Current implementation note.** The model runs on **Qwen (Alibaba Cloud
+> DashScope) by default**, selected by env through the provider seam
+> (`src/sift_sentinel/llm_provider.py`); the identical pipeline also runs on the
+> **Anthropic API** as a fallback. Calls go **directly to the provider's API**,
+> not the Claude Code CLI. The
 > `invoke_claude()` wrapper further down illustrates the stateless
 > timeout/fallback **contract** (max-turns, timeouts, fallbacks, state-via-files)
 > that the API path preserves. The **Step-13AA finalize** (a single AI pass)

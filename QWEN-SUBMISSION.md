@@ -12,6 +12,27 @@
 
 ---
 
+## Proof of Deployment on Alibaba Cloud
+
+Per the Devpost x Qwen Cloud rules, proof has two parts:
+
+1. **Code file with the Qwen Cloud Base URL.**
+   [`src/sift_sentinel/llm_provider.py`](src/sift_sentinel/llm_provider.py)
+   hardcodes the DashScope base URL judges look for and issues the live HTTPS
+   calls:
+   `https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions`.
+   The two shipped run-metric files in [`docs/qwen-runs/`](docs/qwen-runs/) each
+   record that same `llm_endpoint`, `llm_provider: qwen`, and the model
+   (`qwen3.7-max` / `qwen-plus`) - so the runs demonstrably went to Alibaba Cloud.
+
+2. **Screenshot of running resources on Alibaba Cloud.** See
+   [`docs/proof/`](docs/proof/) for the Workbench screenshot (ECS instance in the
+   *Running* state and/or the Model Studio / DashScope usage from a run).
+   [`DEPLOY-ALIBABA.md`](DEPLOY-ALIBABA.md) is the turnkey runbook to run the
+   backend on Alibaba Cloud **ECS** and capture that screenshot.
+
+---
+
 ## Why this is a Track-4 Autopilot Agent
 
 Track 4 asks for an agent that "automates real-world business workflows
@@ -25,7 +46,7 @@ production-readiness over toy demos. SOC/DFIR triage is exactly that:
 | Invoke external tools | **195 typed forensic tools** (Volatility 3, Sleuth Kit, EZ Tools, Plaso, bulk_extractor, RegRipper, YARA) on a custom **MCP server - zero shell access** | `src/server.py`, `src/sift_sentinel/tools/` |
 | Human-in-the-loop **at critical decision points** | Two layers: (1) the deterministic disposition **escalates** unproven claims to a *needs-review* bucket instead of asserting them; (2) an **opt-in approval gate** (`SIFT_HITL_CHECKPOINT=1`) **pauses at the disposition decision - before the report -** for the analyst to **approve or override** any finding's verdict; plus the launch checkpoints (evidence / depth / key) | `src/sift_sentinel/hitl_checkpoint.py`, `analysis/disposition.py`, `step0_onboard.py` |
 | End-to-end automation | A **16-step deterministic conductor** runs the whole pipeline with zero steering; the model is invoked only inside bounded steps | `run_pipeline.py` |
-| Production-readiness (not a toy) | Read-only evidence + **SHA-256 chain of custody**, ~13 fail-closed gates, automatic prompt caching, **4,768 passing tests**, two real Qwen-Cloud runs, Docker (demo/full/full-plus) | `analysis/`, `tests/`, `Dockerfile` |
+| Production-readiness (not a toy) | Read-only evidence + **SHA-256 chain of custody**, ~13 fail-closed gates, automatic prompt caching, a **~4,900-test suite** (green core proofs in `JUDGE-QUICKSTART.md` §7), two real Qwen-Cloud runs, Docker (demo/full/full-plus) | `analysis/`, `tests/`, `Dockerfile` |
 
 **Read-only by design is a feature, not a gap.** Track-4's examples mention
 "automated remediation," but in high-stakes incident response, auto-acting on a
@@ -57,9 +78,13 @@ fresh repository:
    zero-regression (proven: identical test-failure set vs the pre-port tree).
 3. **Qwen cost model + config** - `pricing.py` Qwen rate rows and a one-file
    `.env.qwen.example` (recommended model tiering for the $40 credit).
-4. **Alibaba Cloud deployment** - ECS (forensic toolchain) + OSS (evidence) +
-   DashScope (inference). *(in progress)*
-5. **Track-4 reframing + documentation** *(in progress)*.
+4. **Alibaba Cloud inference (satisfied)** - the reasoning backend runs on the
+   Alibaba Cloud DashScope API (`llm_provider.py`); both shipped runs record the
+   live DashScope endpoint. Optional ECS hosting + OSS evidence is a turnkey
+   runbook in [`DEPLOY-ALIBABA.md`](DEPLOY-ALIBABA.md) (see "Proof of Deployment"
+   below).
+5. **Track-4 reframing + documentation (done)** - README, this doc, and
+   `JUDGE-QUICKSTART.md` map each Track-4 element to the implementation.
 
 ---
 
@@ -69,8 +94,8 @@ fresh repository:
 cp .env.qwen.example .env            # then set DASHSCOPE_API_KEY
 # or export directly:
 export SIFT_LLM_PROVIDER=qwen
-export DASHSCOPE_API_KEY=...         # your Qwen Cloud key ($40 hackathon voucher)
-export SIFT_DEFAULT_MODEL=qwen-max   # model_roles.py resolves it
+export DASHSCOPE_API_KEY=...            # your Qwen Cloud key ($40 hackathon voucher)
+export SIFT_DEFAULT_MODEL=qwen3.7-max   # model_roles.py resolves it (flagship)
 
 ./findevil.sh /path/to/case          # full autonomous investigation on Qwen
 ```
@@ -80,11 +105,12 @@ volume is, to fit the $40 credit):
 
 | Stage | Model |
 |---|---|
-| Keystone analysis, final adjudication (13AA) | `qwen-max` |
+| Keystone analysis, final adjudication (13AA) | `qwen3.7-max` |
 | Ensemble members, ReAct cross-check, tool selection, report | `qwen-plus` |
 | (optional) multimodal artifact parsing | `qwen-vl-max` |
 
-*(Confirm exact current model IDs in your DashScope model list.)*
+*(Model IDs are current as of the run date; `qwen3.7-max` is Alibaba's 2026
+flagship. Confirm the exact current IDs in your DashScope model list.)*
 
 ---
 
@@ -126,8 +152,8 @@ Python.
 | Proof-of-Alibaba-Cloud code file | done (`llm_provider.py`) |
 | Architecture diagram (Qwen box) | done (`ARCH_VERTICAL.png`) |
 | **Live Qwen run + artifacts** | **done** - see "Verified Qwen Cloud run" below |
-| Demo video (<3 min, YouTube/Vimeo/Youku) | built (`docs/sentinel-qwen-demo.mp4`, 2:43, full name intro + the 0-vs-4 two-tier reveal, real footage from both runs) - upload to YouTube + add the link |
-| Alibaba ECS deployment + proof recording | optional / pending ECS |
+| Demo video (<3 min, YouTube/Vimeo/Youku) | built (`docs/sentinel-qwen-demo.mp4`, 2:44, full-name intro + the 0-vs-4 two-tier reveal, real footage from both runs). **Hosted link:** `<ADD-YOUTUBE-URL>` - upload (public/unlisted) and paste on the Devpost form before submitting |
+| Proof of Deployment on Alibaba Cloud | code-file + Base URL: **done** (`llm_provider.py`; endpoint also in `docs/qwen-runs/`). Workbench screenshot: add to `docs/proof/` before submitting (runbook: `DEPLOY-ALIBABA.md`) |
 | Legacy-doc reframe to Track 4 | done |
 
 ### Verified Qwen Cloud runs (proof)
@@ -136,8 +162,10 @@ Two full **paired (memory + disk)** investigations ran end-to-end on **Qwen mode
 on Alibaba Cloud DashScope** (rd01 Windows case: memory + C: drive image, both
 read-only), through the **full trust-layer pipeline** (Step-13AA finalize +
 review-all, cross-bucket dedup, signature reconcile, baseline gate) - the same
-deterministic layer, two model tiers. Both record `llm_provider=qwen`, the
-DashScope endpoint, and **SHA-256 MATCH on both images** in `pipeline_summary.json`.
+deterministic layer, two model tiers. Both record `llm_provider=qwen`, the live
+DashScope endpoint, and **SHA-256 MATCH on both images**; the sanitized aggregate
+metrics are shipped in [`docs/qwen-runs/`](docs/qwen-runs/) (full run outputs stay
+uncommitted per the case-neutral policy).
 
 | | Light tier (`qwen-plus` ×4) | **Heavy tier (`qwen3.7-max` everywhere)** |
 |---|---|---|
@@ -177,8 +205,9 @@ constant; the model tier just changes how much clears the bar.** Dashboards:
 `docs/qwen_paired_dashboard.png` (light), `docs/qwen_allmax_dashboard.png` (heavy);
 demo video `docs/sentinel-qwen-demo.mp4`.
 
-> **Honesty note:** both are real Qwen Cloud runs (numbers straight from
-> `pipeline_summary.json`). The light tier's **0 confirmed** is the design working,
+> **Honesty note:** both are real Qwen Cloud runs (numbers straight from each
+> run's summary JSON; sanitized aggregates shipped in
+> [`docs/qwen-runs/`](docs/qwen-runs/)). The light tier's **0 confirmed** is the design working,
 > not a gap - no evidence, no confirm. An earlier Claude reference run on the same
 > case stays local-only / not shipped (case-neutral policy); the heavy-tier Qwen
 > run independently reproduced that intrusion chain. The trust layer, the typed

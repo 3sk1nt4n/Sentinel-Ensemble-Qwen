@@ -2,6 +2,14 @@
 
 Interactive console for forensic investigation with optional AI assistance.
 Modes: --offline (default), --ollama (local LLM), --live (Anthropic API).
+
+LEGACY / EXPERIMENTAL entrypoint. This console drives the older
+``coordinator.run_pipeline()`` path, which predates and does NOT include the
+current trust-layer steps (13A/13Z/13AA inv3a review-all, cross-bucket dedup,
+signature reconcile). The SHIPPED product -- and everything the submission,
+JUDGE-QUICKSTART, and Docker describe -- runs through ``run_pipeline.py`` via
+``./findevil.sh`` (or ``python3 step0_onboard.py``). Use that for real runs; this
+console is kept only for interactive/offline experimentation.
 """
 
 from __future__ import annotations

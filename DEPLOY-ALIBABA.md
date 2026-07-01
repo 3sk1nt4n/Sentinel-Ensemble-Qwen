@@ -78,17 +78,14 @@ Key env (see `.env.qwen.example` for the full recommended set):
 ```bash
 export SIFT_LLM_PROVIDER=qwen
 export DASHSCOPE_API_KEY=sk-...
-export SIFT_DEFAULT_MODEL=qwen-max          # qwen-plus on high-volume stages
+export SIFT_DEFAULT_MODEL=qwen3.7-max        # flagship; qwen-plus on high-volume stages
 # Mainland-China region? override the endpoint:
 # export DASHSCOPE_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions
 ```
-Smoke-test the Alibaba Cloud connection before a full run:
+Smoke-test the Alibaba Cloud connection before a full run (the single, canonical
+smoke test - it hits the same DashScope seam the 16-step pipeline uses):
 ```bash
-python3 -c "import os,sys; sys.path.insert(0,'src'); \
-from sift_sentinel.llm_provider import make_llm_client; \
-r=make_llm_client().messages.create(model='qwen-max', max_tokens=16, \
-messages=[{'role':'user','content':'reply with OK'}]); \
-print('DashScope OK:', r.content[0].text, '| tokens', r.usage.input_tokens, r.usage.output_tokens)"
+python3 scripts/qwen_smoke.py     # prints the reply + token usage, or a clear error
 ```
 
 ## 5) (Optional) Evidence via Alibaba Cloud OSS
@@ -114,28 +111,47 @@ python3 run_pipeline.py --live --inv2-ensemble \
 Evidence is mounted **read-only** and SHA256-fingerprinted pre/post (chain of
 custody); the report lands in `reports/` (and optionally OSS).
 
-## 7) Capture the proof-of-deployment recording
+## 7) Capture the Proof of Deployment (REQUIRED - "no proof = not eligible")
 
-Record a short screen capture (separate from the demo video) showing:
-1. The session is on the **ECS instance** (e.g. `hostname`, the Alibaba Cloud
-   console, or the instance metadata).
-2. A run executing, with the log lines showing **live DashScope calls** to Qwen
-   (`LIVE: Calling qwen-... ` / HTTP 200 to the DashScope host).
-3. The finished report.
+Per the Devpost x Qwen Cloud rules, Proof of Deployment on Alibaba Cloud has
+**two mandatory parts**:
 
-Link that recording in the Devpost submission, and link
-`src/sift_sentinel/llm_provider.py` as the code file demonstrating Alibaba Cloud
-API use.
+**Part 1 - code file with the Qwen Cloud Base URL (already satisfied).** Link
+[`src/sift_sentinel/llm_provider.py`](src/sift_sentinel/llm_provider.py) in the
+submission - it hardcodes the DashScope base URL judges look for:
+`https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions`.
+
+**Part 2 - a screenshot of running resources from your Alibaba Cloud Workbench.**
+Capture and commit `docs/proof/alibaba-workbench.png` (create the folder) showing,
+in the Alibaba Cloud console, one of:
+- your **ECS instance** list with the instance from step 1 in the *Running* state, and/or
+- the **Model Studio / DashScope** Workbench showing your API key + real Qwen usage
+  (model calls / token consumption) from a run.
+
+Strongest form: run one investigation **from the ECS instance** (step 6) and
+screenshot both the ECS *Running* instance and the DashScope usage from that run,
+so the proof shows the backend was *deployed and running on Alibaba Cloud*, not
+just locally. Optionally also grab a short screen recording showing the run's
+`LIVE: Calling qwen3.7-max ...` / HTTP 200 lines and the finished report.
+
+Then attach the screenshot to the Devpost "Proof of Deployment" question and link
+`llm_provider.py` as the code file.
 
 ---
 
 ## Notes
-- **Cost:** the model tiering in `.env.qwen.example` (qwen-max for the keystone
+- **Cost:** the model tiering in `.env.qwen.example` (qwen3.7-max for the keystone
   analysis + 13AA, qwen-plus for the high-volume ensemble/ReAct) is chosen to
   fit the $40 credit. Pin exact rates with `SIFT_PRICE_*` if you want the printed
   `$` to match the invoice.
 - **Secrets:** the key lives in `.env` (git-ignored). Never commit it.
 - **Region/endpoint:** international default is the Singapore compatible-mode
-  endpoint; switch `DASHSCOPE_BASE_URL` for mainland China.
-- **Status:** this runbook is ready; the live Qwen run + recording are pending an
-  active `DASHSCOPE_API_KEY` and ECS instance.
+  endpoint; switch `DASHSCOPE_BASE_URL` for mainland China. Your API key is
+  region-scoped - a Singapore (intl) key will not authenticate against the
+  mainland endpoint, and vice versa.
+- **Status:** two full paired investigations have already run end-to-end on Qwen
+  models via the Alibaba Cloud DashScope API (see `QWEN-SUBMISSION.md` for the
+  verified numbers). This runbook is the turnkey path to *also* run the backend
+  on Alibaba Cloud **ECS** and capture the Workbench screenshot the Proof-of-
+  Deployment question requires (step 7). All that is pending is provisioning an
+  ECS instance under your account.

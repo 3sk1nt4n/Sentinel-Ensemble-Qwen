@@ -474,24 +474,39 @@ No majority vote. No "close enough." Fact disagreement = blocked.
 
 ## Proven Run Performance
 
-Measured on the paired Windows reference case (memory + disk, ~15 GB total) with
-a 4-member ensemble. These are **Claude reference-run** numbers (rd01 - the
-architecture proven before the Qwen port), a **local** run not committed to this
-repo (case-neutral policy); the **Qwen Cloud run regenerates** them. The case is
-documented in [`docs/DATASET.md`](docs/DATASET.md).
+**Shipped result - two live Qwen Cloud runs.** The pipeline ran end-to-end twice
+on **Qwen models via the Alibaba Cloud DashScope API** on the paired Windows
+reference case (memory + disk), same deterministic trust layer, two model tiers.
+Sanitized aggregate metrics are committed in
+[`docs/qwen-runs/`](docs/qwen-runs/); full outputs stay uncommitted per the
+case-neutral policy.
 
-| Metric | Value |
-|---|---|
-| Total elapsed | 509s (~8.5 minutes) |
-| Tools selected / data-producing / failed | 34 / 30 / **0** |
-| Typed facts in EvidenceDB | 201,260 (reconciled) |
-| Ensemble | 4 members → 81 raw → 51 merged (13 triple-consensus) |
-| Validator | 51 candidates · 22 blocked → routed to Step-13AA cross-check (never silently dropped) |
-| Final disposition | 2 confirmed · 42 suspicious/needs-review · 5 benign · 49 total |
-| Self-correction | 46 ambiguous re-judged · ~40 self-corrected (ReAct + 13AA); F-Response agent correctly cleared benign on camera |
-| Token usage | 468,182 input (incl. 640,132 prompt-cached) + 62,796 output |
-| Estimated cost | **~$15.45** est. with prompt caching (~$21.33 uncached) - token-derived; actual billed may be lower |
-| Evidence integrity | SHA256 MATCH (pre == post, both files) |
+| Metric | Light (`qwen-plus` ×4) | Heavy (`qwen3.7-max`) |
+|---|---|---|
+| Total elapsed | 5m 37s | 14m 44s |
+| Findings (final) | 11 | 34 |
+| **Confirmed malicious** | **0** | **4** |
+| needs-review / benign / inconclusive | 9 / 1 / 1 | 21 / 9 / 0 |
+| Token usage (in / out) | 614,336 / 23,668 | 306,727 / 89,451 |
+| DashScope cache-read reuse | 32,512 | 381,696 |
+| Cost (cache-aware, est.) | ~$0.28 | ~$1.53 |
+| Evidence integrity (mem + disk) | SHA256 MATCH | SHA256 MATCH |
+
+The light tier confirmed **nothing** (no atomic proof, no confirm - the trust
+layer working); the heavy tier reconstructed the intrusion chain and 4 findings
+cleared every confirmation gate.
+
+<details><summary>Earlier Claude reference run (architecture-proving, local / not committed)</summary>
+
+Before the Qwen port the same architecture was proven on a Claude reference run
+(rd01), kept local per the case-neutral policy - **not** a Qwen result and **not**
+shipped: 509 s, 34 tools (30 data-producing / 0 failed), 201,260 typed facts,
+ensemble 4 members → 81 raw → 51 merged, 51 candidates / 22 blocked, final 2
+confirmed / 42 suspicious / 5 benign / 49 total, ~$15.45 est. (Claude Opus 4.8),
+SHA256 MATCH. It only shows the trust layer, the 195 typed tools, and the 16-step
+conductor are model-agnostic; the Qwen runs above independently reproduced the
+intrusion chain.
+</details>
 
 ---
 

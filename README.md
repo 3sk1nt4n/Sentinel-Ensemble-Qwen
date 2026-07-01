@@ -3,7 +3,7 @@
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 ![Platform](https://img.shields.io/badge/Platform-SANS%20SIFT%20Workstation-blue)
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
-![Tests](https://img.shields.io/badge/pytest-4%2C800%2B%20tests-brightgreen)
+![Tests](https://img.shields.io/badge/pytest-~4%2C900%20tests-brightgreen)
 ![Evidence](https://img.shields.io/badge/Evidence-strictly%20read--only-critical)
 
 **Autonomous agentic DFIR for the SANS SIFT Workstation.** Point it at Windows
@@ -27,14 +27,15 @@ output before you ever see it**.
 | Public code repository | done | [github.com/3sk1nt4n/Sentinel-Ensemble-Qwen](https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen) |
 | Text description | done | [`QWEN-SUBMISSION.md`](QWEN-SUBMISSION.md) + [What it does](#-what-it-does) |
 | Run instructions for judges | done | [Quick Start](#-quick-start) + [`JUDGE-QUICKSTART.md`](JUDGE-QUICKSTART.md) |
-| Proof of Alibaba Cloud usage (code file) | done | [`src/sift_sentinel/llm_provider.py`](src/sift_sentinel/llm_provider.py) - issues live DashScope (Alibaba Cloud) HTTPS calls |
+| Proof of Deployment - code file + Base URL | done | [`src/sift_sentinel/llm_provider.py`](src/sift_sentinel/llm_provider.py) - live DashScope (Alibaba Cloud) HTTPS calls to `dashscope-intl.aliyuncs.com/compatible-mode/v1`; endpoint also recorded in [`docs/qwen-runs/`](docs/qwen-runs/) |
+| Proof of Deployment - Workbench screenshot | add before submit | capture per [`docs/proof/`](docs/proof/) + [`DEPLOY-ALIBABA.md`](DEPLOY-ALIBABA.md); attach to the Devpost "Proof of Deployment" question |
 | Architecture diagram | done | [`ARCHITECTURE.md`](ARCHITECTURE.md) + `ARCH_VERTICAL.png` (Qwen/DashScope inference box) |
-| Demonstration video (< 3 min) | done | [`docs/sentinel-qwen-demo.mp4`](docs/sentinel-qwen-demo.mp4) - 2:43, full-name intro + the 0-vs-4 two-tier reveal, real footage from both runs |
+| Demonstration video (< 3 min) | built - host + link | [`docs/sentinel-qwen-demo.mp4`](docs/sentinel-qwen-demo.mp4) - 2:44, full-name intro + the 0-vs-4 two-tier reveal, real footage from both runs. Upload to YouTube/Vimeo/Youku and put the link on the Devpost form (the one open submission step) |
 | Track identified | done | Track 4 - Autopilot Agent |
 | Trust layer (code, not the model, decides "confirmed") | done | deterministic validator + disposition gates; every finding traces to tool output (`src/sift_sentinel/validation/`, `src/sift_sentinel/analysis/disposition.py`) |
 | Self-correction | done | [`SELF-CORRECTION-PROOF.md`](SELF-CORRECTION-PROOF.md) - FP-sweep + ReAct cross-check |
 
-> Proven end-to-end on **two real paired (memory + disk) Qwen Cloud runs** through the full trust-layer pipeline (Step-13AA review-all + dedup + reconcile) - same deterministic layer, two tiers: **light** (`qwen-plus` ×4) -> **0 confirmed** (the gates confirmed nothing without atomic proof; ~$0.28, 5m 37s) and **heavy** (`qwen3.7-max` on every step) -> **4 confirmed** (PsExec, PWDumpX, an IFEO `sethc.exe` backdoor, p.exe), each cleared every confirmation gate, with **13AA leaving zero inconclusive** (~$1.53, 14m 44s; automatic prompt caching reused 381k tokens, ~36% cheaper). **SHA-256 MATCH on both images** in each. Full comparison in [`QWEN-SUBMISSION.md`](QWEN-SUBMISSION.md). An earlier Claude reference run on the same case stays local-only / not shipped. The trust layer, the 195 typed forensic tools, and the 16-step conductor are model-agnostic and carry over unchanged - only the model provider/tier differs.
+> Proven end-to-end on **two real paired (memory + disk) Qwen Cloud runs** through the full trust-layer pipeline (Step-13AA review-all + dedup + reconcile) - same deterministic layer, two tiers: **light** (`qwen-plus` ×4) -> **0 confirmed** (the gates confirmed nothing without atomic proof; ~$0.28, 5m 37s) and **heavy** (`qwen3.7-max` on every step) -> **4 confirmed** (PsExec, PWDumpX, an IFEO `sethc.exe` backdoor, p.exe), each cleared every confirmation gate, with **13AA leaving zero inconclusive** (~$1.53, 14m 44s; automatic prompt caching reused 381k tokens, ~36% cheaper est. at the configured cache rate). **SHA-256 MATCH on both images** in each. Full comparison in [`QWEN-SUBMISSION.md`](QWEN-SUBMISSION.md). An earlier Claude reference run on the same case stays local-only / not shipped. The trust layer, the 195 typed forensic tools, and the 16-step conductor are model-agnostic and carry over unchanged - only the model provider/tier differs.
 
 ---
 
@@ -192,8 +193,9 @@ A real run, start to finish - one command, two prompts:
    model per tier is env-driven (see [`.env.qwen.example`](.env.qwen.example)).
    **Choosing the depth launches the run.**
 5. The **API key** step - if you set it already (visible `API_KEY.txt`, `.env`, or
-   `ANTHROPIC_API_KEY`) it's used automatically; otherwise paste it at the hidden
-   prompt (blank screen while pasting is normal; never echoed, logged, or saved).
+   `DASHSCOPE_API_KEY` for Qwen, `ANTHROPIC_API_KEY` for the fallback) it's used
+   automatically; otherwise paste it at the hidden prompt (blank screen while
+   pasting is normal; never echoed, logged, or saved).
 6. Wait minutes, not hours. Touch nothing.
 7. Read the report - every finding links to the exact tool execution that proved it.
 
@@ -298,7 +300,7 @@ Two examples of the principle in practice:
 Defaults are tuned for zero-regression. For the strongest adjudication layer:
 
 ```bash
-SIFT_INV3A_ENRICH=1 SIFT_MODEL_INV3A=claude-opus-4-8 \
+SIFT_INV3A_ENRICH=1 SIFT_MODEL_INV3A=qwen3.7-max \
 SIFT_INV3A_JIT_RWX_GUARD=1 SIFT_USER_8DOT3_CANON=1 python3 findevil.py
 ```
 

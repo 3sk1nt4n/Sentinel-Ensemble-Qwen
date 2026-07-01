@@ -1,11 +1,13 @@
 # 🔁 Self-Correction Proof - the AI overruled, on the record
 
-> **Judging criterion: Autonomous Execution Quality.** This page is the receipt.
-> Every number below is a timestamped line in the execution log of the **Claude
-> reference run** (rd01) - `artifacts/run-rd01/agent_execution_log.txt`, a
-> **local** run not committed to the repo (case-neutral policy; reproduce with
-> `./findevil.sh`). The Qwen Cloud run regenerates it. Nothing here is narration -
-> it's grep-able.
+> **Maps to Technical Depth & Engineering + Innovation & AI Creativity.** This
+> page is the receipt. Every number below is a timestamped line in the execution
+> log of the **Claude reference run** (rd01) - `artifacts/run-rd01/agent_execution_log.txt`,
+> a **local** run not committed to the repo (case-neutral policy; reproduce with
+> `./findevil.sh`). It is an architecture demonstration, not a Qwen result; the
+> shipped, verifiable Qwen Cloud run metrics are in
+> [`docs/qwen-runs/`](docs/qwen-runs/). Nothing here is narration - it's grep-able
+> once you regenerate the run.
 
 Sentinel Ensemble corrects itself **twice**: once while it's *thinking* (Layer 1,
 ReAct - the AI re-investigates its own findings and changes its mind), and once

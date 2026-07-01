@@ -68,7 +68,8 @@ Sentinel-Ensemble/
 
 ## Where the AI is (and is not)
 
-The AI (Claude via the Anthropic API) is invoked **5 times** inside
+The model (Qwen on Alibaba Cloud DashScope by default; Anthropic via the same
+provider seam) is invoked **5 times** inside
 `coordinator.py` - tool selection, analysis, investigation threads, report -
 plus the Step-13AA finalization sweep (the 5th AI call). **Everything else is deterministic Python.**
 The AI's only tool channel is the typed MCP client (`mcp_client.py`); it has

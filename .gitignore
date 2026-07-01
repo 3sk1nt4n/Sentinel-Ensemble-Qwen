@@ -70,9 +70,10 @@ _debug/
 HANDOFF_*.md
 SUBMISSION-RUNBOOK.md
 
-# Submission-track reference run (committed deliverable: Agent Execution Logs)
-!artifacts/run-rd01/
-!artifacts/run-rd01/**
+# run-rd01 is a LOCAL Claude reference run, intentionally NOT shipped (case-neutral
+# policy keeps run outputs uncommitted). The shipped, verifiable Qwen evidence is
+# the sanitized aggregates in docs/qwen-runs/. NOTE: the broad `artifacts/` ignore
+# above excludes the parent dir, so any `!artifacts/run-rd01` negation is dead.
 
 # Submission deliverable -- keep tracked despite the broad DATASET.md ignore
 !docs/DATASET.md

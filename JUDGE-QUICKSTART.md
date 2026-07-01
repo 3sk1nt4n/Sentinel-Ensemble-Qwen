@@ -131,40 +131,64 @@ claim and trace it to raw tool output in seconds.
 
 ---
 
-## 6️⃣ Reference metrics (Claude reference run, rd01)
+## 6️⃣ Verified Qwen Cloud runs
 
-> ⚠️ **These numbers are from a CLAUDE reference run** (the architecture proven
-> end to end before the Qwen port), kept **local / not committed**. They are
-> **not** a Qwen result and no Qwen-specific number is claimed here - the **Qwen
-> Cloud run regenerates them** (shown in the demo video). The trust layer, the
-> 195 typed tools, and the 16-step conductor are model-agnostic, so the shape
-> carries over; only the provider differs.
+Two full **paired (memory + disk)** investigations ran end-to-end on **Qwen models
+on Alibaba Cloud DashScope**, through the full trust-layer pipeline - the same
+deterministic layer, two model tiers. Numbers are straight from each run's summary
+JSON; the full comparison + honesty notes are in
+[`QWEN-SUBMISSION.md`](QWEN-SUBMISSION.md).
 
-Paired Windows case (memory + disk, ~15 GB), 4-member ensemble:
+| | Light (`qwen-plus` ×4) | Heavy (`qwen3.7-max`) |
+|---|---|---|
+| Findings (final) | 11 | 34 |
+| **Confirmed malicious** | **0** | **4** |
+| Runtime | 5m 37s | 14m 44s |
+| Cost (cache-aware, est.) | ~$0.28 | ~$1.53 |
+| Integrity (mem + disk) | MATCH | MATCH |
 
-| Metric | Value |
-|---|---|
-| Total elapsed | 509 s (~8.5 minutes) |
-| Tools selected / data-producing / not-applicable / failed | 34 / 30 / 4 / **0** |
-| Typed facts in EvidenceDB | 201,260 |
-| Validator | 81 raw → 51 candidates · 22 blocked & routed to a final cross-check (never silently dropped) |
-| Self-correction (Step 13AA) | 46 ambiguous findings re-judged · ~40 self-corrected (ReAct + 13AA) |
-| Final disposition | 2 confirmed · 42 suspicious / needs-review · 5 benign · 49 total |
-| Evidence integrity | SHA256 MATCH (pre == post) |
+The light tier confirmed **nothing** - no atomic proof, no confirm (the trust
+layer working as designed, not a gap). The heavy tier reconstructed the intrusion
+chain and **4 findings cleared every confirmation gate** (PsExec lateral movement,
+PWDumpX credential dumping, an IFEO `sethc.exe` sticky-keys backdoor, `p.exe` from
+a temp dir). **The trust layer is the constant; the model tier just changes how
+much clears the bar.**
+
+<details><summary>Earlier Claude reference run (architecture-proving, local / not committed)</summary>
+
+Before the Qwen port, the same architecture was proven end-to-end on a Claude
+reference run (kept local per the case-neutral policy, ~$15.45): 509 s, 34 tools
+(30 data-producing / 0 failed), 201,260 typed facts, 2 confirmed / 42 suspicious /
+5 benign / 49 total, SHA256 MATCH. It is **not** a Qwen result and is **not**
+shipped; the Qwen runs above independently reproduced the intrusion chain. It is
+kept only to show the trust layer, the 195 typed tools, and the 16-step conductor
+are model-agnostic - only the provider/tier differs.
+</details>
 
 ---
 
 ## 7️⃣ Verify the claims yourself
 
+Focused, green proofs of the core guarantees (each runs in seconds):
 ```bash
-PYTHONPATH=src python3 -m pytest tests/test_llm_provider.py -q   # the Qwen provider seam
-pytest tests/ -q                                                # 4,800+ tests collected
+PYTHONPATH=src python3 -m pytest -q tests/test_llm_provider.py           # Qwen/DashScope seam (18)
+PYTHONPATH=src python3 -m pytest -q tests/test_agnostic_contract.py \
+    tests/test_onboard_agnostic.py tests/test_secret_input_guard.py      # dataset-agnostic + no-secret guards
+python3 audit/nocheat.py                                                 # dataset-agnostic gate -> NO_CHEAT_AUDIT_PASS
 ```
+
+> The full historical suite is large (~4,900 tests, `pytest tests/ -q`). A batch
+> of legacy forensic-parser tests are mid-refactor after tool-signature changes,
+> so the *entire* suite is not currently all-green; the focused commands above are
+> the green, high-signal proofs of the trust layer, the Qwen seam, and the
+> dataset-agnostic guarantees.
 
 After a run, the judge-facing invariants:
 
-- **Provider proof** - `pipeline_summary.json` records `llm_provider` / `model` /
-  `llm_endpoint`, so the artifact shows the run executed on Qwen Cloud / DashScope.
+- **Provider proof** - the run summary JSON records `llm_provider` / `model` /
+  `llm_endpoint` (sanitized aggregates shipped in
+  [`../docs/qwen-runs/`](docs/qwen-runs/)), so the artifact shows the run executed
+  on Qwen Cloud / DashScope.
 - **Integrity** - `report.md` §1 states the SHA256 pre/post comparison; the live
   verification is in `agent_execution_log.txt` (`INTEGRITY VERIFIED`).
 - **Traceability** - pick any finding id in `report.md`, grep the same id in

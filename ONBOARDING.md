@@ -6,11 +6,12 @@ one sitting. *(Internal Python package name: `sift_sentinel`.)*
 ## What you are walking into
 
 An autonomous DFIR agent: a **deterministic Python conductor** drives a
-16-step pipeline over Windows evidence (memory + disk), invoking Claude
-**5 times** (the 4 numbered invocations + the Step-13AA self-correction
-finalize). The AI has **zero shell access** - every forensic
-tool is a typed MCP function - and every AI claim is validated against real
-tool output before it reaches the report. 4,800+ tests guard the behavior.
+16-step pipeline over Windows evidence (memory + disk), invoking the model
+(Qwen on Alibaba Cloud DashScope by default) **5 times** (the 4 numbered
+invocations + the Step-13AA self-correction finalize). The AI has **zero shell
+access** - every forensic tool is a typed MCP function - and every AI claim is
+validated against real tool output before it reaches the report. A ~4,900-test
+suite guards the behavior.
 
 ## First steps
 
@@ -30,7 +31,7 @@ tool output before it reaches the report. 4,800+ tests guard the behavior.
 | `src/sift_sentinel/validation/` | deterministic validator - claims vs. the paired reference set |
 | `src/sift_sentinel/analysis/` | disposition, dedup/reconcile, confidence, report-integrity passes |
 | `src/sift_sentinel/reporting/` | customer findings table, display hygiene, report polish |
-| `tests/` | the contract - 4,800+ tests, `conftest.py` has autouse fixtures |
+| `tests/` | the contract - ~4,900 tests, `conftest.py` has autouse fixtures |
 
 **Adding a forensic tool?** See [`EXTENDING.md`](EXTENDING.md) - the typed-envelope
 contract, registry + capability wiring, and the drift-gate that fails CI on a
