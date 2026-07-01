@@ -3,12 +3,12 @@ title: "I built an autonomous DFIR agent on Qwen Cloud that refuses to trust its
 published: false
 tags: QwenCloud, AlibabaCloud, AIagents, DFIR
 canonical_url:
-description: An autonomous incident-response agent on Qwen models where deterministic code, not the model, gets the final word — and a real run where it overruled its own best lead.
+description: An autonomous incident-response agent on Qwen models where deterministic code, not the model, gets the final word, and a two-tier run plus an ablation that proves the trust layer resolves uncertainty without ever manufacturing a confirmation.
 ---
 
-> Created for the **Global AI Hackathon with Qwen Cloud** (Track 4 — Autopilot
+> Built for the **Global AI Hackathon with Qwen Cloud** (Track 4, Autopilot
 > Agent). Code: https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen (MIT).
-> 90-second demo in the repo.
+> 2:44 demo in the repo.
 
 ## The problem nobody wants to say out loud
 
@@ -16,11 +16,11 @@ AI is being adopted fastest exactly where a wrong answer is most expensive:
 security investigations, incident response, digital forensics. A SOC analyst
 under pressure at 3 a.m. is *extremely* tempted to let a model write the verdict.
 
-But you cannot ship a forensic conclusion you cannot audit. If an AI says
-"this host is compromised," a court, an auditor, or an incident commander is
-going to ask one question: **prove it.** "The model was confident" is not proof.
+But you cannot ship a forensic conclusion you cannot audit. If an AI says "this
+host is compromised," a court, an auditor, or an incident commander asks one
+question: **prove it.** "The model was confident" is not proof.
 
-So for this hackathon I built **Sentinel Ensemble** — an autonomous DFIR agent
+So for this hackathon I built **Sentinel Ensemble**, an autonomous DFIR agent
 that runs end-to-end on **Qwen models hosted on Alibaba Cloud (DashScope)**, and
 whose entire design is organized around a single rule:
 
@@ -28,33 +28,33 @@ whose entire design is organized around a single rule:
 
 ## What it actually is (Track 4: an autopilot agent)
 
-Point it at Windows evidence — a memory image, a disk image, or both — and walk
+Point it at Windows evidence (a memory image, a disk image, or both) and walk
 away. A **16-step deterministic conductor** runs the whole investigation with
 zero human steering:
 
 1. SHA-256 fingerprints the evidence (chain of custody, before anything else).
 2. Checks kernel integrity.
 3. Asks Qwen which forensic tools to run for *this* evidence.
-4. Runs them — **195 typed forensic tools** (Volatility 3, Sleuth Kit, EZ Tools,
-   Plaso) exposed through a custom **MCP server with zero shell access**.
-5. Builds a typed evidence database, cross-referencing every PID, IP, path and hash.
+4. Runs them: **195 typed forensic tools** (Volatility 3, Sleuth Kit, EZ Tools,
+   Plaso, YARA) exposed through a custom **MCP server with zero shell access**.
+5. Builds a typed evidence database, cross-referencing every PID, IP, path, hash.
 6. A **4-member Qwen ensemble** analyzes the evidence in parallel.
 7. A deterministic validator checks **every claim** against the exact tool output
    that produced it.
 8. A ReAct loop lets the agent re-investigate its own suspicious findings.
-9. Two layers of self-correction, ~13 fail-closed promotion gates, and a final
-   disposition step decide what — if anything — is "confirmed."
-10. Out comes a verified, risk-ranked incident report.
+9. A consolidated Step-13AA adjudication, ~13 fail-closed promotion gates, and a
+   final disposition step decide what, if anything, is "confirmed."
+10. Out comes a verified, risk-ranked incident report, with an optional
+    human-in-the-loop approval checkpoint before the report is written.
 
 The model is only ever invoked *inside* well-bounded steps. Everything that
 decides what reaches the report is plain, auditable Python.
 
 ## How it runs on Qwen Cloud (env only, no code change)
 
-The whole port is one small provider seam — `make_llm_client()` plus a
-stdlib-only DashScope (OpenAI-compatible) adapter. No model literal is hardcoded
-anywhere in the 16-step pipeline; the provider and model are chosen purely by
-environment:
+The whole port is one small provider seam, `make_llm_client()` plus a stdlib-only
+DashScope (OpenAI-compatible) adapter. No model literal is hardcoded anywhere in
+the 16-step pipeline; the provider and model are chosen purely by environment:
 
 ```bash
 export SIFT_LLM_PROVIDER=qwen
@@ -65,73 +65,91 @@ export SIFT_DEFAULT_MODEL=qwen3.7-max
 
 Model tiering keeps it cheap: `qwen-plus` for the high-volume work (ensemble,
 ReAct, tool selection, report), `qwen3.7-max` reserved for keystone adjudication.
+There is real DashScope-specific engineering under that seam, too: implicit
+prompt-cache accounting (one heavy run reused **381,696 cached tokens**, ~36% off),
+a `reasoning_content` fallback for Qwen thinking mode, per-model output-cap
+clamps, and bounded read-timeout retries that fixed a live-run failure.
 
-## The run where the agent overruled itself
+## Two tiers, one intrusion: 0 confirmed vs 4 confirmed
 
-Here is the part I care about most, and it is the honest result.
-
-I ran a **paired investigation** — a Windows memory image *and* its C: drive,
-both mounted read-only — entirely on Qwen Cloud. The run records its own
-provenance, so this isn't a claim:
+I ran the **same** real Windows intrusion case (memory + disk, both mounted
+read-only, both SHA-256 verified) through the **identical trust layer** at two
+Qwen model tiers. Nothing changed but the model. The runs record their own
+provenance, so this is not a claim:
 
 ```json
 "llm_provider": "qwen",
 "model": "qwen3.7-max",
 "llm_endpoint": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions",
-"integrity": "SHA-256 MATCH"   // on both images
+"integrity_match": true
 ```
 
-The Qwen ensemble surfaced **19 findings**. Among them, its strongest lead:
-**code injection in `powershell.exe` (PID 8712)** — a private memory region
-marked read-write-execute, the classic signature of reflectively-loaded malware.
-The ReAct loop even went back and pulled the VAD details "to confirm the
-suspicious RWX memory."
+| | Light (`qwen-plus` x4) | Heavy (`qwen3.7-max`) |
+|---|---|---|
+| Findings (final) | 11 | 34 |
+| **Confirmed malicious** | **0** | **4** |
+| Runtime | 5m 37s | 14m 44s |
+| Cost (cache-aware) | ~$0.28 | ~$1.53 |
+| Integrity (mem + disk) | MATCH | MATCH |
 
-And then the deterministic layer **refused to confirm it.**
+On the **light** tier, the ensemble's strongest lead was code injection in
+`powershell.exe`: a private memory region marked read-write-execute, the classic
+signature of reflectively-loaded malware. The ReAct loop even pulled the VAD
+details to confirm it. And then the deterministic layer **refused to confirm it.**
+A RWX region is suggestive, not atomic proof, so the promotion gates held it back.
+**11 findings, zero confirmed.** Not because the model was bad, but because none
+of the leads cleared the evidence bar, and on this design *no evidence means no
+confirmation.*
 
-A RWX region is *suggestive*. It is not an *atomic proof* of malicious code
-execution. So two fail-closed gates — `NO_SPECULATIVE_CONFIRMED_GATE` and
-`MISSING_RAW_EVIDENCE_CONFIRMED_GATE` — held the finding back and routed it to
-*inconclusive*. Separately, a service (`macmnsvc.exe`) listening on odd ports
-8081/8082 looked alarming; the agent re-investigated and correctly assessed it
-**benign** (it's the McAfee agent).
+On the **heavy** tier the flagship reconstructed a real intrusion chain, and
+**4 findings cleared every confirmation gate**: PsExec lateral movement, PWDumpX
+credential dumping, an IFEO `sethc.exe` sticky-keys backdoor, and a payload run
+from a temp directory. Each traces to the exact tool output that proved it.
 
-Final disposition across memory and disk:
+**Same gates. Different depth.** The trust layer is the constant; the model tier
+just changes how much clears the bar.
 
-| Bucket | Count |
-|---|---|
-| Confirmed malicious | **0** |
-| Needs review | 1 |
-| Benign / false positive | 1 |
-| Inconclusive | 18 |
+## The ablation: proving the layer resolves uncertainty (and nothing more)
 
-**Nineteen AI findings. Zero confirmed.** Not because the model was bad — it
-generated good leads — but because none of them cleared the evidence bar, and on
-this design *no evidence means no confirmation.* That is the feature. An agent
-that will happily escalate to "confirmed compromise" without proof is worse than
-no agent at all.
+Here is the experiment I care about most. A skeptic could say: sure, but does the
+"trust layer" just rubber-stamp whatever the flagship wants? So I ran the **same
+case, same `qwen3.7-max`**, and toggled only the Step-13AA finalization flags:
 
-The whole investigation took **6 minutes 22 seconds** and cost **about
-35 cents** on Qwen Cloud.
+| Trust-layer finalization | Confirmed | Inconclusive |
+|---|---|---|
+| **ON** (as shipped) | **3** | **0** |
+| **OFF** | **1** | **11** |
+
+With finalization **off**, 11 findings are stranded at inconclusive and only one
+clears confirmation. Turn it **on** and the layer re-judges every ambiguous
+finding to a final verdict: inconclusive collapses to **0**, and the intrusion
+chain re-confirms. Crucially, in *both* runs every promotion still had to pass
+the same deterministic eligibility gate. **The layer resolves uncertainty; it
+never manufactures a confirmation.** (That 3-confirmed reproduction is one shy of
+June's 4, which is normal model non-determinism, and I would rather report that
+honestly than round it up.)
+
+That, to me, is the whole point: you can measure the trust, not just assert it.
 
 ## Why I think this matters
 
 Most "AI agent" demos optimize for the happy path: look how much it found. The
-harder and more valuable thing in high-stakes domains is the opposite —
-**look how disciplined it is about what it refuses to claim.** Sentinel Ensemble
-is built so that the trust is *provable*: every confirmed finding traces to the
-exact tool output that proves it, evidence is hashed before and after, and the
-code — not the model — owns the verdict.
+harder and more valuable thing in high-stakes domains is the opposite: **look how
+disciplined it is about what it refuses to claim.** Sentinel Ensemble is built so
+the trust is *provable*: every confirmed finding traces to the exact tool output
+that proves it, evidence is hashed before and after, and the code, not the model,
+owns the verdict.
 
 Qwen Cloud made the agent's reasoning cheap enough to run a four-member ensemble
-plus a ReAct re-investigation loop on every case for the price of a vending-machine
-snack. The trust layer made that reasoning *safe to act on.*
+plus a ReAct re-investigation loop on every case for the price of a coffee. The
+trust layer made that reasoning *safe to act on.*
 
 ## Try it
 
 - **Repo (MIT):** https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen
+- **Zero-cost demo (no key, no evidence):** `./findevil.sh --demo`
 - **Proof-of-Alibaba-Cloud code:** `src/sift_sentinel/llm_provider.py`
-- **Demo video:** `docs/sentinel-qwen-demo.mp4` (the overrule happens on camera)
-- **The run's own dashboard:** `docs/qwen_paired_dashboard.png`
+- **Shipped run metrics (both tiers + the ablation):** `docs/qwen-runs/`
+- **Demo video:** <ADD-YOUTUBE-URL> (2:44, the overrule happens on camera)
 
 #QwenCloud #AlibabaCloud #AIagents #DFIR
