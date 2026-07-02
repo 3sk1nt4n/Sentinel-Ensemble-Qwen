@@ -57,7 +57,9 @@ def resolve_rates(model: str) -> tuple[float, float]:
         base = _MODEL_RATES["opus"]
     elif "sonnet" in ml:
         base = _MODEL_RATES["sonnet"]
-    elif "qwen" in ml:
+    elif "qwen" in ml or "qwq" in ml:
+        # qwq-* are DashScope Qwen reasoning models; price them on the Qwen table,
+        # not the Anthropic haiku fallback row.
         base = _qwen_rate(ml)
     else:
         base = _MODEL_RATES["haiku"]

@@ -786,7 +786,8 @@ def render_welcome(mode: str) -> None:
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="SIFT Sentinel - Agentic DFIR Terminal",
+        description="SIFT Sentinel - interactive DFIR terminal (LEGACY/experimental; "
+                    "the shipped pipeline runs via ./findevil.sh -> run_pipeline.py)",
     )
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
@@ -799,7 +800,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     group.add_argument(
         "--live", action="store_const", const="live",
-        dest="mode", help="AI via Anthropic API",
+        dest="mode", help="this legacy console's live mode (Anthropic API)",
     )
     parser.set_defaults(mode="offline")
     return parser.parse_args(argv)

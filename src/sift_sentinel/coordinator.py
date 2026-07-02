@@ -1388,8 +1388,10 @@ def invoke_claude(
     fallback); the function name is historical. Falls back on timeout or
     parse error.
 
-    When SIFT_DRY_RUN=1 is set, preserves the legacy subprocess path
-    so existing test mocks continue to work.
+    When SIFT_DRY_RUN=1 is set, routes to a legacy subprocess hook that exists
+    only so existing unit-test mocks keep working; the real pipeline skips AI
+    calls in dry-run before reaching here, so this path is not exercised on a
+    normal --demo / --dry-run run.
 
     ``model`` selects the stage model. When ``None`` it resolves to the
     analysis role via the env-driven resolver; Inv1/SC callers pass an
