@@ -22,6 +22,11 @@ import urllib.error
 import urllib.request
 from typing import Optional
 
+# NOTE: this optional onboarding advisor is an Anthropic-only OFF-PIPELINE helper
+# (it does not run inside the 16-step investigation, which is fully provider-driven
+# via model_roles + llm_provider). The hardcoded literal here is scoped to this
+# advisor only and does not contradict the "no hardcoded model literal in the
+# pipeline" claim; the advisor is skipped entirely when SIFT_ONBOARD_AI=0.
 MODEL = "claude-haiku-4-5-20251001"
 _API_URL = "https://api.anthropic.com/v1/messages"
 _API_VERSION = "2023-06-01"

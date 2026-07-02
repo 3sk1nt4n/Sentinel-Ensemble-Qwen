@@ -251,6 +251,10 @@ not change.)*
 
 ## 14 Defense Layers
 
+> Terminology: there are **14 architectural defense layers** (below); of these,
+> **~13 are fail-closed promotion gates** (the phrase used elsewhere in the docs).
+> Different framings of the same trust architecture, not different counts.
+
 ### Guardrail classification (required disclosure - what kind of guarantee each layer gives)
 
 We deliberately distinguish three strengths, strongest first, and never

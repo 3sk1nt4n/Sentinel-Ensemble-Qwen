@@ -225,8 +225,8 @@ uncommitted per the case-neutral policy).
 
 **13AA gives a final verdict on everything.** Step-13AA (inv3a) review-all
 re-judges every ambiguous finding to a final TP / FP / needs-review disposition,
-so the heavy run leaves **zero inconclusive** (it reclassified 22 of 36 ambiguous
-findings; a proven-evil floor keeps confirmed findings in the table regardless of
+so the heavy run leaves **zero inconclusive** (it reclassified 22 of the
+36-candidate ambiguous set, which reconciles to 34 findings after dedup; a proven-evil floor keeps confirmed findings in the table regardless of
 the model's verdict). The light tier's 13AA still confirmed **nothing** - no
 atomic proof, no confirm.
 

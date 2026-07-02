@@ -10,8 +10,9 @@ An autonomous DFIR agent: a **deterministic Python conductor** drives a
 (Qwen on Alibaba Cloud DashScope by default) **5 times** (the 4 numbered
 invocations + the Step-13AA self-correction finalize). The AI has **zero shell
 access** - every forensic tool is a typed MCP function - and every AI claim is
-validated against real tool output before it reaches the report. A ~4,900-test
-suite guards the behavior.
+validated against real tool output before it reaches the report. A large test
+suite guards the behavior (**4,700+ passing** by default; ~4,950 collected, 183
+legacy tests quarantined - see [`tests/QUARANTINE.md`](tests/QUARANTINE.md)).
 
 ## First steps
 
@@ -31,7 +32,7 @@ suite guards the behavior.
 | `src/sift_sentinel/validation/` | deterministic validator - claims vs. the paired reference set |
 | `src/sift_sentinel/analysis/` | disposition, dedup/reconcile, confidence, report-integrity passes |
 | `src/sift_sentinel/reporting/` | customer findings table, display hygiene, report polish |
-| `tests/` | the contract - ~4,900 tests, `conftest.py` has autouse fixtures |
+| `tests/` | the contract - 4,700+ passing (~4,950 collected, 183 quarantined), `conftest.py` has autouse fixtures |
 
 **Adding a forensic tool?** See [`EXTENDING.md`](EXTENDING.md) - the typed-envelope
 contract, registry + capability wiring, and the drift-gate that fails CI on a
