@@ -11,7 +11,7 @@ the memory.
 > (`src/sift_sentinel/llm_provider.py`); the identical pipeline also runs on the
 > **Anthropic API** as a fallback. Calls go **directly to the provider's API**,
 > not the Claude Code CLI. The
-> `invoke_claude()` wrapper further down illustrates the stateless
+> `invoke_model()` wrapper further down illustrates the stateless
 > timeout/fallback **contract** (max-turns, timeouts, fallbacks, state-via-files)
 > that the API path preserves. The **Step-13AA finalize** (a single AI pass)
 > superseded the per-finding Step-12 self-correction loop shown in the table's

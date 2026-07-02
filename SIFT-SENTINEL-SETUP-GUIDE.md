@@ -143,8 +143,9 @@ The conversation, start to finish:
    reasoning. (Enter defaults to the deep option - pick `2` for a first run.)
 3. **API key** - paste at the hidden prompt if asked (screen stays blank
    while pasting; that's normal).
-4. Type **`FIND`** and watch. A full paired-image case finishes in minutes,
-   not hours. Touch nothing.
+4. That's it - **the run launches automatically** right after the depth (and
+   key) step. Just watch; a full paired-image case finishes in minutes, not
+   hours. Touch nothing.
 
 ### Useful variations
 
@@ -181,7 +182,7 @@ survives that walk; that's the whole point of the architecture.
 | `pip install` refused (PEP 668) | venv or `--break-system-packages` (Phase C note) |
 | `ERROR: Missing dependencies` from findevil.sh | run the Phase C install line, retry |
 | Demo doesn't end with "Everything verified and ready." | read the line it printed instead - the launcher names the missing piece |
-| Typing `FIND` doesn't launch | you ran `step0_onboard.py` directly (staged by default for developers) - use `./findevil.sh` |
+| The run doesn't launch after you pick depth | you ran `step0_onboard.py` directly (staged/dev mode, which adds a manual GO step) - use `./findevil.sh`, which arms the live launch automatically |
 | "Vol3 ISF profile not found" during a run | expected on some images - the pipeline falls back to profile-independent scanning |
 | API key rejected (401) | the key is invalid/expired, or its region doesn't match the endpoint (intl key ↔ intl endpoint) - create a fresh one in Model Studio; the launcher re-prompts |
 

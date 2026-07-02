@@ -40,7 +40,7 @@ pre-parsed, validated JSON - never raw stdout.
 ## Entry Point
 
 ```
-./findevil.sh  ──▶  step0_onboard.py  ──▶  run_pipeline.py (the conductor)
+./findevil.sh  ──▶  findevil.py  ──▶  step0_onboard.py  ──▶  run_pipeline.py (the conductor)
  dependency-checks    ONE question: where    drives all 16 steps below
  + friendly errors    is the evidence? +
                       read-only profiling
@@ -121,7 +121,7 @@ pre-parsed, validated JSON - never raw stdout.
             │      go to review - never silently suppressed
             │
  Step 13 ─▶ CONFIDENCE CALIBRATION (deterministic Python)
-            │      3+ independent artifact types = HIGH · 2 = MEDIUM · 1 = LOW
+            │      3+ independent artifact types = HIGH · 1-2 = MEDIUM · 0 = SPECULATIVE
             │      XCORR cross-artifact corroboration · cross-domain
             │      (disk AND memory) upgrade · 31AM user attribution (SID→user)
             │      ├─ 13A  ENTITY RECONCILIATION (downgrade-only)
