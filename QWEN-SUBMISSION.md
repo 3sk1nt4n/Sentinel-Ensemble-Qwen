@@ -132,7 +132,7 @@ volume is, to fit the $40 credit):
 |---|---|
 | Keystone analysis, final adjudication (13AA) | `qwen3.7-max` |
 | Ensemble members, ReAct cross-check, tool selection, report | `qwen-plus` |
-| (optional) multimodal artifact parsing | `qwen-vl-max` |
+| (optional, not wired by default) multimodal artifact parsing | `qwen3.7-plus` (Text + Vision per the official catalog; `qwen-vl-max` legacy alias) |
 
 *(Model IDs are current as of the run date; `qwen3.7-max` is Alibaba's 2026
 flagship - the official hackathon FAQ names it for "hyper-complex logic

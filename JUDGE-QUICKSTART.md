@@ -55,7 +55,8 @@ The live run calls **Qwen models on Alibaba Cloud (DashScope / Model Studio)**.
 Provider + model are env-driven, so no code change is needed.
 
 1. Request the **$40 Qwen Cloud voucher**, then in **Model Studio** (Singapore /
-   International region) → **API Keys** → **Create API Key** → copy the `sk-…`.
+   International region) → **API Keys** → **Create API Key** → copy the `sk-…`
+   (direct portal: **home.qwencloud.com/api-keys**).
 2. Point Sentinel Ensemble at it:
 
 ```bash

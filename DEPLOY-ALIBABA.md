@@ -31,20 +31,42 @@ issues live HTTPS calls to the DashScope endpoint.
 
 - An **Alibaba Cloud** account (Qwen Cloud).
 - A **DashScope / Qwen Cloud API key** - request the **$40 hackathon voucher**.
-- An **ECS instance** (provisioned below).
+- An **SAS or ECS instance** (provisioned below - SAS is the 5-minute path).
 - (Optional) an **OSS bucket** for evidence/artifact storage.
 
-## 1) Provision the ECS instance
+## 1) Provision the compute - SAS (5-minute path) or ECS
 
-- Image: **Ubuntu 22.04 LTS**.
+### Option A - Simple Application Server (SAS): the fast, fixed-price path
+
+The official hackathon guide recommends SAS for LLM-API agents ("deploy in
+under 5 minutes", predictable monthly billing). Ideal for the demo +
+proof-of-deployment run; pick ECS (Option B) for full-evidence investigations.
+
+1. **SAS Console** → **Create Server** → Region (Singapore matches the
+   DashScope intl endpoint) → Image: an **OS image (Ubuntu 22.04)** or the
+   **Docker application image** → cheapest plan → pay. The instance provisions
+   immediately with a public IP.
+2. **No default password:** on the instance card use **Reset Password** first.
+3. **Connect** via the console's **Workbench** button (browser terminal, logs in
+   as root - this is the same Workbench view the proof screenshot comes from).
+4. Firewall (inbound-only, Firewall tab): the defaults (TCP 22/80/443 + ICMP)
+   are enough - the agent only needs **outbound** HTTPS to DashScope.
+
+### Option B - ECS (full control, for real evidence runs)
+
+- Image: **Ubuntu 22.04 LTS** (or 24.04).
 - Size: the agent copies evidence to local scratch and writes GBs of tool
   output, and memory images are large. Use **>= 8 vCPU / >= 16 GB RAM** and
   **>= 100 GB disk** as a floor; size RAM above the largest memory image you
   will analyse. (Override the storage floor with `SIFT_RUN_MIN_FREE_MB`.)
+  For a demo/proof-only deployment the smallest instance works.
 - Region: pick one near you; it sets the DashScope endpoint (see step 4).
-- Open outbound HTTPS (443) so the instance can reach the DashScope API.
+- Login: prefer a **Key Pair** over passwords; connect via SSH or the console
+  **Workbench**.
+- Open outbound HTTPS (443) so the instance can reach the DashScope API; keep
+  SSH (22) restricted to your own IP.
 
-## 2) Install the forensic toolchain on the ECS instance
+## 2) Install the toolchain on the instance (SAS or ECS)
 
 ```bash
 sudo apt-get update

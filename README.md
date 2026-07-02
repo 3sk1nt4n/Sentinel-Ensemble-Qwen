@@ -100,6 +100,7 @@ whole 16-step pipeline onto Qwen needs **no code change**.
    the hackathon **$40 Qwen Cloud voucher**.
 2. Open **Model Studio** (Singapore / International region) → **API Keys** →
    **Create API Key** → copy the `sk-…` string.
+   (Direct portal: **home.qwencloud.com/api-keys**.)
 3. Give it to Sentinel Ensemble:
 
 ```bash

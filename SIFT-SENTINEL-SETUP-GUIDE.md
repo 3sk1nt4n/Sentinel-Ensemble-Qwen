@@ -52,7 +52,7 @@ Studio)** by default.
 1. Sign up at **https://qwencloud.com** (Alibaba Cloud Model Studio) - hackathon
    participants can request the **$40 Qwen Cloud voucher**.
 2. **Model Studio (Singapore / International region) → API Keys → Create API
-   Key** → copy the `sk-…` string.
+   Key** → copy the `sk-…` string (direct portal: home.qwencloud.com/api-keys).
 3. Give it to Sentinel Ensemble in **any one of three ways** - you can't get
    stuck (a real key always wins; a bad one falls through to the next):
 

@@ -52,7 +52,7 @@ if [ "$DOCKER" = 1 ]; then
   docker run --rm sentinel-qwen:demo || { printf "  ${R}FAIL${X} demo run failed\n"; exit 1; }
   printf "\n  ${G}${B}✅  Docker demo works.${X}\n"
   printf "  ${B}Real investigation on Qwen Cloud:${X}\n"
-  printf "    1) DashScope key: qwencloud.com -> Model Studio -> API Keys\n"
+  printf "    1) DashScope key: home.qwencloud.com/api-keys (Model Studio, Singapore/Intl)\n"
   printf "    2) docker build -t sentinel-qwen .          ${Y}# full toolchain image${X}\n"
   printf "    3) docker run --rm -it -e SIFT_LLM_PROVIDER=qwen -e DASHSCOPE_API_KEY=sk-... \\\\\n"
   printf "         -e SIFT_DEFAULT_MODEL=qwen3.7-max -v /path/to/case:/evidence:ro sentinel-qwen /evidence\n"
