@@ -4,6 +4,9 @@ __pycache__/
 .pytest_cache/
 .DS_Store
 .env
+.env.*
+!.env.example
+!.env.qwen.example
 API_KEY.txt
 apikey.txt
 /analysis/

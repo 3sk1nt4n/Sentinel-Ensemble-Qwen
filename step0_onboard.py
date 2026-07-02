@@ -170,8 +170,8 @@ def _model_display(model: str) -> str:
 _HEAVY_NAME = _model_display(_HEAVY_MODEL)
 _LIGHT_NAME = _model_display(_LIGHT_MODEL)
 
-_HEAVY_COST = "~$1.5–3 / case" if _qwen_mode() else "~$8–15 / case"
-_LIGHT_COST = "~$0.3–1 / case" if _qwen_mode() else "~$2–3 / case"
+_HEAVY_COST = "~$1.5-3 / case" if _qwen_mode() else "~$8-15 / case"
+_LIGHT_COST = "~$0.3-1 / case" if _qwen_mode() else "~$2-3 / case"
 
 ANALYSIS_MODES: dict = {
     "1": {"key": "heavy", "icon": "⚡", "label": "HEAVY",
@@ -948,7 +948,9 @@ def warm_sha_async(manifest: CaseManifest):
     return out
 
 
-_KEY_IN_HISTORY_RE = re.compile(r"sk-ant-|ANTHROPIC_API_KEY", re.IGNORECASE)
+_KEY_IN_HISTORY_RE = re.compile(
+    r"sk-ant-|sk-[A-Za-z0-9_.-]{16,}|ANTHROPIC_API_KEY|DASHSCOPE_API_KEY|QWEN_API_KEY",
+    re.IGNORECASE)
 
 
 def scrub_shell_history(histfile: Optional[str] = None) -> int:

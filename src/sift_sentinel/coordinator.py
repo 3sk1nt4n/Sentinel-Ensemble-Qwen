@@ -1368,6 +1368,14 @@ def _analysis_model() -> str:
 
 # ── invoke_claude wrapper ────────────────────────────────────────────────
 
+
+class _NoLLMError(Exception):
+    """Sentinel exception type used in place of anthropic.* exception classes
+    when the Anthropic SDK is absent (Qwen-only install). It is never raised, so
+    the corresponding `except` clauses simply never match on the Qwen path, where
+    transport/HTTP failures already surface as OSError."""
+
+
 def invoke_claude(
     prompt_path: str,
     timeout: int,
@@ -1394,11 +1402,19 @@ def invoke_claude(
             prompt_path, timeout, max_turns, fallback_fn,
         )
 
+    from .llm_provider import is_qwen
     try:
-        import anthropic  # lazy: SDK not required for dry-run/tests
+        import anthropic  # optional: only the Anthropic provider needs the SDK
     except ImportError as exc:
-        logger.warning("ANTHROPIC_SDK_MISSING: %s", exc)
-        return fallback_fn()
+        anthropic = None
+        if not is_qwen():
+            logger.warning("ANTHROPIC_SDK_MISSING: %s", exc)
+            return fallback_fn()
+    # Provider-specific exception types. Qwen's client raises OSError (already
+    # caught below); the Anthropic-specific handlers are only wired when the SDK
+    # is importable, so a Qwen-only install never NameErrors on `anthropic.*`.
+    _timeout_exc = anthropic.APITimeoutError if anthropic is not None else _NoLLMError
+    _api_exc = anthropic.APIError if anthropic is not None else _NoLLMError
 
     try:
         from .llm_provider import make_llm_client
@@ -1444,11 +1460,10 @@ def invoke_claude(
         if not raw:
             raise ValueError("Claude returned no text block")
         return json.loads(_extract_first_json_object(raw))
-    except anthropic.APITimeoutError:
+    except _timeout_exc:
         logger.warning("TIMEOUT: %s after %ds", prompt_path, timeout)
         return fallback_fn()
-    except (json.JSONDecodeError, ValueError, OSError,
-            anthropic.APIError) as exc:
+    except (json.JSONDecodeError, ValueError, OSError, _api_exc) as exc:
         logger.warning("INVOKE_ERROR: %s -- %s", prompt_path, exc)
         return fallback_fn()
 

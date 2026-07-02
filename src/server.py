@@ -268,8 +268,8 @@ def tool_run_sleuthkit(disk_path: str, command: str, args: Optional[list] = None
 
 
 if __name__ == "__main__":
-    # Reconcile the counts so '184 registered' and the 193-tool Inv1 catalog don't
-    # read as a mismatch: total advertised = dynamic forensic + hardcoded core/meta.
+    # Reconcile the counts so '186 registered' and the 195-tool advertised surface
+    # don't read as a mismatch: total advertised = 186 dynamic forensic + 9 hardcoded core/meta.
     try:
         _total_adv = len(getattr(mcp._tool_manager, "_tools", {})) or _REGISTERED_COUNT
         _hardcoded = max(0, _total_adv - _REGISTERED_COUNT)

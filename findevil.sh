@@ -16,4 +16,16 @@ python3 -c "import pydantic, mcp" 2>/dev/null || {
     exit 1
 }
 
+# Load .env so the documented `cp .env.qwen.example .env` flow actually takes
+# effect: without this, SIFT_LLM_PROVIDER stays unset and the launcher runs in
+# Anthropic mode even after the user configured Qwen. Real env vars still win
+# (set -a exports; a value already in the environment is not overwritten by a
+# later identical assignment, and users can always export to override).
+if [ -f "$REPO_DIR/.env" ]; then
+    set -a
+    # shellcheck disable=SC1091
+    . "$REPO_DIR/.env"
+    set +a
+fi
+
 exec python3 "$REPO_DIR/findevil.py" "$@"

@@ -1393,13 +1393,17 @@ else:
 _client = None
 if _args.live:
     try:
-        import anthropic as _anthropic_mod  # noqa: F401 -- kept for exception types
+        # NOTE: do NOT import anthropic here. make_llm_client() imports the SDK
+        # lazily only on the Anthropic path, so a Qwen-only install (no anthropic
+        # package) must reach this line and initialize the DashScope client. A
+        # stray top-level `import anthropic` here previously raised ImportError,
+        # got swallowed below, and silently forced DRY_RUN so Qwen was never called.
         from sift_sentinel.llm_provider import make_llm_client
-        _client = make_llm_client()   # Anthropic (default) or Qwen/DashScope
+        _client = make_llm_client()   # Qwen/DashScope (env default) or Anthropic
         logger.info("LIVE MODE: LLM client initialized (provider=%s)",
                     os.environ.get("SIFT_LLM_PROVIDER", "anthropic"))
     except Exception as exc:
-        logger.error("Failed to initialize Anthropic client: %s", exc)
+        logger.error("Failed to initialize LLM client: %s", exc)
         LIVE_MODE = False
         DRY_RUN = True
         os.environ["SIFT_DRY_RUN"] = "1"
