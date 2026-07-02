@@ -122,20 +122,25 @@ submission - it hardcodes the DashScope base URL judges look for:
 `https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions`.
 
 **Part 2 - a screenshot of running resources from your Alibaba Cloud Workbench.**
-Capture and commit `docs/proof/alibaba-workbench.png` (create the folder) showing,
-in the Alibaba Cloud console, one of:
-- your **ECS instance** list with the instance from step 1 in the *Running* state, and/or
-- the **Model Studio / DashScope** Workbench showing your API key + real Qwen usage
-  (model calls / token consumption) from a run.
+The official Build Session FAQ states the bar exactly: *"a valid environment
+screenshot from your active platform console showing that your operational
+application backend is running live inside an Alibaba Cloud ECS or SAS container
+setup."* A Model Studio / DashScope usage page does **not** meet this bar - the
+screenshot must show **compute (ECS or SAS) in the Running state** with this
+backend deployed on it.
 
-Strongest form: run one investigation **from the ECS instance** (step 6) and
-screenshot both the ECS *Running* instance and the DashScope usage from that run,
-so the proof shows the backend was *deployed and running on Alibaba Cloud*, not
-just locally. Optionally also grab a short screen recording showing the run's
-`LIVE: Calling qwen3.7-max ...` / HTTP 200 lines and the finished report.
+Capture and commit `docs/proof/alibaba-workbench.png`: deploy the repo on the
+instance (steps 1-6), run the agent there (at minimum `./findevil.sh --demo`
+plus one live `scripts/qwen_smoke.py` call), then screenshot the console
+Workbench Overview with the instance **Running**. Optionally add a short screen
+recording showing the run's `LIVE: ...` / HTTP 200 lines and the finished report
+(covers the older "short recording" wording on the main page).
 
-Then attach the screenshot to the Devpost "Proof of Deployment" question and link
-`llm_provider.py` as the code file.
+Then attach the screenshot to the Devpost "Proof of Deployment" question, link
+`llm_provider.py` as the code file, and **keep the instance running through the
+judging period (Jul 10-31)** - the FAQ says an Alibaba-hosted backend "enables
+live verification and direct execution testing during the validation period"
+and is an explicit evaluation plus-point.
 
 ---
 

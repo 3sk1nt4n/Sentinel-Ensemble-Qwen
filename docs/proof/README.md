@@ -17,7 +17,10 @@ console **Workbench Overview** - either:
 A Model Studio / DashScope usage screenshot does **not** match either official
 sample - treat it as supplementary only, not the proof.
 
-Strongest single shot: deploy this repo on the instance per
+The official Build Session FAQ states the bar exactly: *"a valid environment
+screenshot from your active platform console showing that your operational
+application backend is running live inside an Alibaba Cloud ECS or SAS container
+setup."* So: deploy this repo on the instance per
 [`../../DEPLOY-ALIBABA.md`](../../DEPLOY-ALIBABA.md), run the agent there (at
 minimum `./findevil.sh --demo` plus one live `scripts/qwen_smoke.py` call, or a
 full light run), then capture the Workbench Overview showing the instance
@@ -25,7 +28,10 @@ full light run), then capture the Workbench Overview showing the instance
 older "short recording" wording still on the hackathon main page.
 
 Then attach the same image to the Devpost "Proof of Deployment" submission
-question.
+question - and **keep the instance running through the judging period (Jul
+10-31)**: the FAQ says an Alibaba-hosted backend "enables live verification and
+direct execution testing during the validation period" and counts as an
+evaluation plus-point.
 
 <!-- Once added:
 ![Alibaba Cloud Workbench - running resources](alibaba-workbench.png)

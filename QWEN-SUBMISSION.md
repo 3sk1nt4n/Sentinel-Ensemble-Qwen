@@ -24,6 +24,15 @@ checkpoint before the report. **Incident-response agents fix outages; Sentinel
 Ensemble investigates compromises.** The analyst's hours move from evidence
 grinding to decision-making.
 
+**Path to production and adoption:** the productization route is a hosted triage
+service on Alibaba Cloud (ECS compute + OSS evidence intake + DashScope
+inference - the runbook already exists in [`DEPLOY-ALIBABA.md`](DEPLOY-ALIBABA.md)),
+priced per investigation against the measured $0.28-$1.53 unit cost. The
+open-source route is already live: MIT-licensed on the SANS SIFT platform every
+DFIR analyst already runs, with a documented tool-plugin contract
+([`EXTENDING.md`](EXTENDING.md)) so the community can add parsers without
+touching the trust layer.
+
 ---
 
 ## Proof of Deployment on Alibaba Cloud
@@ -126,7 +135,11 @@ volume is, to fit the $40 credit):
 | (optional) multimodal artifact parsing | `qwen-vl-max` |
 
 *(Model IDs are current as of the run date; `qwen3.7-max` is Alibaba's 2026
-flagship. Confirm the exact current IDs in your DashScope model list.)*
+flagship - the official hackathon FAQ names it for "hyper-complex logic
+patterns". `qwen-plus` is the stable alias the shipped run metrics record; the
+current marketplace also lists it as `qwen3.7-plus` (balanced) alongside
+`qwen3.6-flash` (fast/cost-optimized). Confirm exact IDs in your DashScope
+model list.)*
 
 ---
 
