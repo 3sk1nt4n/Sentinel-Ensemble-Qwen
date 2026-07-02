@@ -14,7 +14,7 @@ This module centralises the mandatory citation rules and ATT&CK
 granularity guidance that every Inv2 prompt must carry. All three
 composer paths (coordinator.build_inv2_prompt, run_pipeline LIVE Inv2,
 tools.common.build_ollama_inv2_prompt) inject these identically so
-Claude, Gemini, GPT, and Ollama see the same rules.
+Qwen, Claude, Gemini, GPT, and Ollama see the same rules.
 """
 from __future__ import annotations
 

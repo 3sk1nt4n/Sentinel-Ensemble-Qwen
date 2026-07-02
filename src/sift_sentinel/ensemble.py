@@ -440,7 +440,7 @@ def run_inv2_ensemble(
     if models is None:
         models = ensemble_models()
     from .llm_provider import make_llm_client
-    client = make_llm_client()   # Anthropic (default) or Qwen/DashScope
+    client = make_llm_client()   # Qwen/DashScope or the Anthropic fallback
     per_model: dict[str, dict] = {}
 
     member_labels = [_member_slot_name(i, m) for i, m in enumerate(models)]

@@ -827,7 +827,7 @@ def _build_summary_header(summary: Any) -> str:
               or summary.get("models")
               or summary.get("models_per_invocation"))
     if isinstance(models, Mapping):
-        # {Inv1: claude-haiku, Inv2: claude-opus, ...}
+        # {Inv1: model-a, Inv2: model-b, ...}
         seen: set[str] = set()
         labels: list[str] = []
         for k, v in models.items():

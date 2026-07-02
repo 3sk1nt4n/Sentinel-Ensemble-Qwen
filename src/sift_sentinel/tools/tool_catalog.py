@@ -1,5 +1,5 @@
 """Tool catalog: organized by DFIR investigation category.
-Claude queries by category to find relevant tools without being overwhelmed."""
+The analysis model queries by category to find relevant tools without being overwhelmed."""
 
 TOOL_CATALOG = {
     "process_analysis": {

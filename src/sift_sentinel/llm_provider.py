@@ -25,7 +25,7 @@ thin adapter (`QwenClient`) that:
 Provider + model are chosen entirely by environment (ZEROFAKE: no model literal
 is hardcoded -- `model_roles.py` already resolves model ids from env):
 
-    SIFT_LLM_PROVIDER   = qwen | anthropic        (default: anthropic)
+    SIFT_LLM_PROVIDER   = qwen | anthropic        (qwen for this submission; unset falls back to anthropic)
     DASHSCOPE_API_KEY   = <your Qwen Cloud key>    (or QWEN_API_KEY)
     DASHSCOPE_BASE_URL  = <override endpoint>      (default: intl compatible-mode)
     SIFT_DEFAULT_MODEL  = qwen3.7-max              (model_roles resolves this)
@@ -69,7 +69,8 @@ def _retry_delay(retry_after, attempt: int) -> float:
 
 
 def active_provider() -> str:
-    """The configured LLM provider id (lowercased). Default 'anthropic'."""
+    """The configured LLM provider id (lowercased). Set 'qwen' for Qwen
+    Cloud; unset falls back to 'anthropic' (documented fallback)."""
     return (os.environ.get("SIFT_LLM_PROVIDER") or "anthropic").strip().lower()
 
 
@@ -318,7 +319,7 @@ def make_llm_client():
     """Return the active LLM client.
 
     Qwen provider  -> DashScope adapter (Alibaba Cloud).
-    anything else  -> the real Anthropic SDK client (default; unchanged).
+    anything else  -> the real Anthropic SDK client (fallback; unchanged).
     """
     if is_qwen():
         return QwenClient()

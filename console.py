@@ -648,7 +648,7 @@ class SIFTConsole:
         table.add_column("Description")
         cmds = [
             ("analyze", "Run 16-step pipeline (dry-run, cached data)"),
-            ("analyze --live", "Run pipeline with live Claude API calls"),
+            ("analyze --live", "Run pipeline with live LLM API calls"),
             ("findings", "List all validated findings"),
             ("show <ID>", "Show finding detail (e.g. show F001)"),
             ("timeline", "Chronological process timeline"),

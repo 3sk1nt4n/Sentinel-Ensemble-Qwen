@@ -16,13 +16,13 @@ set -Eeuo pipefail
 #   CASE_LABEL=some-label
 #
 # Optional:
-#   MODEL=claude-haiku-4-5-20251001
+#   MODEL=qwen3.7-max
 #   ART_ROOT=logs
 
 MEMORY_IMAGE="${MEMORY_IMAGE:-}"
 DISK_IMAGE="${DISK_IMAGE:-}"
 CASE_LABEL="${CASE_LABEL:-case}"
-MODEL="${MODEL:-claude-haiku-4-5-20251001}"
+MODEL="${MODEL:-qwen3.7-max}"
 ART_ROOT="${ART_ROOT:-logs}"
 
 if [ -z "$MEMORY_IMAGE" ] || [ -z "$DISK_IMAGE" ]; then
@@ -42,16 +42,25 @@ fi
 
 export PYTHONPATH=src:. PAGER=cat PYTHONDONTWRITEBYTECODE=1
 
-echo "Paste sk-ant- key (hidden), press Enter:"
-read -rs ANTHROPIC_API_KEY
-export ANTHROPIC_API_KEY="$(printf '%s' "$ANTHROPIC_API_KEY" | tr -d '[:space:]')"
-echo "  key set ($(printf '%s' "$ANTHROPIC_API_KEY" | wc -c) chars, sha256-12=$(printf '%s' "$ANTHROPIC_API_KEY" | sha256sum | cut -c1-12))"
+PROVIDER="${SIFT_LLM_PROVIDER:-qwen}"
+export SIFT_LLM_PROVIDER="$PROVIDER"
+if [ "$PROVIDER" = "anthropic" ]; then
+  echo "Paste Anthropic API key (hidden), press Enter:"
+  read -rs ANTHROPIC_API_KEY
+  export ANTHROPIC_API_KEY="$(printf '%s' "$ANTHROPIC_API_KEY" | tr -d '[:space:]')"
+  echo "  key set ($(printf '%s' "$ANTHROPIC_API_KEY" | wc -c) chars, sha256-12=$(printf '%s' "$ANTHROPIC_API_KEY" | sha256sum | cut -c1-12))"
+else
+  echo "Paste DashScope key (hidden), press Enter:"
+  read -rs DASHSCOPE_API_KEY
+  export DASHSCOPE_API_KEY="$(printf '%s' "$DASHSCOPE_API_KEY" | tr -d '[:space:]')"
+  echo "  key set ($(printf '%s' "$DASHSCOPE_API_KEY" | wc -c) chars, sha256-12=$(printf '%s' "$DASHSCOPE_API_KEY" | sha256sum | cut -c1-12))"
+fi
 
 RUN_ID="$(date +%Y%m%d-%H%M%S)-$$"
 MOUNT_ROOT="/tmp/sift-isolated-mount-${CASE_LABEL}-${RUN_ID}"
 EWF_DIR="${MOUNT_ROOT}/ewf"
 NTFS_DIR="${MOUNT_ROOT}/ntfs"
-ART="${ART_ROOT}/${CASE_LABEL}-haiku-ens4-${RUN_ID}"
+ART="${ART_ROOT}/${CASE_LABEL}-ens4-${RUN_ID}"
 
 mkdir -p "$EWF_DIR" "$NTFS_DIR" "$ART"
 

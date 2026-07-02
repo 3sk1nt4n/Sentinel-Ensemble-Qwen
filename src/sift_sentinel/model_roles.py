@@ -243,7 +243,7 @@ def note_temperature_rejector(model: str | None) -> None:
 
 
 def is_temperature_rejection(exc: object) -> bool:
-    """True when an Anthropic error means the model rejected ``temperature``.
+    """True when a provider API error means the model rejected ``temperature``.
 
     Universal: it reads the API's OWN error text rather than a model name
     list, so any model that deprecates the parameter is recognised without a
@@ -262,7 +262,7 @@ def is_temperature_rejection(exc: object) -> bool:
 
 
 def extract_response_text(response: object) -> str:
-    """Concatenate every text-block's text from an Anthropic Messages response.
+    """Concatenate every text-block's text from a Messages API response.
 
     Robust to reasoning models (e.g. Fable 5) that emit ThinkingBlock /
     RedactedThinkingBlock entries BEFORE the answer: those blocks have no
@@ -316,7 +316,7 @@ SIFT_CACHE_BREAK = "<<<SIFT_CACHE_BREAK_V1>>>"
 
 
 def build_cached_message_content(prompt, *, cache_enabled):
-    """Turn a prompt string into the Anthropic ``content`` value.
+    """Turn a prompt string into the Anthropic-style ``content`` value.
 
     - ``cache_enabled`` False: return the prompt as a plain string (sentinel
       stripped) -- no cache_control at all.

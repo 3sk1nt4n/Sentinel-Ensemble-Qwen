@@ -2,7 +2,7 @@
 """
 SIFT Sentinel -- Full Pipeline Runner.
 Drives all 16 pipeline steps.
-Claude Code IS the execution engine -- this script orchestrates.
+The configured LLM (Qwen Cloud by default) IS the execution engine -- this script orchestrates.
 """
 
 # SIFT_TOOL_HIT_INTEGRITY_PRE_REPORT_HARD_GATE_V3
@@ -278,11 +278,11 @@ _sd_atexit.register(_sd_reap_once)
 _parser = argparse.ArgumentParser(description="SIFT Sentinel Pipeline Runner")
 _parser.add_argument(
     "--live", action="store_true",
-    help="Use real Claude API for AI analysis",
+    help="Use the real cloud LLM API (Qwen/DashScope by default; Anthropic optional fallback) for AI analysis",
 )
 _parser.add_argument(
     "--ollama", action="store_true",
-    help="Use local Ollama model (qwen2.5:14b) instead of Claude API",
+    help="Use local Ollama model (qwen3:14b) instead of the cloud LLM API",
 )
 _parser.add_argument(
     "--gemini", action="store_true",
@@ -298,9 +298,9 @@ _parser.add_argument(
 )
 _parser.add_argument(
     "--inv2-ensemble", action="store_true",
-    help="Run Inv2 (Steps 8-9) across 4 Claude models in parallel "
-         "(opus-4-7, opus-4-6, sonnet-4-6, haiku-4-5). "
-         "Higher cost (~$3-5/run) but surfaces more findings.",
+    help="Run Inv2 (Steps 8-9) across the configured model roster in parallel "
+         "(SIFT_ENSEMBLE_MODELS, set by step0_onboard.py or exported manually). "
+         "Higher cost than a single-model run but surfaces more findings.",
 )
 _parser.add_argument(
     "--image", type=str, default=None,
@@ -1389,7 +1389,7 @@ if MCP_MODE:
 else:
     logger.info("DIRECT MODE: Bypassing MCP server (testing only)")
 
-# ── Live mode: Anthropic client ────────────────────────────────────────
+# ── Live mode: LLM client (Qwen/DashScope or Anthropic) ───────────────
 _client = None
 if _args.live:
     try:
@@ -1432,7 +1432,7 @@ if GPT_MODE:
     logger.info("GPT MODE: Using GPT backend (model via env/config)")
 
 # Qwen3:14b works best under 15K tokens (~50K chars).
-# Claude Opus handles 50K+ tokens easily.
+# Cloud API models handle 50K+ tokens easily.
 _INV1_TOKEN_BUDGET = 5000 if OLLAMA_MODE else 50000
 _INV2_TOKEN_BUDGET = 25000 if OLLAMA_MODE else 50000
 _SC_MAX_CONTEXT_CHARS = 15000 if OLLAMA_MODE else 80000
@@ -1476,11 +1476,12 @@ def _label_to_desc(label: str) -> str:
 def _backend_label() -> str:
     """Return the active backend name for user-facing log messages.
 
-    When --live is selected the active model is Claude (Opus 4.6 via the
-    Anthropic API). When --gemini, --gpt, or --ollama is selected the
-    corresponding backend name is returned instead. Used in the post-
-    Inv2/post-SC log lines that were previously fixed-list to "Claude"
-    and produced misleading output on non-Claude runs.
+    When --live is selected the label follows the configured provider:
+    Qwen for Qwen/DashScope (the default), Claude for the optional
+    Anthropic fallback. When --gemini, --gpt, or --ollama is selected
+    the corresponding backend name is returned instead. Used in the
+    post-Inv2/post-SC log lines that were previously fixed-list to one
+    provider and produced misleading output on other backends.
     """
     if GPT_MODE:
         return "GPT"
@@ -1488,6 +1489,12 @@ def _backend_label() -> str:
         return "Gemini"
     if OLLAMA_MODE:
         return "Ollama"
+    try:
+        from sift_sentinel.llm_provider import is_qwen
+        if is_qwen():
+            return "Qwen"
+    except Exception:
+        pass
     return "Claude"
 
 
@@ -1509,7 +1516,7 @@ def _model_for_label(label: str) -> str:
 
 
 def _live_call(prompt: str, max_tokens: int, label: str):
-    """Call AI backend (Claude, Ollama, or Gemini). Returns parsed JSON dict, or None on any error."""
+    """Call AI backend (Qwen/Anthropic live, Ollama, Gemini, or GPT). Returns parsed JSON dict, or None on any error."""
     # Slot 31D-STEP123-INSTRUMENT: tests can prove a code path is API-free.
     if os.environ.get("SIFT_ASSERT_NO_LIVE_CALL") == "1":
         raise RuntimeError("SIFT_ASSERT_NO_LIVE_CALL: live/model call attempted")
@@ -1584,8 +1591,8 @@ def _live_call(prompt: str, max_tokens: int, label: str):
             # BUG 1 FIX: some model families reject the temperature
             # parameter. The predicate is env/config-driven (no model
             # literal here); models that reject it have it omitted.
-            # U1 + REACT_PREFIX_CACHE_V1: build the Anthropic content via the
-            # shared helper. With a SIFT_CACHE_BREAK sentinel in the prompt
+            # U1 + REACT_PREFIX_CACHE_V1: build the Anthropic-style content
+            # (both provider clients accept this shape) via the shared helper. With a SIFT_CACHE_BREAK sentinel in the prompt
             # (ReAct static-prefix mode) it splits into a cached static block +
             # an uncached dynamic suffix; without one it caches the whole prompt
             # (the prior behavior). The helper also STRIPS the sentinel when
@@ -1673,11 +1680,16 @@ def _live_call(prompt: str, max_tokens: int, label: str):
                 or "401" in _es):
             global _SIFT_API_KEY_REJECTED
             _SIFT_API_KEY_REJECTED = True
+            try:
+                from sift_sentinel.llm_provider import is_qwen as _ak_is_qwen
+                _ak_key = "DASHSCOPE_API_KEY" if _ak_is_qwen() else "ANTHROPIC_API_KEY"
+            except Exception:
+                _ak_key = "DASHSCOPE_API_KEY"
             print(
-                "\n  ❌ API KEY REJECTED (HTTP 401: invalid x-api-key).\n"
-                "     ANTHROPIC_API_KEY is missing, mistyped, revoked, or for the\n"
+                "\n  ❌ API KEY REJECTED (HTTP 401: authentication failed).\n"
+                f"     {_ak_key} is missing, mistyped, revoked, or for the\n"
                 "     wrong workspace. No analysis ran. Fix the key and re-run:\n"
-                "       export ANTHROPIC_API_KEY=sk-ant-...    then start again\n"
+                f"       export {_ak_key}=<your key>    then start again\n"
                 "     (or paste it at the hidden key prompt in step0_onboard.py).\n",
                 flush=True,
             )
@@ -1714,7 +1726,8 @@ def _invoke(prompt_path, timeout, max_turns, fallback_fn):
     max_tokens = _adapter_token_cap(timeout, max_turns)
     is_react = max_tokens == 1024
     # CC#17d-1.5: SC pathway uses max_tokens=8192 per _adapter_token_cap.
-    # Emit distinct label so _model_for_label routes SC to Opus 4.7.
+    # Emit distinct label so _model_for_label routes SC to the
+    # self_correction role model (env-resolved).
     is_sc = max_tokens == 8192
     if is_react:
         label = f"Inv ReAct (t={timeout}s)"
@@ -2216,9 +2229,9 @@ else:
 # ════════════════════════════════════════════════════════════════════════
 # STEP 5: Invocation 1 -- AI tool selection
 # ════════════════════════════════════════════════════════════════════════
-# Live mode: Inv1 is the first decision-maker. Primary call uses Opus
-# 4.7; on empty/invalid response we retry once against Opus 4.6 with a
-# stricter prompt. If the retry also fails, we halt honestly rather
+# Live mode: Inv1 is the first decision-maker. Primary call uses the
+# inv1_primary role model; on empty/invalid response we retry once
+# against the inv1_retry role model with a stricter prompt. If the retry also fails, we halt honestly rather
 # than quietly substituting the deterministic Golden Path -- that
 # substitution would mislead judges about what the model actually did.
 # Dry-run keeps the Golden Path as a reproducible default for unit
@@ -3677,7 +3690,7 @@ if STRICT_VALIDATION:
 else:
     logger.info("STANDARD VALIDATION: Requiring 2+ claims per finding")
 
-# ── LIVE override: Inv2 analysis via Claude API ──
+# ── LIVE override: Inv2 analysis via the configured LLM API ──
 if LIVE_MODE:
     if OLLAMA_MODE:
         # ── Ollama: data-first, concise prompt for Qwen ──
@@ -3694,7 +3707,7 @@ if LIVE_MODE:
         logger.info("PROMPT BUILD: final prompt chars=%d, tokens~%d",
                      len(_inv2_live_prompt), len(_inv2_live_prompt) // 4)
     else:
-        # ── Claude: full prompt with schema, examples, anti-patterns ──
+        # ── Cloud LLM: full prompt with schema, examples, anti-patterns ──
         _filtered = prepare_prompt(all_outputs, _INV2_TOKEN_BUDGET)
         _inv2_live_prompt = (
             "You are a DFIR analyst. Analyze these forensic tool outputs and "
@@ -4169,7 +4182,7 @@ if _sc_colored:
 _sc_counter = {"n": 0}
 
 def corrector_fn(raw_data, error):
-    """Corrector: in live mode, call Claude to fix the finding.
+    """Corrector: in live mode, call the LLM backend to fix the finding.
     In dry-run, return None (UNRESOLVED).
 
     Commit 19: passes ref_set via closure so build_sc_prompt can inject
@@ -4239,7 +4252,7 @@ for result in corrections:
         _reasoning = result.get("reasoning")
         _approach = result.get("approach_change")
         if _reasoning:
-            print(f"{M}{B}[CLAUDE REASONING]: {_reasoning}{X}")
+            print(f"{M}{B}[{_backend_label().upper()} REASONING]: {_reasoning}{X}")
         else:
             print(f"{Y}Mechanical correction (no AI reasoning){X}")
         if _approach:
@@ -6113,7 +6126,7 @@ except Exception as _e_pu:
 write_state(STATE_DIR, "report.md", _polished(report))
 logger.info("  Report written: %d characters", len(report))
 
-# ── LIVE override: Inv4 report via Claude API ──
+# ── LIVE override: Inv4 report via the configured LLM API ──
 if LIVE_MODE:
     # Slot 31E-DB.4: Inv4 receives the disposition-bucket truth source,
     # NOT flat findings_final. The report's atomic confirmed count is

@@ -91,9 +91,9 @@ Add these to put Inv1/Inv2/Inv3A/ReAct/Report all on `qwen3.7-max` (pricier, dee
 ```
 
 ### Anthropic fallback (optional)
-The provider seam keeps Claude as the zero-regression default - drop the
-`SIFT_LLM_PROVIDER` line and pass `-e ANTHROPIC_API_KEY=...` to run the identical
-pipeline on Claude.
+The provider seam keeps the Anthropic path as a zero-regression fallback - set
+`-e SIFT_LLM_PROVIDER=anthropic` and pass `-e ANTHROPIC_API_KEY=...` to run the
+identical pipeline on Claude.
 
 ---
 

@@ -4,7 +4,7 @@ The naive estimate charges every input token at the base rate. That OVER-states 
 whenever prompt caching is active: a 4-member ensemble re-reads ONE shared prompt, and
 those cache-read tokens bill at ~10% of base (cache *writes* bill at 125%). So we report
 the uncached figure AND, in brackets, the with-prompt-caching figure -- the latter tracks
-the real Anthropic bill.
+the real provider bill.
 
 Rates are per-million-tokens, model-aware, env-overridable (SIFT_PRICE_*).
 """
@@ -97,7 +97,7 @@ def format_cost(model: str, *, uncached_input, output, cache_read=0,
                 cache_creation=0) -> str:
     """Render the cost line. The PRIMARY figure is always the REAL billed cost
     (cache-aware: uncached input @ base + cache writes @125% + cache reads @10%
-    + output @ base) -- it must equal the actual Anthropic bill, never a
+    + output @ base) -- it must equal the actual provider bill, never a
     hypothetical. The bracket explains how caching moved that number:
 
       * caching SAVED money (reads amortised the writes):
@@ -119,7 +119,7 @@ def format_cost(model: str, *, uncached_input, output, cache_read=0,
     no_cache = uncached_cost_usd(r_in, r_out, uncached_input=uncached_input,
                                  output=output, cache_read=cache_read,
                                  cache_creation=cache_creation)
-    # Token-based ESTIMATE -- not a guaranteed invoice. Anthropic may apply
+    # Token-based ESTIMATE -- not a guaranteed invoice. The provider may apply
     # server-side caching/credits our usage counters don't see, so the actual
     # billed amount can be LOWER than this token-derived figure. The pinned
     # phrases "with prompt caching" / "no reuse this run" are kept (cost-clamp

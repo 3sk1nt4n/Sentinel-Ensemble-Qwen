@@ -56,7 +56,7 @@ FATAL_PATTERNS = {
 }
 
 WARN_PATTERNS = {
-    "anthropic_429": r"HTTP/1\.1 429 Too Many Requests|rate_limit_error",
+    "provider_429": r"HTTP/1\.1 429 Too Many Requests|rate_limit_error",
     "self_correction_api_error": r"API error for Inv SC|corrector_returned_none",
 }
 

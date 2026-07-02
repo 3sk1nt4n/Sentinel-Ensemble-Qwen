@@ -10,7 +10,7 @@ import re
 _EVENT_ID_RE = re.compile(r"\bevent\s*(?:id)?\s*[:#]?\s*(\d{1,5})\b", re.IGNORECASE)
 
 # Type alias remapping: map common AI-generated type names to validator types.
-# Claude often returns near-miss type names; remap before type-specific handling.
+# Models often return near-miss type names; remap before type-specific handling.
 _TYPE_ALIASES = {
     "process": "pid",
     "network": "connection",

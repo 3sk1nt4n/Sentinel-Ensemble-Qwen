@@ -654,7 +654,7 @@ def self_correct(
         ref_set:         Paired reference set for re-validation.
         max_attempts:    Maximum correction attempts (default 3).
         corrector_fn:    Callable(raw_data, error) -> dict.  In production
-                         this calls Claude Code; in tests, a stub.
+                         this calls the configured LLM (Qwen by default); in tests, a stub.
         attempt_timeout: Per-attempt timeout in seconds (default 30).
                          Enforced by the caller/coordinator, not here.
         total_timeout:   Total window in seconds (default 90).
@@ -837,7 +837,7 @@ def self_correct(
             continue
 
         # ── Extract reasoning/approach_change from wrapper responses ──
-        # Live mode: Claude returns {"reasoning": ..., "approach_change": ..., "finding": {...}}
+        # Live mode: the model returns {"reasoning": ..., "approach_change": ..., "finding": {...}}
         reasoning = None
         approach_change = None
         if "reasoning" in new_finding and "finding" in new_finding:

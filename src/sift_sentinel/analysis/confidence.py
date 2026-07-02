@@ -2,7 +2,7 @@
 SIFT Sentinel -- Confidence calibration (Pipeline Step 13).
 Deterministic Python. Evidence-based, not feeling-based.
 
-Rules (Opus-only confidence calibration; see ARCHITECTURE.md):
+Rules (deterministic, model-agnostic confidence calibration; see ARCHITECTURE.md):
   3+ independent artifact types -> HIGH allowed
   1-2 artifact types -> MEDIUM max
   0 artifact types -> SPECULATIVE

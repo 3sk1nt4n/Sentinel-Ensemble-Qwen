@@ -1,6 +1,6 @@
 """
 SIFT Sentinel -- Pipeline Coordinator (Steps 1-16).
-The conductor: deterministic Python drives Claude Code exactly 4 times.
+The conductor: deterministic Python drives the AI model exactly 4 times.
 Every method accepts explicit inputs and returns explicit outputs.
 coordinator.py is the memory -- each invocation is stateless.
 """
@@ -884,13 +884,13 @@ def check_profile_health(image_path: str) -> tuple[bool, list[str], dict]:
         return True, [], {}
 
 
-# ── Type guard for Claude responses ─────────────────────────────────────
+# ── Type guard for model responses ──────────────────────────────────────
 
 
 def _expect_dict(
     value: Any, label: str, fallback_fn: Callable[[], Any],
 ) -> dict:
-    """Ensure value is a dict; fall back if Claude returns [], "text", etc."""
+    """Ensure value is a dict; fall back if the model returns [], "text", etc."""
     if isinstance(value, dict):
         return value
     logger.warning(
@@ -902,7 +902,7 @@ def _expect_dict(
     return fallback
 
 
-# ── Coercion guards for nested Claude response fields ──────────────────
+# ── Coercion guards for nested model response fields ───────────────────
 
 def _coerce_selected_tools(
     value: Any, *, bootstrap_ran: bool = True,
@@ -1384,7 +1384,9 @@ def invoke_claude(
     temperature: float = 0,
     model: str | None = None,
 ) -> Any:
-    """Call Claude via Anthropic SDK. Falls back on timeout or parse error.
+    """Call the configured LLM provider (Qwen/DashScope or the Anthropic
+    fallback); the function name is historical. Falls back on timeout or
+    parse error.
 
     When SIFT_DRY_RUN=1 is set, preserves the legacy subprocess path
     so existing test mocks continue to work.
@@ -1419,7 +1421,7 @@ def invoke_claude(
     try:
         from .llm_provider import make_llm_client
         prompt_text = Path(prompt_path).read_text()
-        client = make_llm_client()   # Anthropic (default) or Qwen/DashScope
+        client = make_llm_client()   # Qwen/DashScope or Anthropic (env-selected)
         request_kwargs: dict[str, Any] = {
             "model": model,
             "max_tokens": 4096,
@@ -1458,7 +1460,7 @@ def invoke_claude(
             "",
         )
         if not raw:
-            raise ValueError("Claude returned no text block")
+            raise ValueError("LLM returned no text block")
         return json.loads(_extract_first_json_object(raw))
     except _timeout_exc:
         logger.warning("TIMEOUT: %s after %ds", prompt_path, timeout)
@@ -2426,10 +2428,11 @@ def _inv1_select_with_retry(
     *,
     degraded_profile: bool = False,
 ) -> dict:
-    """Live Inv1: primary (Opus 4.7) then one AI retry (Opus 4.6).
+    """Live Inv1: primary (inv1_primary role) then one AI retry (inv1_retry role).
 
-    Primary and retry both use Opus; only the retry downgrades from
-    4.7 to 4.6 so a model-specific regression in 4.7 does not doom
+    Primary and retry models resolve via the env-driven role resolver;
+    the retry role may point at a different model so a model-specific
+    regression in the primary does not doom
     the whole run. Two invalid/empty responses = honest halt (raises
     ``Inv1RetryExhausted``). The live path never falls back to the
     Golden Path silently.
@@ -3449,7 +3452,7 @@ def _default_corrector(raw_data: dict, error: str) -> None:
 
 
 def _make_corrector(state_dir: Path, invoke_fn: Callable) -> Callable:
-    """Create corrector that calls Claude Code for self-correction.
+    """Create corrector that calls the LLM backend for self-correction.
 
     Self-correction routes to the ``self_correction`` role (resolved
     via env/config) when the invoke callable accepts the ``model``
@@ -4549,7 +4552,7 @@ def step_12_self_correct(
 ) -> list[dict]:
     """Step 12: AI Self-Correction loop on blocked findings.
 
-    When *strict_validation* is True, the SC prompt tells Claude to
+    When *strict_validation* is True, the SC prompt tells the model to
     strengthen findings with additional corroborating evidence from
     multiple tool sources.
     """
@@ -4800,7 +4803,7 @@ def run_pipeline(
 ) -> dict:
     """The 16-step pipeline conductor.
 
-    In dry_run mode: runs Volatility live but skips Claude Code
+    In dry_run mode: runs Volatility live but skips AI
     invocations; returns empty findings for Steps 8-9.
 
     ``bootstrap`` defaults False. In the default live path Step 4 is
@@ -5433,7 +5436,7 @@ def main() -> int:
     parser.add_argument("--state-dir", default=str(DEFAULT_STATE_DIR))
     parser.add_argument(
         "--dry-run", action="store_true",
-        help="Boot check with cached data, no Claude Code calls",
+        help="Boot check with cached data, no AI calls",
     )
     parser.add_argument("--mft-start", default=DEFAULT_MFT_START)
     parser.add_argument("--mft-end", default=DEFAULT_MFT_END)

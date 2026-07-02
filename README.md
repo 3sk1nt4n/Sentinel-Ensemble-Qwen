@@ -107,7 +107,7 @@ The international (Singapore) DashScope endpoint is the default; set
 > full runs even worst-case). Tiering is in [`.env.qwen.example`](.env.qwen.example).
 
 > **Anthropic fallback (optional).** The provider seam keeps `anthropic` as the
-> zero-regression default - unset `SIFT_LLM_PROVIDER` and set `ANTHROPIC_API_KEY`
+> zero-regression fallback - unset `SIFT_LLM_PROVIDER` and set `ANTHROPIC_API_KEY`
 > to run the identical pipeline on Claude. Not needed for the Qwen Cloud submission.
 
 ### 3️⃣ Get evidence to investigate

@@ -738,7 +738,7 @@ def _estimate_tokens(text: str) -> int:
 
 
 def strip_markdown_fences(raw_output: str) -> str:
-    """Remove ```json``` or ``` ``` wrappers from Claude Code output.
+    """Remove ```json``` or ``` ``` wrappers from LLM output.
     Handles leading text and multiple fence blocks (uses the last block)."""
     stripped = raw_output.strip()
     if not stripped:

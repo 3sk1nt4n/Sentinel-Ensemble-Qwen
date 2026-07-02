@@ -1,7 +1,7 @@
 """SIFT Sentinel -- Agentic DFIR Terminal.
 
 Interactive console for forensic investigation with optional AI assistance.
-Modes: --offline (default), --ollama (local LLM), --live (Anthropic API).
+Modes: --offline (default), --ollama (local LLM), --live (Qwen/DashScope API by default; Anthropic optional fallback).
 """
 
 from __future__ import annotations
@@ -743,7 +743,7 @@ class SIFTConsole:
         table.add_column("Description")
         cmds = [
             ("analyze", "Run 16-step pipeline (dry-run, cached data)"),
-            ("analyze --live", "Run pipeline with live Claude API calls"),
+            ("analyze --live", "Run pipeline with live LLM API calls (Qwen default)"),
             ("findings", "List all validated findings"),
             ("show <ID>", "Show finding detail (e.g. show FNNN)"),
             ("timeline", "Chronological process timeline"),
@@ -845,7 +845,7 @@ def render_welcome(mode: str) -> None:
     mode_label = {
         "offline": "OFFLINE (no AI calls)",
         "ollama": f"OLLAMA (local: {OLLAMA_MODEL})",
-        "live": "LIVE (Anthropic API -- model via env/config)",
+        "live": "LIVE (Qwen/DashScope API by default -- model via env/config)",
     }
 
     lines: list[str] = []
@@ -894,7 +894,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     group.add_argument(
         "--live", action="store_const", const="live",
-        dest="mode", help="AI via Anthropic API",
+        dest="mode", help="AI via live LLM API (Qwen/DashScope default)",
     )
     parser.set_defaults(mode="offline")
     return parser.parse_args(argv)

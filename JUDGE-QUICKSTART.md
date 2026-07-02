@@ -68,7 +68,7 @@ The international (Singapore) DashScope endpoint is the default; set
 time and **never echoed, logged, or written to disk** by the pipeline.
 
 > **Anthropic fallback (optional).** The provider seam keeps `anthropic` as the
-> zero-regression default - unset `SIFT_LLM_PROVIDER` and set `ANTHROPIC_API_KEY`
+> zero-regression fallback - unset `SIFT_LLM_PROVIDER` and set `ANTHROPIC_API_KEY`
 > to run the identical pipeline on Claude. Not needed for this submission.
 
 ---

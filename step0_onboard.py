@@ -99,6 +99,7 @@ def _find_wired() -> bool:
 # ── Analysis depth modes (the two reasoning options offered before launch) ───
 # Model ids are assembled from fragments so no contiguous provider/model literal
 # lives in source (repo convention); the operator may override either via env.
+# These are the Anthropic FALLBACK defaults; qwen mode overrides them below.
 # HEAVY defaults to Opus 4.8: live-proven on this pipeline (full run, findings,
 # ~$11/case). Fable 5 was trialled as the default and hit FOUR live failure
 # modes; the terminal one is stop_reason=refusal on the Inv2 forensic-analysis
@@ -204,7 +205,7 @@ def _c(s: str, code: str) -> str:
 
 # Per-stage model env vars (model_roles.ROLE_ENV) that a shell may have pinned.
 # The chosen depth overrides ALL of them so the mode is authoritative -- otherwise
-# a stray SIFT_MODEL_INV1_PRIMARY=haiku silently downgrades a Heavy (Opus) run.
+# a stray SIFT_MODEL_INV1_PRIMARY pin silently downgrades a Heavy run.
 _STAGE_ROLE_ENV_VARS = (
     "SIFT_MODEL_INV1_PRIMARY", "SIFT_MODEL_INV1_RETRY", "SIFT_MODEL_ANALYSIS",
     "SIFT_MODEL_REACT", "SIFT_MODEL_SELF_CORRECTION", "SIFT_MODEL_REPORT",
@@ -216,8 +217,9 @@ def mode_launch_env(mode: dict) -> dict:
 
     Sets SIFT_FORCE_MODEL + SIFT_DEFAULT_MODEL AND overrides every per-stage pin
     (SIFT_MODEL_<ROLE>), because resolve_model gives a per-role var precedence over
-    the force -- so a shell that exported SIFT_MODEL_INV1_PRIMARY=haiku would
-    otherwise run Heavy's Inv1 on Haiku. The ensemble is forced onto the same model.
+    the force -- so a shell that exported a stale SIFT_MODEL_INV1_PRIMARY pin
+    would otherwise run Heavy's Inv1 on that model. The ensemble is forced onto
+    the same model.
     Pure: returns a dict, sets nothing."""
     model = str(mode.get("model") or "")
     env = {"SIFT_FORCE_MODEL": model, "SIFT_DEFAULT_MODEL": model}
@@ -373,9 +375,10 @@ def build_find_command(manifest: CaseManifest, ensemble: bool = True) -> list:
 
 
 def validate_api_key(key: str) -> tuple:
-    """Cheap FORMAT check for an Anthropic key (catches a typo / wrong / DOUBLE paste
-    before we waste a launch on a 401). Returns (ok, reason). An Anthropic key starts
-    'sk-ant-', is one ~100-char URL-safe token. This is a format gate, not auth --
+    """Cheap FORMAT check for the provider's API key (catches a typo / wrong / DOUBLE
+    paste before we waste a launch on a 401). Returns (ok, reason). Qwen mode expects
+    a DashScope 'sk-...' token; Anthropic fallback mode expects one 'sk-ant-' ~100-char
+    URL-safe token. This is a format gate, not auth --
     only the API can confirm the key is live."""
     k = (key or "").strip()
     if not k:
@@ -471,7 +474,8 @@ def verify_api_key_live(key, *, _client_factory=None, timeout: float = 10.0) -> 
 
 
 def _load_env_file_api_key(path=None) -> bool:
-    """If ANTHROPIC_API_KEY isn't already set, try to read JUST that one variable from a
+    """If the provider's key env var (DASHSCOPE_API_KEY in qwen mode, else
+    ANTHROPIC_API_KEY) isn't already set, try to read JUST that variable from a
     local ``.env`` file (no shell execution, no other vars) so a key kept in .env is
     picked up automatically. Returns True iff it set the key. The value is never printed;
     .env is gitignored. The default repo/CWD scan is skipped under tests (pass an
@@ -599,8 +603,9 @@ def _visible_key_file_template() -> str:
 
 
 def _scan_text_for_anthropic_key(path):
-    """First Anthropic key token in a file: ``ANTHROPIC_API_KEY=<v>`` OR a bare
-    ``sk-ant-…`` token on any non-comment line (so a judge can paste the key by
+    """First provider API-key token in a file (function name is historical): a
+    key ``NAME=<v>`` assignment OR a bare ``sk-...`` token on any non-comment
+    line (so a judge can paste the key by
     itself). Returns the token string, or None. Comments (``#``) are ignored.
     Never raises."""
     qwen = _qwen_mode()
@@ -628,7 +633,7 @@ def _scan_text_for_anthropic_key(path):
 
 
 def _find_key_in_files(*, env_paths=None, txt_paths=None):
-    """Resolve an Anthropic key from local files. Precedence: ``.env`` then the
+    """Resolve the provider's API key from local files. Precedence: ``.env`` then the
     visible ``API_KEY.txt`` (repo dir, then CWD). A REAL key always wins over a
     placeholder found anywhere -- so a leftover ``.env`` placeholder never blocks a
     real key in ``API_KEY.txt``. Returns ``(key, source_label, is_placeholder)``;
@@ -691,7 +696,7 @@ def _first_verifying_file_key(verify, exclude=None):
     """If a REAL key sits in .env / API_KEY.txt that the API accepts, return
     ``(key, source_label)``; else ``(None, None)``. Used to fall back when the
     *environment* key is rejected (401) or is a placeholder, so a key the operator
-    just put in a file still works even with a stale ``export ANTHROPIC_API_KEY`` in
+    just put in a file still works even with a stale exported key value in
     the shell. ``exclude`` skips re-trying the same key that already failed."""
     fk, flabel, fis_ph = _find_key_in_files()
     if not fk or fis_ph or fk == exclude:
@@ -704,7 +709,7 @@ def _first_verifying_file_key(verify, exclude=None):
 def _ensure_api_key(getpass_fn=None, max_tries: int = 3, verifier=None) -> bool:
     """ALWAYS show the hidden API-key step (operator wants to see it every run).
 
-    HIDDEN (never echoed). A pasted OR reused key is format-validated (sk-ant- prefix +
+    HIDDEN (never echoed). A pasted OR reused key is format-validated (provider prefix +
     length) AND, when possible, checked LIVE against the API (a cheap no-token
     models.list) so a wrong / revoked / stale key -- one that passes the format gate but
     the API rejects with a 401 -- is caught HERE with a clear message instead of failing
@@ -840,7 +845,7 @@ def render_mode_menu() -> str:
     lines = ["", top, title, bot, ""]
     # number color per mode: heavy = magenta, light = cyan
     numcol = {"1": "1;35", "2": "1;36"}
-    namecol = {"1": "1;33", "2": "1;32"}      # Opus = gold, Haiku = green
+    namecol = {"1": "1;33", "2": "1;32"}      # heavy = gold, light = green
     for k, m in ANALYSIS_MODES.items():
         head = (f"   {_c(k + ')', numcol.get(k, '1'))} "
                 f"{m['icon']} {_c(m['label'], numcol.get(k, '1'))}"
@@ -954,8 +959,8 @@ _KEY_IN_HISTORY_RE = re.compile(
 
 
 def scrub_shell_history(histfile: Optional[str] = None) -> int:
-    """Security guardrail: remove any line that carries an API key (sk-ant-… or
-    ANTHROPIC_API_KEY=…) from the shell history file, so a key typed at a prompt is
+    """Security guardrail: remove any line that carries an API key (an sk-... token
+    or a key env assignment) from the shell history file, so a key typed at a prompt is
     never PERSISTED. Returns the number of lines scrubbed. Pure-ish: only rewrites
     the history file, and only when a key line is present."""
     path = histfile or os.environ.get("HISTFILE") or os.path.expanduser(
