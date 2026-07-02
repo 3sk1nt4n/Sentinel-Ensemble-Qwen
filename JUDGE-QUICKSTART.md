@@ -12,6 +12,10 @@ can verify the whole flow first.
 
 ## 1️⃣ Prerequisites
 
+> **No SIFT VM? Fastest judge path:** Docker Desktop on any OS -
+> `docker build --target demo -t sentinel-qwen:demo . && docker run --rm sentinel-qwen:demo`
+> (~290 MB, no key, no evidence). Or `./setup.sh docker`. See README > Run it in Docker.
+
 | Requirement | Version | Notes |
 |---|---|---|
 | SANS SIFT Workstation | Ubuntu 22.04+ | free VM from SANS - **[download](https://sans.org/tools/sift-workstation)**; ships Volatility 3, Sleuth Kit, EWF tools, Plaso |

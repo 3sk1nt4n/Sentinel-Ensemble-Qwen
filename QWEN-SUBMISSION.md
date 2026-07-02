@@ -35,7 +35,8 @@ Per the Devpost x Qwen Cloud rules, proof has two parts:
    hardcodes the DashScope base URL judges look for and issues the live HTTPS
    calls:
    `https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions`.
-   The two shipped run-metric files in [`docs/qwen-runs/`](docs/qwen-runs/) each
+   The shipped run-metric files in [`docs/qwen-runs/`](docs/qwen-runs/) (light,
+   heavy, plus a July repro and a flags-off ablation) each
    record that same `llm_endpoint`, `llm_provider: qwen`, and the model
    (`qwen3.7-max` / `qwen-plus`) - so the runs demonstrably went to Alibaba Cloud.
 
@@ -150,7 +151,7 @@ Four pieces of DashScope-specific engineering, all exercised by the live runs:
   bounded retries honoring `Retry-After` plus explicit bare-`TimeoutError`
   handling fixed the live run (`SIFT_HTTP_TIMEOUT`, default 600s).
 
-**And a designed ablation, not two lucky runs:** the light (`qwen-plus` ×4) vs
+**And a designed model-tier A/B, not two lucky runs:** the light (`qwen-plus` ×4) vs
 heavy (`qwen3.7-max`) pair holds the deterministic trust layer constant and
 varies only the Qwen model tier - measuring what each tier can *prove*, not
 what it says. Result: **0 vs 4 confirmed**. The bar does not move; the model's

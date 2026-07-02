@@ -41,7 +41,19 @@ tool execution that proved it.
 | Trust layer (code, not the model, decides "confirmed") | done | deterministic validator + disposition gates; every finding traces to tool output (`src/sift_sentinel/validation/`, `src/sift_sentinel/analysis/disposition.py`) |
 | Self-correction | done | [`SELF-CORRECTION-PROOF.md`](SELF-CORRECTION-PROOF.md) - FP-sweep + ReAct cross-check |
 
-> Proven end-to-end on **two real paired (memory + disk) Qwen Cloud runs** through the full trust-layer pipeline (Step-13AA review-all + dedup + reconcile) - same deterministic layer, two tiers: **light** (`qwen-plus` ×4) -> **0 confirmed** (the gates confirmed nothing without atomic proof; ~$0.28, 5m 37s) and **heavy** (`qwen3.7-max` on every step) -> **4 confirmed** (PsExec, PWDumpX, an IFEO `sethc.exe` backdoor, p.exe), each cleared every confirmation gate, with **13AA leaving zero inconclusive** (~$1.53, 14m 44s; automatic prompt caching reused 381k tokens, ~36% cheaper est. at the configured cache rate). **SHA-256 MATCH on both images** in each. Full comparison in [`QWEN-SUBMISSION.md`](QWEN-SUBMISSION.md). An earlier Claude reference run on the same case stays local-only / not shipped. The trust layer, the 195 typed forensic tools, and the 16-step conductor are model-agnostic and carry over unchanged - only the model provider/tier differs.
+> Proven end-to-end on **two real paired (memory + disk) Qwen Cloud runs** on the
+> same intrusion case - same deterministic trust layer, two model tiers.
+> **Light** (`qwen-plus` ×4) confirmed **0** (no atomic proof, no confirm; ~$0.28,
+> 5m 37s). **Heavy** (`qwen3.7-max`) confirmed **4** - PsExec lateral movement,
+> PWDumpX credential dumping, a sticky-keys backdoor (IFEO `sethc.exe`), and
+> `p.exe` from a temp dir - each clearing every confirmation gate, **SHA-256 MATCH
+> on both images** (~$1.53, 14m 44s). A July rerun re-confirmed the chain, and a
+> **flags-off ablation on the same case measured the trust layer directly:
+> inconclusive jumped 0 -> 11 and confirmations fell 3 -> 1 without it.** The bar
+> does not move; the model's ability to clear it does. Full comparison + shipped
+> metrics in [`QWEN-SUBMISSION.md`](QWEN-SUBMISSION.md) and
+> [`docs/qwen-runs/`](docs/qwen-runs/). The trust layer, the 195 typed tools, and
+> the 16-step conductor are model-agnostic; only the provider/tier differs.
 
 ---
 
@@ -181,6 +193,12 @@ If `./findevil.sh --demo` prints a synthetic case card ending in
 
 ## 🚀 Quick Start
 
+**Fastest start (one command, both paths):**
+```bash
+./setup.sh            # local/VM: venv + deps + runs the demo   (or: ./setup.sh docker)
+./setup.sh --check    # doctor mode: verify everything, install nothing
+```
+Then the agent itself:
 ```bash
 ./findevil.sh                      # asks ONE question: where is the evidence
 ./findevil.sh /cases/evidence      # or pass the path directly
@@ -230,6 +248,10 @@ event logs) end-to-end with **zero human steering and zero model shell access**:
 - A **4-model ensemble + deterministic cross-checks** disposition findings into
   confirmed / needs-review / benign / false-positive, with confidence earned by
   **independent artifact types** (memory + disk + logs) - not model feeling.
+- An **opt-in analyst checkpoint** (`SIFT_HITL_CHECKPOINT=1`) pauses at the
+  disposition decision, *before* the report, so a human can approve or override
+  any verdict - the Track-4 human-in-the-loop gate (the agent automates the
+  judgement; the human authorises the action).
 - A **report-integrity layer** keeps the story honest end-to-end: the
   executive summary can never name a finding "confirmed" that the evidence
   pipeline didn't confirm (any mismatch is auto-annotated with the finding's
