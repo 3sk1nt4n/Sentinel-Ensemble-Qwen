@@ -1,12 +1,13 @@
 # 🛡️ Sentinel Ensemble
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
-![Platform](https://img.shields.io/badge/Platform-SANS%20SIFT%20Workstation-blue)
+![Platform](https://img.shields.io/badge/Platform-Docker%20%7C%20SIFT%20%7C%20Linux-blue)
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
 ![Tests](https://img.shields.io/badge/pytest-4%2C700%2B%20passing-brightgreen)
 ![Evidence](https://img.shields.io/badge/Evidence-strictly%20read--only-critical)
 
-**Autonomous agentic DFIR for the SANS SIFT Workstation.** Point it at Windows
+**Autonomous agentic DFIR - Docker on any OS, or native on the SANS SIFT
+Workstation.** Point it at Windows
 evidence (memory image, disk image, event logs) and it investigates end-to-end -
 **zero human steering, zero model shell access** - then hands you an
 investigative report where **every single claim is validated against real tool
@@ -70,14 +71,53 @@ The zero-cost **`--demo`** (synthetic case, no API key, no evidence) works in *a
 
 ---
 
+## 🐳 Run it in Docker (any OS)
+
+No SIFT VM, no toolchain install - works on Windows/macOS/Linux with Docker Desktop.
+The default **`full-plus`** image bundles **every forensic tool the agent calls**
+(Volatility 3, Sleuth Kit, YARA, EWF, **bulk_extractor, EZ Tools, Plaso, RegRipper,
+pff-tools, photorec**). Full guide (targets, evidence mounting, `.E01`/FUSE,
+Windows paths, all-Max env): [`docs/DOCKER.md`](docs/DOCKER.md).
+
+```bash
+git clone https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen.git
+cd Sentinel-Ensemble-Qwen
+
+# zero-cost demo - no API key, no evidence, no forensic tools (~290 MB)
+docker build --target demo -t sentinel-qwen:demo .
+docker run --rm -it sentinel-qwen:demo
+
+# toolchain image for real runs:
+#   --target full  = memory+disk core (Vol3 + Sleuth Kit + EWF + YARA), ~465 MB
+#   (default)      = full-plus: EVERYTHING the agent calls, ~990 MB
+docker build -t sentinel-qwen .
+# (the --cap-add/--device/--security-opt trio enables .E01 disk mounting via
+#  FUSE - all three public cases below ship .E01; harmless for memory-only)
+docker run --rm -it \
+  --cap-add SYS_ADMIN --device /dev/fuse --security-opt apparmor:unconfined \
+  -e SIFT_LLM_PROVIDER=qwen -e DASHSCOPE_API_KEY=sk-... \
+  -e SIFT_DEFAULT_MODEL=qwen3.7-max \
+  -e SIFT_HTTP_TIMEOUT=600 -e SIFT_ALLOW_YARA=1 \
+  -v /path/to/your/case:/evidence:ro \
+  sentinel-qwen /evidence
+```
+
+> 🔒 The image never bakes in a key (`.env` is excluded by `.dockerignore`); the
+> key is passed at runtime and evidence is mounted read-only (`:ro`).
+
+> 🧪 **Need evidence?** Free, verified public Windows cases (no login) are listed
+> in step **3️⃣ Get evidence to investigate** below.
+
+---
+
 ## 🧭 Start from zero (never used SIFT before?)
 
 Four things, in order. If you already have SIFT + an API key, jump to [Install](#-install).
 
 ### 1️⃣ Get the SANS SIFT Workstation (the free forensic VM)
 
-SIFT is the platform this tool runs on - it ships Volatility 3, Sleuth Kit,
-EWF tools, and Plaso pre-installed, so you install almost nothing.
+SIFT is the native forensic OS the tool also runs on - it ships Volatility 3,
+Sleuth Kit, EWF tools, and Plaso pre-installed, so you install almost nothing.
 
 1. Go to the official SANS SIFT page:
    **https://sans.org/tools/sift-workstation** - download the **pre-built VM
@@ -109,6 +149,8 @@ cp .env.qwen.example .env              # then set DASHSCOPE_API_KEY in .env
 export SIFT_LLM_PROVIDER=qwen
 export DASHSCOPE_API_KEY=sk-...        # QWEN_API_KEY is also accepted
 export SIFT_DEFAULT_MODEL=qwen3.7-max
+export SIFT_HTTP_TIMEOUT=600           # heavy-tier calls can run >120 s (see .env.qwen.example)
+export SIFT_ALLOW_YARA=1               # match the verified-run tool selection
 python3 scripts/qwen_smoke.py          # confirm connectivity before any full run
 ```
 
@@ -126,52 +168,25 @@ The international (Singapore) DashScope endpoint is the default; set
 ### 3️⃣ Get evidence to investigate
 
 Any of these work - the pipeline auto-detects what you give it (memory-only,
-disk-only, or both together):
+disk-only, or both together). The public practice cases below are free,
+direct downloads - no login (links verified 2026-07-05):
 
-| Source | What you get |
-|---|---|
-| **Official hackathon starter case data** - **[download](https://sansorg.egnyte.com/fl/HhH7crTYT4JK)** (also posted on the Protocol SIFT Slack, per the official rules) | ready-made disk + memory case data |
-| **Your own captures** | `.E01`/`.raw` disk images, `.raw`/`.vmem`/`.img` memory, exported `.evtx` logs |
+| Source | What you get | Size |
+|---|---|---|
+| **DFIR Madness "The Stolen Szechuan Sauce"** - [DC01 memory](https://dfirmadness.com/case001/DC01-memory.zip) + [DC01 disk](https://dfirmadness.com/case001/DC01-E01.zip) | **paired memory + disk** (Windows Server 2012 R2 DC) - the strongest shape; unzip both into one folder | 0.6 + 4.8 GB |
+| **NIST CFReDS "Data Leakage Case"** - [PC disk image](https://cfreds-archive.nist.gov/data_leakage_case/images/pc/cfreds_2015_data_leakage_pc.E01) | disk-only (Windows 7 `.E01`) - the smallest real case | 2.1 GB |
+| **Digital Corpora "Lone Wolf" (2018)** - [image files](https://downloads.digitalcorpora.org/corpora/scenarios/2018-lonewolf/) | paired (Windows 10): split `LoneWolf.E01`-`.E09` + `memdump.mem` | ~14 + 18 GB |
+| **Your own captures** | `.E01`/`.raw` disk images, `.raw`/`.vmem`/`.img`/`.mem` memory, exported `.evtx` logs | - |
 
 Put everything for one case in **one folder** (example: `/cases/evidence/`).
 A typical strong pair: one memory image + one disk image from the same machine.
+(The practice cases are third-party training material by their respective
+authors; the pipeline is dataset-agnostic, so any Windows evidence works.)
 
 > 🔒 Evidence is mounted **strictly read-only** and SHA256-fingerprinted before
 > and after the run (chain of custody by math, not promises).
 
 ### 4️⃣ Install & run - see the next two sections. That's it.
-
----
-
-## 🐳 Run it in Docker (any OS)
-
-No SIFT VM, no toolchain install - works on Windows/macOS/Linux with Docker Desktop.
-The default **`full-plus`** image bundles **every forensic tool the agent calls**
-(Volatility 3, Sleuth Kit, YARA, EWF, **bulk_extractor, EZ Tools, Plaso, RegRipper,
-pff-tools, photorec**). Full guide (targets, evidence mounting, `.E01`/FUSE,
-Windows paths, all-Max env): [`docs/DOCKER.md`](docs/DOCKER.md).
-
-```bash
-git clone https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen.git
-cd Sentinel-Ensemble-Qwen
-
-# zero-cost demo - no API key, no evidence, no forensic tools (~290 MB)
-docker build --target demo -t sentinel-qwen:demo .
-docker run --rm -it sentinel-qwen:demo
-
-# toolchain image for real runs:
-#   --target full  = memory+disk core (Vol3 + Sleuth Kit + EWF + YARA), ~465 MB
-#   (default)      = full-plus: EVERYTHING the agent calls, ~990 MB
-docker build -t sentinel-qwen .
-docker run --rm -it \
-  -e SIFT_LLM_PROVIDER=qwen -e DASHSCOPE_API_KEY=sk-... \
-  -e SIFT_DEFAULT_MODEL=qwen3.7-max \
-  -v /path/to/your/case:/evidence:ro \
-  sentinel-qwen /evidence
-```
-
-> 🔒 The image never bakes in a key (`.env` is excluded by `.dockerignore`); the
-> key is passed at runtime and evidence is mounted read-only (`:ro`).
 
 ---
 
@@ -196,7 +211,8 @@ If `./findevil.sh --demo` prints a synthetic case card ending in
 
 **Fastest start (one command, both paths):**
 ```bash
-./setup.sh            # local/VM: venv + deps + runs the demo   (or: ./setup.sh docker)
+./setup.sh docker     # any OS: build + run the demo image (needs Docker Desktop only)
+./setup.sh            # local/VM: venv + deps + runs the demo
 ./setup.sh --check    # doctor mode: verify everything, install nothing
 ```
 Then the agent itself:

@@ -54,8 +54,9 @@ if [ "$DOCKER" = 1 ]; then
   printf "  ${B}Real investigation on Qwen Cloud:${X}\n"
   printf "    1) DashScope key: home.qwencloud.com/api-keys (Model Studio, Singapore/Intl)\n"
   printf "    2) docker build -t sentinel-qwen .          ${Y}# full toolchain image${X}\n"
-  printf "    3) docker run --rm -it -e SIFT_LLM_PROVIDER=qwen -e DASHSCOPE_API_KEY=sk-... \\\\\n"
-  printf "         -e SIFT_DEFAULT_MODEL=qwen3.7-max -v /path/to/case:/evidence:ro sentinel-qwen /evidence\n"
+  printf "    3) docker run --rm -it --cap-add SYS_ADMIN --device /dev/fuse --security-opt apparmor:unconfined \\\\\n"
+  printf "         -e SIFT_LLM_PROVIDER=qwen -e DASHSCOPE_API_KEY=sk-... -e SIFT_DEFAULT_MODEL=qwen3.7-max \\\\\n"
+  printf "         -e SIFT_HTTP_TIMEOUT=600 -e SIFT_ALLOW_YARA=1 -v /path/to/case:/evidence:ro sentinel-qwen /evidence\n"
   printf "    Full guide: docs/DOCKER.md\n\n"
   exit 0
 fi

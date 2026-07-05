@@ -1,5 +1,5 @@
 #!/bin/bash
-# findevil — one-command starter for SIFT Sentinel (see README "Quick Start").
+# findevil - one-command starter for Sentinel Ensemble (see README "Quick Start").
 # Checks the basics a fresh clone trips on, then hands off to findevil.py.
 set -euo pipefail
 

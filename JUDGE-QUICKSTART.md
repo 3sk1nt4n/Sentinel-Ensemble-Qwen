@@ -12,17 +12,17 @@ can verify the whole flow first.
 
 ## 1️⃣ Prerequisites
 
-> **No SIFT VM? Fastest judge path:** Docker Desktop on any OS -
-> `docker build --target demo -t sentinel-qwen:demo . && docker run --rm sentinel-qwen:demo`
-> (~290 MB, no key, no evidence). Or `./setup.sh docker`. See README > Run it in Docker.
+**Primary judge path: Docker on any OS** (Windows/macOS/Linux) - no SIFT VM, no
+forensic-toolchain install; the default image bundles **every** tool the agent
+calls (full guide: [`docs/DOCKER.md`](docs/DOCKER.md)).
 
 | Requirement | Version | Notes |
 |---|---|---|
-| SANS SIFT Workstation | Ubuntu 22.04+ | free VM from SANS - **[download](https://sans.org/tools/sift-workstation)**; ships Volatility 3, Sleuth Kit, EWF tools, Plaso |
-| VM resources | **≥ 8 GB RAM · ≥ 80 GB disk** | the run copies evidence to `/tmp` and writes GBs of tool output; keep several × the evidence size free (hard floor 1 GB, override `SIFT_RUN_MIN_FREE_MB`) |
-| Python | 3.10+ | ships with SIFT |
+| **Docker Desktop** (primary path) | current | the only prerequisite - demo image ~290 MB, full toolchain image ~990 MB |
+| *Alternative:* SANS SIFT Workstation VM | Ubuntu 22.04+ | native path - free VM from SANS (**[download](https://sans.org/tools/sift-workstation)**); ships Volatility 3, Sleuth Kit, EWF tools, Plaso, Python 3.10+ |
+| Host/VM resources | **≥ 8 GB RAM · ≥ 80 GB disk** | the run copies evidence to `/tmp` and writes GBs of tool output; keep several × the evidence size free (hard floor 1 GB, override `SIFT_RUN_MIN_FREE_MB`) |
 | Qwen Cloud API key | DashScope / Model Studio | request the **$40 hackathon voucher**; create an API key in Model Studio (see §3). (`--demo` needs none.) |
-| Evidence | - | memory (`.img`/`.raw`/`.vmem`) and/or disk (`.E01`) in one folder |
+| Evidence | - | memory (`.img`/`.raw`/`.vmem`/`.mem`) and/or disk (`.E01`) in one folder - **free verified public cases in §4** |
 
 No additional forensic tool installation is required on SIFT. (One Python
 package, `pycryptodome`, is in `requirements.txt` - see
@@ -32,15 +32,25 @@ package, `pycryptodome`, is in `requirements.txt` - see
 
 ## 2️⃣ Install
 
+**Docker (any OS) - primary:**
+
 ```bash
 git clone https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen.git
 cd Sentinel-Ensemble-Qwen
-pip install -r requirements.txt
-./findevil.sh --demo        # smoke test - no evidence, no API key
+docker build --target demo -t sentinel-qwen:demo .   # ~30 s
+docker run --rm -it sentinel-qwen:demo               # smoke test - no evidence, no API key
 ```
 
-You'll know it worked when the demo prints a synthetic case card ending in
-**"Everything verified and ready."** 🎉
+**Native (SIFT VM / Ubuntu) - alternative:**
+
+```bash
+# (in the repo folder cloned above)
+pip install -r requirements.txt
+./findevil.sh --demo        # same smoke test, natively
+```
+
+Either way, you'll know it worked when the demo prints a synthetic case card
+ending in **"Everything verified and ready."** 🎉
 
 > On newer Ubuntu (PEP 668 "externally managed environment") plain
 > `pip install` is refused - use a venv
@@ -65,7 +75,17 @@ cp .env.qwen.example .env              # then set DASHSCOPE_API_KEY in .env
 export SIFT_LLM_PROVIDER=qwen
 export DASHSCOPE_API_KEY=sk-...        # QWEN_API_KEY also accepted
 export SIFT_DEFAULT_MODEL=qwen3.7-max
+export SIFT_HTTP_TIMEOUT=600           # heavy-tier calls can run >120 s
+export SIFT_ALLOW_YARA=1               # match the verified-run tool selection
 python3 scripts/qwen_smoke.py          # one-call connectivity check before a full run
+```
+
+On a Docker-only machine (no host Python), the same connectivity check reuses
+the demo image already built in §2:
+
+```bash
+docker run --rm -e SIFT_LLM_PROVIDER=qwen -e DASHSCOPE_API_KEY=sk-... \
+  --entrypoint python3 sentinel-qwen:demo scripts/qwen_smoke.py
 ```
 
 The international (Singapore) DashScope endpoint is the default; set
@@ -80,8 +100,31 @@ time and **never echoed, logged, or written to disk** by the pipeline.
 
 ## 4️⃣ Run a real investigation
 
-> **Need a case?** Point it at any Windows memory (`.img`/`.raw`/`.vmem`) and/or
-> disk (`.E01`) evidence in one folder - e.g. a public SANS IR image.
+> **Need a case?** Any Windows memory (`.img`/`.raw`/`.vmem`/`.mem`) and/or disk
+> (`.E01`) evidence in one folder works. Free, direct-download public cases
+> (no login; links verified 2026-07-05):
+>
+> | Case | Shape | Size |
+> |---|---|---|
+> | **DFIR Madness "The Stolen Szechuan Sauce"** - [DC01 memory](https://dfirmadness.com/case001/DC01-memory.zip) + [DC01 disk](https://dfirmadness.com/case001/DC01-E01.zip), unzip both into one folder | **paired memory + disk** (Server 2012 R2) - recommended | 0.6 + 4.8 GB |
+> | **NIST CFReDS "Data Leakage Case"** - [PC disk image](https://cfreds-archive.nist.gov/data_leakage_case/images/pc/cfreds_2015_data_leakage_pc.E01) | disk-only (Windows 7) - smallest | 2.1 GB |
+> | **Digital Corpora "Lone Wolf"** - [image files](https://downloads.digitalcorpora.org/corpora/scenarios/2018-lonewolf/) | paired (Windows 10) - large | ~32 GB |
+
+**Docker (primary)** - mount the case folder read-only (`.E01` disks need the
+FUSE flags, see [`docs/DOCKER.md`](docs/DOCKER.md) §3):
+
+```bash
+docker build -t sentinel-qwen .          # full-plus toolchain image, ~15 min once
+docker run --rm -it \
+  --cap-add SYS_ADMIN --device /dev/fuse --security-opt apparmor:unconfined \
+  -e SIFT_LLM_PROVIDER=qwen -e DASHSCOPE_API_KEY=sk-... \
+  -e SIFT_DEFAULT_MODEL=qwen3.7-max \
+  -e SIFT_HTTP_TIMEOUT=600 -e SIFT_ALLOW_YARA=1 \
+  -v /path/to/case-folder:/evidence:ro \
+  sentinel-qwen /evidence
+```
+
+**Native (SIFT VM / Ubuntu):**
 
 ```bash
 ./findevil.sh /path/to/case-folder
@@ -122,7 +165,7 @@ prefer `./findevil.sh` unless you are developing.
 | `report.md` | the investigative narrative - findings first, plain-English "why it matters", WHO/WHEN context, network-IOC roll-up |
 | `run_summary.md` | tools · dispositions · cost · tokens · **`llm_provider` / `model`** (proves the run executed on Qwen) |
 | `agent_execution_log.txt` | append-only execution log - every tool call, timestamps, token usage, the 4-model ensemble, validator verdicts, Step-13AA reasoning |
-| `summary_report.html` | interactive one-page summary |
+| `reports/summary_report_<timestamp>.html` | interactive one-page summary |
 | `reports/incident_report_YYYYMMDD.md` | dated copy of the final report |
 
 > A live run writes these (plus `finding_disposition_buckets.json`) into its run

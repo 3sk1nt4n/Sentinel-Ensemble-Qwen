@@ -7,6 +7,11 @@ explanations, for anyone setting up from zero.
 
 *(Internal Python package name: `sift_sentinel`.)*
 
+> 🐳 **No VM? Docker is the fastest path** on Windows/macOS/Linux - one image
+> bundles every forensic tool the agent calls: see [`docs/DOCKER.md`](docs/DOCKER.md)
+> or run `./setup.sh docker`. This guide is the **native SANS SIFT VM** path,
+> the full forensic-OS experience.
+
 ---
 
 ## Phase A - The platform (the free SANS SIFT VM)
@@ -106,12 +111,15 @@ forensic tooling, and the launcher are all healthy. 🎉
 ## Phase D - Get evidence to investigate
 
 Any of these work - the pipeline auto-detects what you give it
-(memory-only, disk-only, or both together):
+(memory-only, disk-only, or both together). The public practice cases are
+free, direct downloads - no login (links verified 2026-07-05):
 
-| Source | What you get |
-|---|---|
-| **Official hackathon starter case data** - **[download](https://sansorg.egnyte.com/fl/HhH7crTYT4JK)** (also on the Protocol SIFT Slack, per the official rules) | ready-made disk + memory case data |
-| Your own captures | `.E01`/`.raw` disk images · `.raw`/`.vmem`/`.img` memory · exported `.evtx` logs |
+| Source | What you get | Size |
+|---|---|---|
+| **DFIR Madness "The Stolen Szechuan Sauce"** - [DC01 memory](https://dfirmadness.com/case001/DC01-memory.zip) + [DC01 disk](https://dfirmadness.com/case001/DC01-E01.zip) | **paired memory + disk** (Windows Server 2012 R2 DC) - the strongest shape; unzip both into one folder | 0.6 + 4.8 GB |
+| **NIST CFReDS "Data Leakage Case"** - [PC disk image](https://cfreds-archive.nist.gov/data_leakage_case/images/pc/cfreds_2015_data_leakage_pc.E01) | disk-only (Windows 7 `.E01`) - the smallest real case | 2.1 GB |
+| **Digital Corpora "Lone Wolf" (2018)** - [image files](https://downloads.digitalcorpora.org/corpora/scenarios/2018-lonewolf/) | paired (Windows 10): split `LoneWolf.E01`-`.E09` + `memdump.mem` | ~14 + 18 GB |
+| Your own captures | `.E01`/`.raw` disk images · `.raw`/`.vmem`/`.img`/`.mem` memory · exported `.evtx` logs | - |
 
 Put everything for **one case in one folder**, for example:
 

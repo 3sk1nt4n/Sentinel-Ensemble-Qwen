@@ -21,6 +21,13 @@ contain case-specific IOCs) are committed to this repo, per the **case-neutral
 policy** - reproduce a run with `./findevil.sh`; the demo video shows a live Qwen
 run end to end.
 
+> **Distribution note (2026-07-05):** the public download link that originally
+> accompanied the starter case data (a SANS-hosted share) is no longer
+> available, and the images are not redistributed here (third-party material +
+> case-neutral policy). The docs now point at freely downloadable public
+> practice cases instead (README step 3️⃣ / JUDGE-QUICKSTART §4) - the pipeline
+> is dataset-agnostic, so results reproduce on any Windows evidence.
+
 | Case shape | OS | Evidence | Role |
 |---|---|---|---|
 | Paired | Windows 10 / Server 2016+ | memory (3 GB) + disk (11.9 GB E01) | primary validation (Claude reference run rd01) |

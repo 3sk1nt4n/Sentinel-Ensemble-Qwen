@@ -31,7 +31,11 @@ docker build -t sentinel-qwen .                       # everything (full-plus), 
 All tools were verified **running in the built image** (e.g. `vol` parsed a real
 memory image read-only; `bulk_extractor` carved 403 email + 4,556 URL features
 from a real memory slice; EvtxECmd/RECmd `2026.5.0`; Plaso `log2timeline 20260512`;
-RegRipper lists 257 plugins).
+RegRipper lists 257 plugins). The **`.E01` path is verified in-container** too:
+a real paired case (12 GB `.E01` + 3 GB memory image) was classified, mounted
+read-only via ewf/ntfs-3g, and onboarded end-to-end (`--dry-run`) inside the
+image with the documented `--cap-add SYS_ADMIN --device /dev/fuse` flags
+(verified 2026-07-05).
 
 ---
 
@@ -60,19 +64,34 @@ Build an image with the toolchain - `full` (lean, memory+disk) or `full-plus`
 ```bash
 docker build -t sentinel-qwen .          # default target = full-plus (everything)
 
+# (--cap-add/--device/--security-opt enable .E01 disk mounting via FUSE - §3;
+#  harmless for memory-only. The two SIFT_* envs match the verified-run config.)
 docker run --rm -it \
+  --cap-add SYS_ADMIN --device /dev/fuse --security-opt apparmor:unconfined \
   -e SIFT_LLM_PROVIDER=qwen \
   -e DASHSCOPE_API_KEY=sk-your-key \
   -e SIFT_DEFAULT_MODEL=qwen3.7-max \
+  -e SIFT_HTTP_TIMEOUT=600 -e SIFT_ALLOW_YARA=1 \
   -v /path/to/your/case:/evidence:ro \
   sentinel-qwen /evidence
 ```
 
 - `-v /path/to/your/case:/evidence:ro` mounts your case folder (memory image,
-  disk image, logs) read-only at `/evidence` (the image's default `EVIDENCE_DIR`).
+  disk image, logs) read-only at `/evidence` (the path passed as the container
+  argument; the image declares it as a `VOLUME`).
 - The last argument (`/evidence`) is the case path handed to `findevil.sh`.
 - **Windows (PowerShell)** path example: `-v C:\cases\rd01:/evidence:ro`
 - **macOS/Linux** path example: `-v $HOME/cases/rd01:/evidence:ro`
+
+> **No evidence handy?** Free public Windows cases with direct downloads (no
+> login; links verified 2026-07-05): **DFIR Madness "The Stolen Szechuan Sauce"**
+> ([DC01 memory](https://dfirmadness.com/case001/DC01-memory.zip) 0.6 GB +
+> [DC01 disk](https://dfirmadness.com/case001/DC01-E01.zip) 4.8 GB - paired,
+> recommended) · **NIST CFReDS "Data Leakage Case"**
+> ([PC disk E01](https://cfreds-archive.nist.gov/data_leakage_case/images/pc/cfreds_2015_data_leakage_pc.E01)
+> 2.1 GB, disk-only) · **Digital Corpora
+> ["Lone Wolf"](https://downloads.digitalcorpora.org/corpora/scenarios/2018-lonewolf/)**
+> (paired Windows 10, ~32 GB). Unzip into one folder and mount that folder.
 
 Confirm connectivity first (optional):
 

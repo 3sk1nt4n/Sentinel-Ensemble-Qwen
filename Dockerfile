@@ -81,6 +81,7 @@ FROM base AS demo
 FROM base AS full
 RUN apt-get update && apt-get install -y --no-install-recommends \
         sleuthkit ewf-tools libewf-dev yara fuse3 util-linux procps ca-certificates \
+        sudo ntfs-3g dmsetup \
     && rm -rf /var/lib/apt/lists/*
 RUN pip install volatility3==2.28.0
 

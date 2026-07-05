@@ -68,6 +68,10 @@ proof-of-deployment run; pick ECS (Option B) for full-evidence investigations.
 
 ## 2) Install the toolchain on the instance (SAS or ECS)
 
+> **Fastest path:** if you picked the Docker image in step 1, skip this section -
+> `docker build -t sentinel-qwen .` bundles the full toolchain
+> ([`docs/DOCKER.md`](docs/DOCKER.md)). The steps below are the native install.
+
 ```bash
 sudo apt-get update
 sudo apt-get install -y python3 python3-pip python3-venv git \

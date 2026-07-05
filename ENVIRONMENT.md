@@ -5,6 +5,10 @@ What the pipeline needs from the machine it runs on - the things that live
 Volatility 3 framework needs them at import time. If `./findevil.sh --demo`
 prints **"Everything verified and ready."**, all of this is in place.
 
+> 🐳 **Running the Docker image?** Everything on this page is already baked into
+> the `full`/`full-plus` image ([`docs/DOCKER.md`](docs/DOCKER.md)) - nothing
+> needs manual install. This page covers the **native SIFT / Linux** path.
+
 ## Platform
 
 | Component | Verified with | Notes |

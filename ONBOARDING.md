@@ -18,6 +18,7 @@ legacy tests quarantined - see [`tests/QUARANTINE.md`](tests/QUARANTINE.md)).
 
 1. Clone and install: `pip install -r requirements.txt` (venv on PEP-668 systems).
 2. Smoke test: `./findevil.sh --demo` → must end in **"Everything verified and ready."**
+   (No local toolchain? `./setup.sh docker` runs the same demo in Docker.)
 3. Read [`ARCHITECTURE.md`](ARCHITECTURE.md) - the Step 0→16 pipeline diagram and the 14 defense layers.
 4. Run the suite once so you know your baseline: `pytest tests/ -q`.
 
