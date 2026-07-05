@@ -12,50 +12,29 @@ can verify the whole flow first.
 
 ## 1️⃣ Prerequisites
 
-**Primary judge path: Docker on any OS** (Windows/macOS/Linux) - no SIFT VM, no
-forensic-toolchain install; the default image bundles **every** tool the agent
-calls (full guide: [`docs/DOCKER.md`](docs/DOCKER.md)).
+**Judge path: Docker, any OS** (Windows/macOS/Linux) - no forensic-toolchain
+install; the image bundles **every** tool the agent calls (full guide:
+[`docs/DOCKER.md`](docs/DOCKER.md)). *Windows: run the commands in WSL2 or Git Bash.*
 
 | Requirement | Version | Notes |
 |---|---|---|
-| **Docker Desktop** (primary path) | current | the only prerequisite - demo image ~290 MB, full toolchain image ~990 MB |
-| *Alternative:* SANS SIFT Workstation VM | Ubuntu 22.04+ | native path - free VM from SANS (**[download](https://sans.org/tools/sift-workstation)**); ships Volatility 3, Sleuth Kit, EWF tools, Plaso, Python 3.10+ |
-| Host/VM resources | **≥ 8 GB RAM · ≥ 80 GB disk** | the run copies evidence to `/tmp` and writes GBs of tool output; keep several × the evidence size free (hard floor 1 GB, override `SIFT_RUN_MIN_FREE_MB`) |
+| **Docker Desktop** | current | the only prerequisite - demo image ~290 MB, full toolchain image ~990 MB |
+| Host resources | **≥ 8 GB RAM · ≥ 80 GB disk** | the run copies evidence to scratch and writes GBs of tool output; keep several × the evidence size free (hard floor 1 GB, override `SIFT_RUN_MIN_FREE_MB`) |
 | Qwen Cloud API key | DashScope / Model Studio | request the **$40 hackathon voucher**; create an API key in Model Studio (see §3). (`--demo` needs none.) |
 | Evidence | - | memory (`.img`/`.raw`/`.vmem`/`.mem`) and/or disk (`.E01`) in one folder - **free verified public cases in §4** |
-
-No additional forensic tool installation is required on SIFT. (One Python
-package, `pycryptodome`, is in `requirements.txt` - see
-[`ENVIRONMENT.md`](ENVIRONMENT.md) for why it matters.)
 
 ---
 
 ## 2️⃣ Install
 
-**Docker (any OS) - primary:**
-
 ```bash
 git clone https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen.git
 cd Sentinel-Ensemble-Qwen
-docker build --target demo -t sentinel-qwen:demo .   # ~30 s
-docker run --rm -it sentinel-qwen:demo               # smoke test - no evidence, no API key
+./setup.sh docker           # builds the demo image (~30 s) + runs it - no key, no evidence
 ```
 
-**Native (SIFT VM / Ubuntu) - alternative:**
-
-```bash
-# (in the repo folder cloned above)
-pip install -r requirements.txt
-./findevil.sh --demo        # same smoke test, natively
-```
-
-Either way, you'll know it worked when the demo prints a synthetic case card
-ending in **"Everything verified and ready."** 🎉
-
-> On newer Ubuntu (PEP 668 "externally managed environment") plain
-> `pip install` is refused - use a venv
-> (`python3 -m venv .venv && . .venv/bin/activate`) or add
-> `--break-system-packages`. The SIFT 22.04 VM accepts the plain command.
+You'll know it worked when the demo prints a synthetic case card ending in
+**"Everything verified and ready."** 🎉
 
 ---
 
@@ -70,18 +49,12 @@ Provider + model are env-driven, so no code change is needed.
 2. Point Sentinel Ensemble at it:
 
 ```bash
-cp .env.qwen.example .env              # then set DASHSCOPE_API_KEY in .env
-# or export directly:
-export SIFT_LLM_PROVIDER=qwen
-export DASHSCOPE_API_KEY=sk-...        # QWEN_API_KEY also accepted
-export SIFT_DEFAULT_MODEL=qwen3.7-max
-export SIFT_HTTP_TIMEOUT=600           # heavy-tier calls can run >120 s
-export SIFT_ALLOW_YARA=1               # match the verified-run tool selection
-python3 scripts/qwen_smoke.py          # one-call connectivity check before a full run
+cp .env.qwen.example .env      # then set DASHSCOPE_API_KEY in .env
+# `./setup.sh run` forwards it (and every SIFT_* setting) into the container.
+# Or skip this entirely: `./setup.sh run` asks for the key once, hidden.
 ```
 
-On a Docker-only machine (no host Python), the same connectivity check reuses
-the demo image already built in §2:
+3. Connectivity check (one call, reuses the demo image from §2):
 
 ```bash
 docker run --rm -e SIFT_LLM_PROVIDER=qwen -e DASHSCOPE_API_KEY=sk-... \
@@ -110,8 +83,17 @@ time and **never echoed, logged, or written to disk** by the pipeline.
 > | **NIST CFReDS "Data Leakage Case"** - [PC disk image](https://cfreds-archive.nist.gov/data_leakage_case/images/pc/cfreds_2015_data_leakage_pc.E01) | disk-only (Windows 7) - smallest | 2.1 GB |
 > | **Digital Corpora "Lone Wolf"** - [image files](https://downloads.digitalcorpora.org/corpora/scenarios/2018-lonewolf/) | paired (Windows 10) - large | ~32 GB |
 
-**Docker (primary)** - mount the case folder read-only (`.E01` disks need the
-FUSE flags, see [`docs/DOCKER.md`](docs/DOCKER.md) §3):
+**One line** - builds the toolchain image on first use (~15 min, once), wires
+every flag (FUSE caps for `.E01`, `SIFT_HTTP_TIMEOUT`, `SIFT_ALLOW_YARA`),
+forwards the key from `.env`/env (or asks once, hidden), and mounts the case
+**read-only**:
+
+```bash
+./setup.sh run /path/to/case-folder
+```
+
+<details>
+<summary>What that one line runs (manual docker command)</summary>
 
 ```bash
 docker build -t sentinel-qwen .          # full-plus toolchain image, ~15 min once
@@ -124,11 +106,7 @@ docker run --rm -it \
   sentinel-qwen /evidence
 ```
 
-**Native (SIFT VM / Ubuntu):**
-
-```bash
-./findevil.sh /path/to/case-folder
-```
+</details>
 
 What happens next (a couple of prompts, then it runs):
 
@@ -257,8 +235,7 @@ After a run, the judge-facing invariants:
 | "SSDT trust: degraded" | the kernel-integrity check found hooked/unresolvable entries - memory-based confidence is capped at MEDIUM. A feature, not a bug. |
 | "DashScope HTTP 429" | DashScope rate limit on the parallel 4-model ensemble - the client retries with backoff (429/5xx); if it persists, pace the run or check your Model Studio quota. |
 | "model not found" / 400 | confirm the exact model IDs in your Model Studio list (`qwen3.7-max`, `qwen-plus`); `max_tokens` is auto-clamped to the model's output cap. |
-| `pip install` refused (PEP 668) | use a venv or `--break-system-packages` (see Install above). |
-| The run doesn't start after you pick depth | you ran `step0_onboard.py` directly (staged / dev mode) - use `./findevil.sh`, which is live by default. |
+| The run doesn't start after you pick depth | you ran `step0_onboard.py` directly (staged / dev mode) - use `./setup.sh run` / `findevil.sh`, which are live by default. |
 
 ---
 

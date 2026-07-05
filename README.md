@@ -1,13 +1,12 @@
 # 🛡️ Sentinel Ensemble
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
-![Platform](https://img.shields.io/badge/Platform-Docker%20%7C%20SIFT%20%7C%20Linux-blue)
+![Platform](https://img.shields.io/badge/Platform-Docker%20(any%20OS)-blue)
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
 ![Tests](https://img.shields.io/badge/pytest-4%2C700%2B%20passing-brightgreen)
 ![Evidence](https://img.shields.io/badge/Evidence-strictly%20read--only-critical)
 
-**Autonomous agentic DFIR - Docker on any OS, or native on the SANS SIFT
-Workstation.** Point it at Windows
+**Autonomous agentic DFIR - one Docker command, any OS.** Point it at Windows
 evidence (memory image, disk image, event logs) and it investigates end-to-end -
 **zero human steering, zero model shell access** - then hands you an
 investigative report where **every single claim is validated against real tool
@@ -42,47 +41,49 @@ tool execution that proved it.
 | Trust layer (code, not the model, decides "confirmed") | done | deterministic validator + disposition gates; every finding traces to tool output (`src/sift_sentinel/validation/`, `src/sift_sentinel/analysis/disposition.py`) |
 | Self-correction | done | [`SELF-CORRECTION-PROOF.md`](SELF-CORRECTION-PROOF.md) - FP-sweep + ReAct cross-check |
 
-> Proven end-to-end on **two real paired (memory + disk) Qwen Cloud runs** on the
-> same intrusion case - same deterministic trust layer, two model tiers.
-> **Light** (`qwen-plus` ×4) confirmed **0** (no atomic proof, no confirm; ~$0.28,
-> 5m 37s). **Heavy** (`qwen3.7-max`) confirmed **4** - PsExec lateral movement,
-> PWDumpX credential dumping, a sticky-keys backdoor (IFEO `sethc.exe`), and
-> `p.exe` from a temp dir - each clearing every confirmation gate, **SHA-256 MATCH
-> on both images** (~$1.53, 14m 44s). A July rerun re-confirmed the chain, and a
-> **flags-off ablation on the same case measured the trust layer directly:
-> inconclusive jumped 0 -> 11 and confirmations fell 3 -> 1 without it.** The bar
-> does not move; the model's ability to clear it does. Full comparison + shipped
-> metrics in [`QWEN-SUBMISSION.md`](QWEN-SUBMISSION.md) and
-> [`docs/qwen-runs/`](docs/qwen-runs/). The trust layer, the 195 typed tools, and
-> the 16-step conductor are model-agnostic; only the provider/tier differs.
+**Proven end-to-end on two real paired (memory + disk) Qwen Cloud runs** on the
+same intrusion case - same deterministic trust layer, two model tiers:
+
+| | 🪶 Light (`qwen-plus` ×4) | ⚡ Heavy (`qwen3.7-max`) |
+|---|---|---|
+| **Confirmed malicious** | **0** - no atomic proof, no confirm (the trust layer working, not a gap) | **4** - PsExec lateral movement · PWDumpX credential dumping · IFEO `sethc.exe` sticky-keys backdoor · `p.exe` from a temp dir |
+| Runtime · cost | 5m 37s · ~$0.28 | 14m 44s · ~$1.53 |
+| Evidence integrity | SHA-256 MATCH | SHA-256 MATCH |
+
+A July rerun re-confirmed the chain, and a **flags-off ablation** on the same
+case measured the trust layer directly: inconclusive jumped **0 → 11** and
+confirmations fell **3 → 1** without it. **The bar does not move; the model's
+ability to clear it does.** Full comparison + shipped metrics:
+[`QWEN-SUBMISSION.md`](QWEN-SUBMISSION.md) · [`docs/qwen-runs/`](docs/qwen-runs/).
+The trust layer, the 195 typed tools, and the 16-step conductor are
+model-agnostic; only the provider/tier differs.
 
 ---
 
-## ⚡ Three ways to run it
+## 🐳 Run it (Docker, any OS)
 
-Pick whichever fits - the agent and every command are identical across all three.
-The zero-cost **`--demo`** (synthetic case, no API key, no evidence) works in *all three*; try it first.
-
-| Path | Best for | You need | Jump to |
-|---|---|---|---|
-| 🐳 **Docker** | Any PC (Windows/macOS/Linux), no forensic install - the `full-plus` image bundles **every** tool the agent calls | Docker Desktop | [Run it in Docker](#-run-it-in-docker-any-os) |
-| 💽 **SANS SIFT VM** | Real casework on a full native forensic OS | VirtualBox/VMware + SIFT `.ova` | [Start from zero](#-start-from-zero-never-used-sift-before) |
-| 🐧 **Local Linux** | An existing Ubuntu 22.04 box | `pip` + a few apt tools | [Install](#-install) |
-
----
-
-## 🐳 Run it in Docker (any OS)
-
-No SIFT VM, no toolchain install - works on Windows/macOS/Linux with Docker Desktop.
-The default **`full-plus`** image bundles **every forensic tool the agent calls**
-(Volatility 3, Sleuth Kit, YARA, EWF, **bulk_extractor, EZ Tools, Plaso, RegRipper,
-pff-tools, photorec**). Full guide (targets, evidence mounting, `.E01`/FUSE,
-Windows paths, all-Max env): [`docs/DOCKER.md`](docs/DOCKER.md).
+Works on **Windows, macOS, or Linux** with nothing but **Docker Desktop** - the
+image bundles **every forensic tool the agent calls** (Volatility 3, Sleuth Kit,
+YARA, EWF, bulk_extractor, EZ Tools, Plaso, RegRipper, pff-tools, photorec).
 
 ```bash
-git clone https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen.git
-cd Sentinel-Ensemble-Qwen
+git clone https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen.git && cd Sentinel-Ensemble-Qwen
 
+./setup.sh docker                   # 1) zero-cost demo - no key, no evidence (~30 s)
+./setup.sh run /path/to/your/case   # 2) real investigation - ONE line does everything
+```
+
+`./setup.sh run` builds the toolchain image on first use (one time, ~15 min),
+reads your DashScope key from `.env` / the environment (or asks once, hidden),
+applies the verified-run flags, mounts your evidence **read-only**, and launches
+the agent. *(Windows: run these inside **WSL2** or **Git Bash**.)* Full guide
+(image targets, `.E01`/FUSE, Windows paths, all-Max env):
+[`docs/DOCKER.md`](docs/DOCKER.md).
+
+<details>
+<summary>What the one line runs under the hood (manual docker commands)</summary>
+
+```bash
 # zero-cost demo - no API key, no evidence, no forensic tools (~290 MB)
 docker build --target demo -t sentinel-qwen:demo .
 docker run --rm -it sentinel-qwen:demo
@@ -102,35 +103,17 @@ docker run --rm -it \
   sentinel-qwen /evidence
 ```
 
+</details>
+
 > 🔒 The image never bakes in a key (`.env` is excluded by `.dockerignore`); the
 > key is passed at runtime and evidence is mounted read-only (`:ro`).
 
 > 🧪 **Need evidence?** Free, verified public Windows cases (no login) are listed
-> in step **3️⃣ Get evidence to investigate** below.
+> in **Get evidence to investigate** below.
 
 ---
 
-## 🧭 Start from zero (never used SIFT before?)
-
-Four things, in order. If you already have SIFT + an API key, jump to [Install](#-install).
-
-### 1️⃣ Get the SANS SIFT Workstation (the free forensic VM)
-
-SIFT is the native forensic OS the tool also runs on - it ships Volatility 3,
-Sleuth Kit, EWF tools, and Plaso pre-installed, so you install almost nothing.
-
-1. Go to the official SANS SIFT page:
-   **https://sans.org/tools/sift-workstation** - download the **pre-built VM
-   appliance (`.ova`)** and run it in a VM (easiest), or run the installer on a
-   clean Ubuntu 22.04 system.
-2. If you took the VM appliance: import it into **VMware Workstation Player**
-   (free) or **VirtualBox** (free) - *File → Open/Import Appliance → select the
-   downloaded file → Import*. Give it ≥ 8 GB RAM and ≥ 80 GB disk if asked.
-3. Start the VM and log in - default SIFT credentials are user
-   **`sansforensics`**, password **`forensics`**.
-4. Open a terminal (you'll live here from now on).
-
-### 2️⃣ Get a Qwen Cloud API key (the AI brain)
+## 🔑 Get a Qwen Cloud API key (the AI brain)
 
 This project runs on **Qwen models hosted on Alibaba Cloud (DashScope / Model
 Studio)**. Provider + model are chosen entirely by environment, so flipping the
@@ -165,7 +148,7 @@ The international (Singapore) DashScope endpoint is the default; set
 > zero-regression fallback - unset `SIFT_LLM_PROVIDER` and set `ANTHROPIC_API_KEY`
 > to run the identical pipeline on Claude. Not needed for the Qwen Cloud submission.
 
-### 3️⃣ Get evidence to investigate
+## 🧪 Get evidence to investigate
 
 Any of these work - the pipeline auto-detects what you give it (memory-only,
 disk-only, or both together). The public practice cases below are free,
@@ -186,64 +169,30 @@ authors; the pipeline is dataset-agnostic, so any Windows evidence works.)
 > 🔒 Evidence is mounted **strictly read-only** and SHA256-fingerprinted before
 > and after the run (chain of custody by math, not promises).
 
-### 4️⃣ Install & run - see the next two sections. That's it.
-
----
-
-## 📦 Install
-
-```bash
-git clone https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen.git
-cd Sentinel-Ensemble-Qwen
-pip install -r requirements.txt
-./findevil.sh --demo                     # smoke test - no evidence, no API key needed
-```
-
-> On newer Ubuntu (PEP 668 "externally managed environment") plain `pip install`
-> is refused - use a venv (`python3 -m venv .venv && . .venv/bin/activate`)
-> or add `--break-system-packages`. The SIFT Ubuntu 22.04 VM accepts the
-> plain command.
-
-If `./findevil.sh --demo` prints a synthetic case card ending in
-**"Everything verified and ready."** - your install works. 🎉
-
 ## 🚀 Quick Start
 
-**Fastest start (one command, both paths):**
 ```bash
-./setup.sh docker     # any OS: build + run the demo image (needs Docker Desktop only)
-./setup.sh            # local/VM: venv + deps + runs the demo
-./setup.sh --check    # doctor mode: verify everything, install nothing
-```
-Then the agent itself:
-```bash
-./findevil.sh                      # asks ONE question: where is the evidence
-./findevil.sh /cases/evidence      # or pass the path directly
-./findevil.sh --demo               # synthetic walkthrough - no evidence, no API key
-./findevil.sh --dry-run /cases/evidence   # full onboarding + printed plan, pipeline NOT executed
+./setup.sh docker                        # zero-cost demo - no key, no evidence
+./setup.sh run /path/to/case             # real investigation - one line
+./setup.sh run --dry-run /path/to/case   # onboarding + printed plan only, nothing executed
 ```
 
-A real run, start to finish - one command, two prompts:
+A real run, start to finish - one line, two prompts:
 
-1. Type `./findevil.sh`
-2. It asks **where the evidence is** - type your case folder path
-   (example: `/cases/evidence/my-case` - the folder holding your memory/disk images).
-3. It scans the evidence and shows a **case card** (what it found, sizes, SHA256). Just read it.
-4. It asks the **analysis depth** - `1` (or Enter) = ⚡ HEAVY (the flagship model;
+1. Run `./setup.sh run /path/to/case` (the folder holding your memory/disk images).
+2. It scans the evidence and shows a **case card** (what it found, sizes, SHA256). Just read it.
+3. It asks the **analysis depth** - `1` (or Enter) = ⚡ HEAVY (the flagship model;
    `qwen3.7-max` on the Qwen config) or `2` = 🪶 LIGHT (`qwen-plus`, cheaper). The
    model per tier is env-driven (see [`.env.qwen.example`](.env.qwen.example)).
    **Choosing the depth launches the run.**
-5. The **API key** step - if you set it already (visible `API_KEY.txt`, `.env`, or
-   `DASHSCOPE_API_KEY` for Qwen, `ANTHROPIC_API_KEY` for the fallback) it's used
-   automatically; otherwise paste it at the hidden prompt (blank screen while
-   pasting is normal; never echoed, logged, or saved).
-6. Wait minutes, not hours. Touch nothing.
-7. Read the report - every finding links to the exact tool execution that proved it.
+4. The **API key** step - if you set it already (`.env` or `DASHSCOPE_API_KEY`)
+   it's forwarded automatically; otherwise `./setup.sh run` asks once at a hidden
+   prompt (never echoed, logged, or saved - and never baked into the image).
+5. Wait minutes, not hours. Touch nothing.
+6. Read the report - every finding links to the exact tool execution that proved it.
 
-`findevil.sh` checks dependencies, then delegates to the conversational
-onboarding (`findevil.sh` → `findevil.py` → `step0_onboard.py`; `findevil.py` arms
-the live launch, so running `python3 step0_onboard.py` directly stays in staged/dev
-mode with a manual GO step).
+Inside the container the launcher is `findevil.sh` (the image's entrypoint);
+contributors hacking on the code natively: see [`ONBOARDING.md`](ONBOARDING.md).
 
 ---
 
@@ -316,9 +265,9 @@ flowchart LR
 
 | Symptom | Fix |
 |---|---|
-| `pip install` refused (PEP 668) | `python3 -m venv .venv && . .venv/bin/activate && pip install -r requirements.txt` |
-| `ERROR: Missing dependencies` from findevil.sh | run the pip install line above, then retry |
-| The run doesn't start after you pick depth | you ran `step0_onboard.py` directly (staged / dev mode) - use `./findevil.sh`, which is live by default |
+| `docker` not found / daemon not running | install + start **Docker Desktop** (docker.com), then re-run `./setup.sh docker` |
+| `.E01` disk won't mount in the container | use `./setup.sh run` - it passes the required FUSE flags automatically (manual flags: [`docs/DOCKER.md`](docs/DOCKER.md) §3) |
+| The run doesn't start after you pick depth | you ran `step0_onboard.py` directly (staged / dev mode) - use `./setup.sh run` / `findevil.sh`, which are live by default |
 | No prompt appears in CI/scripts | that's by design: headless + no path → usage + exit 2 (no hang) |
 
 ## 🌍 Dataset-agnostic by construction
@@ -348,8 +297,10 @@ Defaults are tuned for zero-regression. For the strongest adjudication layer:
 
 ```bash
 SIFT_INV3A_ENRICH=1 SIFT_MODEL_INV3A=qwen3.7-max \
-SIFT_INV3A_JIT_RWX_GUARD=1 SIFT_USER_8DOT3_CANON=1 python3 findevil.py
+SIFT_INV3A_JIT_RWX_GUARD=1 SIFT_USER_8DOT3_CANON=1 ./setup.sh run /path/to/case
 ```
+
+(`./setup.sh run` forwards every `SIFT_*` variable you set into the container.)
 
 `SIFT_INV3A_ENRICH` gives the final false-positive sweep a deterministic
 cross-reference per finding; `SIFT_MODEL_INV3A` routes that single call to a

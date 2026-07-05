@@ -13,7 +13,8 @@ prints **"Everything verified and ready."**, all of this is in place.
 
 | Component | Verified with | Notes |
 |---|---|---|
-| SANS SIFT Workstation | Ubuntu 22.04 (user `sansforensics`) | ships Volatility 3, Sleuth Kit, EWF tools, Plaso pre-installed |
+| Docker image (`full`/`full-plus`) - **the run path** | Debian 12 base | every tool below pre-baked; nothing to install (see [`docs/DOCKER.md`](docs/DOCKER.md)) |
+| Native Ubuntu 22.04 (contributors/dev) | Python 3.10+ | for hacking on the code + running the test suite (see [`ONBOARDING.md`](ONBOARDING.md)) |
 | Python | 3.10+ (3.12 on SIFT) | |
 | Volatility 3 Framework | **2.27.0** | installed by SIFT via pip user site-packages (`~/.local/lib/python3.X/site-packages/volatility3`) - no manual install needed |
 

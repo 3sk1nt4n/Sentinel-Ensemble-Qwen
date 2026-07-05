@@ -1,8 +1,10 @@
 # Run Sentinel Ensemble in Docker (any OS)
 
 Run the agent on **Windows, macOS, or Linux** with nothing but Docker Desktop -
-no SANS SIFT VM, no manual forensic-toolchain install. The agent, the commands,
-and the trust layer are identical to the SIFT path; only the packaging differs.
+no VM, no manual forensic-toolchain install. **The one-line way:**
+`./setup.sh run /path/to/case` does everything on this page automatically
+(build if needed, env wiring, FUSE caps, key handling, read-only mount); the
+sections below document what it runs and the manual equivalents.
 
 > 🔒 The image **never contains a key**. `.env` and `*_API_KEY*` files are excluded
 > by `.dockerignore`; you pass the key at runtime with `-e`. Evidence is mounted
@@ -168,5 +170,6 @@ investigation - `full-plus` just unlocks the artifact/timeline/carving tools too
 - EZ Tools / Plaso versions track upstream "latest" at build time
   (EZ Tools download URLs are not version-pinned); rebuild to refresh them.
 
-The **SANS SIFT VM** path in the [README](../README.md) is still a great fully
-native environment, but `full-plus` now matches it for the tools the agent calls.
+Contributors hacking on the code natively (test suite, tool development):
+see [`ONBOARDING.md`](../ONBOARDING.md) - the `full-plus` image carries every
+tool the agent itself calls.

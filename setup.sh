@@ -5,6 +5,7 @@
 #
 #   ./setup.sh            install what pip/apt can, verify EVERYTHING, run the demo
 #   ./setup.sh docker     build + run the zero-cost demo in Docker (any OS, no Python)
+#   ./setup.sh run /case  ONE line, real Docker run: image, key, flags, mount - all handled
 #   ./setup.sh --check    check only (doctor mode - no install, no sudo)
 #   ./setup.sh --no-sudo  install pip deps + check; skip apt system packages
 #
@@ -19,15 +20,19 @@ REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$REPO_DIR"
 
 # ── arg parsing ──────────────────────────────────────────────────────────────
-MODE_INSTALL=1; USE_SUDO=1; DOCKER=0
-for a in "$@"; do
-  case "$a" in
-    docker)    DOCKER=1 ;;
-    --check)   MODE_INSTALL=0; USE_SUDO=0 ;;
-    --no-sudo) USE_SUDO=0 ;;
-    -h|--help) sed -n '2,14p' "$0"; exit 0 ;;
-  esac
-done
+MODE_INSTALL=1; USE_SUDO=1; DOCKER=0; RUN=0; RUN_ARGS=()
+if [ "${1:-}" = "run" ]; then
+  RUN=1; shift; RUN_ARGS=("$@")
+else
+  for a in "$@"; do
+    case "$a" in
+      docker)    DOCKER=1 ;;
+      --check)   MODE_INSTALL=0; USE_SUDO=0 ;;
+      --no-sudo) USE_SUDO=0 ;;
+      -h|--help) sed -n '2,15p' "$0"; exit 0 ;;
+    esac
+  done
+fi
 
 if [ -t 1 ]; then G=$'\e[32m'; R=$'\e[31m'; Y=$'\e[33m'; B=$'\e[1m'; C=$'\e[36m'; X=$'\e[0m'
 else G=; R=; Y=; B=; C=; X=; fi
@@ -37,6 +42,59 @@ ok()   { printf "  ${G}OK${X}   %s\n" "$1"; }
 warn() { printf "  ${Y}WARN${X} %s\n" "$1"; WARN=$((WARN+1)); }
 bad()  { printf "  ${R}FAIL${X} %s\n" "$1"; FAIL=$((FAIL+1)); }
 note() { printf "  ${B}--${X}   %s\n" "$1"; }
+
+# =============================================================================
+#  ONE-LINE DOCKER RUN - ./setup.sh run [--dry-run] /path/to/case
+#  Builds the full toolchain image on first use, applies the verified-run
+#  config (FUSE caps for .E01, SIFT_HTTP_TIMEOUT, SIFT_ALLOW_YARA), reads the
+#  key from .env / env (hidden prompt otherwise), mounts evidence read-only.
+# =============================================================================
+if [ "$RUN" = 1 ]; then
+  printf "${B}Sentinel Ensemble - one-line Docker run${X}\n"
+  command -v docker >/dev/null 2>&1 || { printf "  ${R}FAIL${X} Docker not found. Install Docker Desktop (docker.com), then re-run.\n"; exit 1; }
+  docker info >/dev/null 2>&1 || { printf "  ${R}FAIL${X} Docker is installed but not running. Start Docker Desktop and re-run.\n"; exit 1; }
+
+  CASE=""; PASS=()
+  for a in "${RUN_ARGS[@]}"; do
+    case "$a" in --*) PASS+=("$a") ;; *) CASE="$a" ;; esac
+  done
+  [ -n "$CASE" ] || { printf "  ${R}FAIL${X} usage: ./setup.sh run [--dry-run] /path/to/case-folder\n"; exit 2; }
+  [ -d "$CASE" ] || { printf "  ${R}FAIL${X} case folder not found: %s\n" "$CASE"; exit 2; }
+  CASE="$(cd "$CASE" && pwd)"
+
+  if ! docker image inspect sentinel-qwen >/dev/null 2>&1; then
+    sec "Building the full toolchain image (one time, ~15 min)"
+    docker build -t sentinel-qwen . || { printf "  ${R}FAIL${X} build failed (see above)\n"; exit 1; }
+  fi
+  ok "image ready: sentinel-qwen"
+
+  # config: .env first (like findevil.sh), then verified-run defaults for the rest
+  [ -f .env ] && { set -a; . ./.env 2>/dev/null || true; set +a; }
+  export SIFT_LLM_PROVIDER="${SIFT_LLM_PROVIDER:-qwen}"
+  export SIFT_DEFAULT_MODEL="${SIFT_DEFAULT_MODEL:-qwen3.7-max}"
+  export SIFT_HTTP_TIMEOUT="${SIFT_HTTP_TIMEOUT:-600}"
+  export SIFT_ALLOW_YARA="${SIFT_ALLOW_YARA:-1}"
+  if [ "$SIFT_LLM_PROVIDER" = qwen ] && [ -z "${DASHSCOPE_API_KEY:-}${QWEN_API_KEY:-}" ]; then
+    case " ${PASS[*]-} " in
+      *" --dry-run "*|*" --demo "*) : ;;   # no key needed
+      *) printf "  ${B}DashScope API key${X} (hidden; home.qwencloud.com/api-keys): "
+         read -rs DASHSCOPE_API_KEY; printf "\n"; export DASHSCOPE_API_KEY ;;
+    esac
+  fi
+
+  # forward every provider/pipeline env var that is set (never baked into the image)
+  ENVARGS=()
+  for v in $(compgen -A variable | grep -E '^(SIFT|DASHSCOPE|QWEN|ANTHROPIC)_'); do
+    [ -n "${!v:-}" ] && ENVARGS+=(-e "$v=${!v}")
+  done
+  TTY=(); [ -t 0 ] && TTY=(-it)
+  sec "Launching the agent on your case (evidence mounted read-only)"
+  exec docker run --rm "${TTY[@]}" \
+    --cap-add SYS_ADMIN --device /dev/fuse --security-opt apparmor:unconfined \
+    "${ENVARGS[@]}" \
+    -v "$CASE":/evidence:ro \
+    sentinel-qwen "${PASS[@]}" /evidence
+fi
 
 # =============================================================================
 #  DOCKER PATH - works on any OS, no Python/forensic install needed
@@ -51,18 +109,15 @@ if [ "$DOCKER" = 1 ]; then
   sec "Running the demo (no key, no evidence)"
   docker run --rm sentinel-qwen:demo || { printf "  ${R}FAIL${X} demo run failed\n"; exit 1; }
   printf "\n  ${G}${B}✅  Docker demo works.${X}\n"
-  printf "  ${B}Real investigation on Qwen Cloud:${X}\n"
-  printf "    1) DashScope key: home.qwencloud.com/api-keys (Model Studio, Singapore/Intl)\n"
-  printf "    2) docker build -t sentinel-qwen .          ${Y}# full toolchain image${X}\n"
-  printf "    3) docker run --rm -it --cap-add SYS_ADMIN --device /dev/fuse --security-opt apparmor:unconfined \\\\\n"
-  printf "         -e SIFT_LLM_PROVIDER=qwen -e DASHSCOPE_API_KEY=sk-... -e SIFT_DEFAULT_MODEL=qwen3.7-max \\\\\n"
-  printf "         -e SIFT_HTTP_TIMEOUT=600 -e SIFT_ALLOW_YARA=1 -v /path/to/case:/evidence:ro sentinel-qwen /evidence\n"
+  printf "  ${B}Real investigation on Qwen Cloud - ONE line:${X}\n"
+  printf "    ./setup.sh run /path/to/case   ${Y}# image, key, flags, read-only mount: all handled${X}\n"
+  printf "    (key from .env or a hidden prompt - get one at home.qwencloud.com/api-keys)\n"
   printf "    Full guide: docs/DOCKER.md\n\n"
   exit 0
 fi
 
 # =============================================================================
-#  LOCAL / SIFT VM PATH
+#  LOCAL / NATIVE PATH (contributors + development)
 # =============================================================================
 printf "${B}Sentinel Ensemble - setup & health check${X}  (Track 4, Qwen Cloud)\n(%s)\n" \
   "$([ $MODE_INSTALL = 1 ] && echo 'install + verify + run demo' || echo 'verify only')"

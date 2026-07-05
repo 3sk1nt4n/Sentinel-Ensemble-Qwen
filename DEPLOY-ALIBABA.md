@@ -66,35 +66,22 @@ proof-of-deployment run; pick ECS (Option B) for full-evidence investigations.
 - Open outbound HTTPS (443) so the instance can reach the DashScope API; keep
   SSH (22) restricted to your own IP.
 
-## 2) Install the toolchain on the instance (SAS or ECS)
-
-> **Fastest path:** if you picked the Docker image in step 1, skip this section -
-> `docker build -t sentinel-qwen .` bundles the full toolchain
-> ([`docs/DOCKER.md`](docs/DOCKER.md)). The steps below are the native install.
+## 2) Install Docker + the agent on the instance (SAS or ECS)
 
 ```bash
-sudo apt-get update
-sudo apt-get install -y python3 python3-pip python3-venv git \
-    sleuthkit libewf-tools
-# Volatility 3:
-pip3 install volatility3
-# Plaso (optional, for super-timeline):
-sudo add-apt-repository -y ppa:gift/stable && sudo apt-get update \
-    && sudo apt-get install -y plaso-tools
-```
-(EZ Tools run under the .NET runtime; install if you use the registry/EVTX
-parsers. The pipeline degrades gracefully when a tool is absent.)
+# Docker (skip if step 1 provisioned a Docker application image)
+sudo apt-get update && sudo apt-get install -y docker.io git
+sudo systemctl enable --now docker
 
-## 3) Get the code + Python deps
-
-```bash
 git clone https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen.git
 cd Sentinel-Ensemble-Qwen
-python3 -m venv .venv && . .venv/bin/activate
-pip install -r requirements.txt
+sudo ./setup.sh docker      # zero-cost demo proves the flow end to end (~30 s build)
 ```
 
-## 4) Point it at Qwen (DashScope)
+The `sentinel-qwen` image bundles the **entire forensic toolchain**
+([`docs/DOCKER.md`](docs/DOCKER.md)) - nothing else to install on the host.
+
+## 3) Point it at Qwen (DashScope)
 
 ```bash
 cp .env.qwen.example .env
@@ -109,35 +96,32 @@ export SIFT_DEFAULT_MODEL=qwen3.7-max        # flagship; qwen-plus on high-volum
 # export DASHSCOPE_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions
 ```
 Smoke-test the Alibaba Cloud connection before a full run (the single, canonical
-smoke test - it hits the same DashScope seam the 16-step pipeline uses):
+smoke test - it hits the same DashScope seam the 16-step pipeline uses, using
+the demo image already built in step 2):
 ```bash
-python3 scripts/qwen_smoke.py     # prints the reply + token usage, or a clear error
+sudo docker run --rm -e SIFT_LLM_PROVIDER=qwen -e DASHSCOPE_API_KEY=sk-... \
+  --entrypoint python3 sentinel-qwen:demo scripts/qwen_smoke.py
 ```
 
-## 5) (Optional) Evidence via Alibaba Cloud OSS
+## 4) (Optional) Evidence via Alibaba Cloud OSS
 
 Keep evidence in an OSS bucket and pull it to the ECS scratch disk before a run
 (read-only is preserved once mounted):
 ```bash
-pip install oss2          # Alibaba Cloud OSS SDK
-# or use ossutil:
 ossutil cp oss://<bucket>/<case>/  /cases/evidence/<case>/ --recursive
 ```
 Report artifacts can be pushed back to OSS after the run.
 
-## 6) Run an investigation (on Qwen, on Alibaba Cloud)
+## 5) Run an investigation (on Qwen, on Alibaba Cloud)
 
 ```bash
-./findevil.sh /cases/evidence/<case>
-# or the direct invocation (bypasses interactive onboarding):
-python3 run_pipeline.py --live --inv2-ensemble \
-    --image /cases/evidence/<case>/memory.img \
-    --disk  /cases/evidence/<case>/disk.E01
+sudo ./setup.sh run /cases/evidence/<case>   # ONE line - image, key (.env), flags, read-only mount
 ```
 Evidence is mounted **read-only** and SHA256-fingerprinted pre/post (chain of
-custody); the report lands in `reports/` (and optionally OSS).
+custody); the report lands in the run directory (and optionally OSS). The
+manual `docker run` equivalent is in [`JUDGE-QUICKSTART.md`](JUDGE-QUICKSTART.md) §4.
 
-## 7) Capture the Proof of Deployment (REQUIRED - "no proof = not eligible")
+## 6) Capture the Proof of Deployment (REQUIRED - "no proof = not eligible")
 
 Per the Devpost x Qwen Cloud rules, Proof of Deployment on Alibaba Cloud has
 **two mandatory parts**:
@@ -156,7 +140,7 @@ screenshot must show **compute (ECS or SAS) in the Running state** with this
 backend deployed on it.
 
 Capture and commit `docs/proof/alibaba-workbench.png`: deploy the repo on the
-instance (steps 1-6), run the agent there (at minimum `./findevil.sh --demo`
+instance (steps 1-5), run the agent there (at minimum `sudo ./setup.sh docker`
 plus one live `scripts/qwen_smoke.py` call), then screenshot the console
 Workbench Overview with the instance **Running**. Optionally add a short screen
 recording showing the run's `LIVE: ...` / HTTP 200 lines and the finished report

@@ -29,9 +29,8 @@ service on Alibaba Cloud (ECS compute + OSS evidence intake + DashScope
 inference - the runbook already exists in [`DEPLOY-ALIBABA.md`](DEPLOY-ALIBABA.md)),
 priced per investigation against the measured $0.28-$1.53 unit cost. The
 open-source route is already live: MIT-licensed, running in Docker on any OS
-(the `full-plus` image bundles the entire forensic toolchain) or natively on
-the SANS SIFT platform every DFIR analyst already runs, with a documented
-tool-plugin contract
+(one `./setup.sh run` command; the image bundles the entire forensic
+toolchain), with a documented tool-plugin contract
 ([`EXTENDING.md`](EXTENDING.md)) so the community can add parsers without
 touching the trust layer.
 
