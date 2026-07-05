@@ -8,7 +8,7 @@ description: An autonomous incident-response agent on Qwen models where determin
 
 > Built for the **Global AI Hackathon with Qwen Cloud** (Track 4, Autopilot
 > Agent). Code: https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen (MIT).
-> 2:44 demo in the repo.
+> 2:52 demo in the repo.
 
 ## The problem nobody wants to say out loud
 
@@ -150,6 +150,6 @@ trust layer made that reasoning *safe to act on.*
 - **Zero-cost demo (no key, no evidence):** `./findevil.sh --demo`
 - **Proof-of-Alibaba-Cloud code:** `src/sift_sentinel/llm_provider.py`
 - **Shipped run metrics (both tiers + the ablation):** `docs/qwen-runs/`
-- **Demo video:** <ADD-YOUTUBE-URL> (2:44, the overrule happens on camera)
+- **Demo video:** <ADD-YOUTUBE-URL> (2:52, the overrule happens on camera)
 
 #QwenCloud #AlibabaCloud #AIagents #DFIR
