@@ -52,12 +52,15 @@ Per the Devpost x Qwen Cloud rules, proof has two parts:
    record that same `llm_endpoint`, `llm_provider: qwen`, and the model
    (`qwen3.7-max` / `qwen-plus`) - so the runs demonstrably went to Alibaba Cloud.
 
-2. **Screenshot of running resources on Alibaba Cloud.** The Workbench
-   screenshot (an **ECS or Simple Application Server instance in the *Running*
-   state**, matching the official guide's sample screenshots) lands in
-   [`docs/proof/`](docs/proof/) per the capture runbook -
-   [`DEPLOY-ALIBABA.md`](DEPLOY-ALIBABA.md) is the turnkey path to deploy the
-   backend on Alibaba Cloud compute and capture it.
+2. **Screenshot of running resources on Alibaba Cloud - captured (2026-07-06).**
+   The Workbench screenshot is committed at [`docs/proof/`](docs/proof/): a
+   **Simple Application Server instance ("Ubuntu-ivhq", Singapore) in the
+   *Running* state**, matching the official guide's sample screenshots. The
+   backend was deployed on that instance per
+   [`DEPLOY-ALIBABA.md`](DEPLOY-ALIBABA.md) (`./setup.sh docker` demo end-to-end
+   plus a live `scripts/qwen_smoke.py` call from the instance -
+   `SENTINEL-QWEN-OK`), and the instance stays running through the judging
+   period for live verification.
 
 ---
 
@@ -219,7 +222,7 @@ Python.
 | Architecture diagram (Qwen box) | done (`ARCH_VERTICAL.png`) |
 | **Live Qwen runs + artifacts** | **done** - see "Verified Qwen Cloud runs" below |
 | Demo video (<3 min, YouTube) | built (`docs/sentinel-qwen-demo.mp4`, 2:52, title-card intro + the 0-vs-4 two-tier reveal + real run output from both runs, closing on the spelled-out DFIR card credited "Built by Adil Eskintan"; run footage predates the rename - on-screen banners read "SIFT Sentinel", the engine's former name). **Hosted link:** `<ADD-YOUTUBE-URL>` - upload to **YouTube** (the official FAQ accepts public or unlisted; we publish **Public**) and paste on the Devpost form before submitting |
-| Proof of Deployment on Alibaba Cloud | code-file + Base URL: **done** (`llm_provider.py`; endpoint also in `docs/qwen-runs/`). Workbench screenshot: add to `docs/proof/` before submitting (runbook: `DEPLOY-ALIBABA.md`) |
+| Proof of Deployment on Alibaba Cloud | **done** - code-file + Base URL (`llm_provider.py`; endpoint also in `docs/qwen-runs/`) **and** the Workbench screenshot in `docs/proof/` (SAS instance Running, Singapore; deployed per `DEPLOY-ALIBABA.md`, live `SENTINEL-QWEN-OK` smoke call; instance stays up through judging) |
 | Legacy-doc reframe to Track 4 | done |
 
 ### Verified Qwen Cloud runs (proof)
