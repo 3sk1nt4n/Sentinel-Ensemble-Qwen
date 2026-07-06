@@ -63,7 +63,7 @@ the 16-step pipeline; the provider and model are chosen purely by environment:
 export SIFT_LLM_PROVIDER=qwen
 export DASHSCOPE_API_KEY=...          # your Qwen Cloud key
 export SIFT_DEFAULT_MODEL=qwen3.7-max
-./setup.sh run /path/to/case   # one line: builds the Docker image, forwards these envs, mounts evidence read-only
+./setup.sh /path/to/case   # one line: builds the Docker image, forwards these envs, mounts evidence read-only
 ```
 
 Model tiering keeps it cheap: `qwen-plus` for the high-volume work (ensemble,
@@ -150,7 +150,7 @@ trust layer made that reasoning *safe to act on.*
 ## Try it
 
 - **Repo (MIT):** https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen
-- **Zero-cost demo (no key, no evidence, any OS):** `./setup.sh docker`
+- **Zero-cost demo (no key, no evidence, any OS):** `./setup.sh docker` (Windows: `.\setup.cmd docker`)
 - **Proof-of-Alibaba-Cloud code:** `src/sift_sentinel/llm_provider.py`
 - **Shipped run metrics (both tiers + the ablation):** `docs/qwen-runs/`
 - **Demo video:** https://youtu.be/NV6Zn0YrD1w (2:56, the overrule happens on camera)

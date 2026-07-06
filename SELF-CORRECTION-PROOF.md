@@ -4,7 +4,7 @@
 > page is the receipt. Every number below is a timestamped line in the execution
 > log of the **Claude reference run** (rd01) - `artifacts/run-rd01/agent_execution_log.txt`,
 > a **local** run not committed to the repo (case-neutral policy; reproduce with
-> `./setup.sh run /path/to/case`). It is an architecture demonstration, not a Qwen result; the
+> `./setup.sh /path/to/case`). It is an architecture demonstration, not a Qwen result; the
 > shipped, verifiable Qwen Cloud run metrics are in
 > [`docs/qwen-runs/`](docs/qwen-runs/). Nothing here is narration - it's grep-able
 > once you regenerate the run.
@@ -147,7 +147,7 @@ to mark its own homework - Layer 1 and Layer 2 both sit on top of this code gate
 ## ✅ Verify it yourself (no API key needed for the second block)
 
 The log itself is **not committed** (case-neutral policy - run outputs carry
-case IOCs). Regenerate a run with `./setup.sh run /path/to/your-case` on your own evidence, then
+case IOCs). Regenerate a run with `./setup.sh /path/to/your-case` on your own evidence, then
 run these greps against **your local** execution log (the counts below are from
 the rd01 reference run and will differ on your case; the *line types* are what
 to look for):

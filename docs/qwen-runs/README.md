@@ -47,7 +47,7 @@ post-reconciliation report set. The three counters legitimately differ
 (which contain case-specific IOCs: hostnames, paths, PIDs) are never committed.
 These files carry only provider/model/endpoint, counts, timings, tokens, and the
 integrity verdict - no case tokens. Reproduce the full run on your own evidence
-with `./setup.sh run /path/to/case`; the demo video shows a live Qwen run end to end.
+with `./setup.sh /path/to/case`; the demo video shows a live Qwen run end to end.
 
 > The `llm_endpoint` in each file is itself part of the **Proof of Deployment on
 > Alibaba Cloud**: it shows the run's reasoning went to the DashScope

@@ -50,8 +50,7 @@ FROM python:3.12-slim-bookworm AS plaso-builder
 RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential pkg-config \
     && rm -rf /var/lib/apt/lists/*
-# Install into a relocatable prefix we copy into the final image. pip can return
-# 0 even if a wheel fails, so assert the entrypoint actually works afterwards.
+# Install into a relocatable prefix we copy into the final image.
 RUN pip install --no-cache-dir --prefix=/install plaso==20260512
 # pip can exit 0 even when a wheel fails to build, so assert the entrypoint
 # actually imports. The real console script is `log2timeline` (NO .py); the .py

@@ -5,7 +5,8 @@ Package name is `sift_sentinel`; the product/repo is **Sentinel Ensemble**.
 
 ```
 Sentinel-Ensemble-Qwen/
-├── setup.sh                      # ⭐ THE front door: ./setup.sh docker (demo) · ./setup.sh run /case (real run)
+├── setup.sh                      # ⭐ THE front door: ./setup.sh docker (demo) · ./setup.sh /case (real run)
+├── setup.cmd / setup.ps1         # Windows launchers (same bare / folder-direct / docker modes)
 ├── Dockerfile                    # demo + full-toolchain images (findevil.sh is the ENTRYPOINT)
 ├── findevil.sh / findevil.py     # container ENTRYPOINT (delegates to step0_onboard)
 ├── step0_onboard.py              # conversational onboarding: find + profile + mount evidence
@@ -57,7 +58,7 @@ Sentinel-Ensemble-Qwen/
 ├── docs/                        # ACCURACY.md, this file, DATASET.md, DOCKER.md, INVOCATIONS.md,
 │   │                            #   VALIDATOR.md + design/
 │   ├── qwen-runs/               # shipped sanitized metrics of the live Qwen Cloud runs (2 headline + Jul 1 repro + ablation)
-│   └── proof/                   # Proof-of-Deployment: Alibaba Cloud Workbench screenshot slot
+│   └── proof/                   # Proof-of-Deployment: Alibaba Cloud Workbench screenshot (alibaba-workbench.png)
 ├── yara_rules/                  # behavioural YARA signatures
 ├── scripts/ · bin/              # operational helpers (qwen_smoke.py, gates, legacy console + dev tools)
 └── artifacts/                   # local run outputs (gitignored - never committed, case-neutral policy)
@@ -67,7 +68,7 @@ Sentinel-Ensemble-Qwen/
 
 | You want to… | Look at |
 |---|---|
-| **Run it** | `./setup.sh run /path/to/case` (Docker) → `findevil.sh` (container entrypoint) → `step0_onboard.py` |
+| **Run it** | `./setup.sh /path/to/case` (Docker) → `findevil.sh` (container entrypoint) → `step0_onboard.py` |
 | Understand the pipeline | [`ARCHITECTURE.md`](../ARCHITECTURE.md) (16 steps + diagrams) |
 | Understand a finding's provenance | `src/sift_sentinel/validation/` + your local run's `agent_execution_log.txt` (run outputs are never committed) |
 | See what it was tested on | [`DATASET.md`](DATASET.md) |

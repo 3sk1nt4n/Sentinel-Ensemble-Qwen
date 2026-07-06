@@ -110,7 +110,7 @@ time and **never echoed, logged, or written to disk** by the pipeline.
 **One line** - builds the toolchain image on first use (~15 min, once), wires
 every flag (FUSE caps for `.E01`, `SIFT_HTTP_TIMEOUT`, `SIFT_ALLOW_YARA`),
 forwards the key from `.env`/env (or asks once, hidden), mounts the case
-**read-only**, and saves the report to `sentinel-results\<case>\` on your machine:
+**read-only**, and saves the report to `sentinel-results/<case>/` on your machine:
 
 **🪟 Windows - PowerShell:**
 ```powershell

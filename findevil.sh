@@ -18,9 +18,10 @@ python3 -c "import pydantic, mcp" 2>/dev/null || {
 
 # Load .env so the documented `cp .env.qwen.example .env` flow actually takes
 # effect: without this, SIFT_LLM_PROVIDER stays unset and a NATIVE launcher
-# would fall back to Anthropic (the Docker image sets SIFT_LLM_PROVIDER=qwen). Real env vars still win
-# (set -a exports; a value already in the environment is not overwritten by a
-# later identical assignment, and users can always export to override).
+# would fall back to Anthropic (the Docker image sets SIFT_LLM_PROVIDER=qwen).
+# NOTE: values in .env override same-name variables already in the environment
+# here (bash sourcing assigns unconditionally); the setup launchers pass the
+# key/env explicitly, so in the Docker path the container env is authoritative.
 if [ -f "$REPO_DIR/.env" ]; then
     set -a
     # shellcheck disable=SC1091
@@ -33,8 +34,11 @@ fi
 # is unchanged. We wrap instead of exec so the copy runs after the pipeline exits;
 # the pipeline still owns its own signal handling + mount teardown.
 if [ -n "${SIFT_PERSIST_DIR:-}" ]; then
-    python3 "$REPO_DIR/findevil.py" "$@"; rc=$?
-    latest="$(ls -dt /tmp/sift-sentinel-run-*/ 2>/dev/null | head -1)"
+    # `|| rc=$?` keeps `set -e` from aborting before the persist copy runs -
+    # deliverables (even partial ones) must reach the host on FAILED runs too.
+    rc=0
+    python3 "$REPO_DIR/findevil.py" "$@" || rc=$?
+    latest="$(ls -dt /tmp/sift-sentinel-run-*/ 2>/dev/null | head -1 || true)"
     if [ -n "$latest" ]; then
         mkdir -p "$SIFT_PERSIST_DIR" 2>/dev/null || true
         for f in report.md run_summary.md customer_findings_table.md \
@@ -42,7 +46,7 @@ if [ -n "${SIFT_PERSIST_DIR:-}" ]; then
             [ -f "$latest$f" ] && cp -f "$latest$f" "$SIFT_PERSIST_DIR/" 2>/dev/null || true
         done
         [ -d "$REPO_DIR/reports" ] && cp -rf "$REPO_DIR/reports/." "$SIFT_PERSIST_DIR/" 2>/dev/null || true
-        echo "  Results saved to your machine: sentinel-results/<case>/ inside the folder you launched setup from"
+        echo "  Results saved to your machine: sentinel-results/<case>/ inside the Sentinel Ensemble repo folder"
     fi
     exit $rc
 fi

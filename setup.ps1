@@ -6,15 +6,16 @@
 
     .\setup.cmd                        guided: shows the walkthrough, asks for your evidence
     .\setup.cmd docker                 zero-cost demo - no key, no evidence (~30 s)
-    .\setup.cmd run C:\path\to\case    real investigation - one line does everything
-    .\setup.cmd run -DryRun C:\...     onboarding + plan only, nothing executed
+    .\setup.cmd C:\path\to\case        real investigation - one line does everything
+    .\setup.cmd C:\path -DryRun        onboarding + plan only, nothing executed
+    ("run" before the path is an accepted alias.)
 
   (Prefer PowerShell-native? .\setup.ps1 with the same arguments works too.)
 
-  'run' builds the toolchain image on first use, reads your DashScope key from
+  A real run builds the toolchain image on first use, reads your DashScope key from
   .env / the environment (or asks once, hidden), applies the verified-run flags,
   passes the .E01/FUSE capabilities, mounts your evidence READ-ONLY, launches the
-  agent, and saves the report to sentinel-results\<case>\ on your machine.
+  agent, and saves the report to sentinel-results\<case>\ on this machine.
 
   Requires Docker Desktop (https://www.docker.com/products/docker-desktop/).
 
@@ -117,7 +118,12 @@ function Import-DotEnv {
             $eq = $t.IndexOf('=')
             if ($eq -lt 1) { continue }
             $k = $t.Substring(0, $eq).Trim()
-            $v = $t.Substring($eq + 1).Trim().Trim('"').Trim("'")
+            $v = $t.Substring($eq + 1)
+            # Strip trailing inline comments (.env.qwen.example uses them) or a
+            # model name would become "qwen3.7-max   # fallback..." -> API 400.
+            $hash = $v.IndexOf(' #')
+            if ($hash -ge 0) { $v = $v.Substring(0, $hash) }
+            $v = $v.Trim().Trim('"').Trim("'")
             if ($k) { $envmap[$k] = $v }
         }
     }
@@ -173,6 +179,7 @@ if ($Mode -eq 'docker') {
     Ok "image built: sentinel-qwen:demo"
     Sec "Running the demo (no key, no evidence)"
     docker run --rm -it sentinel-qwen:demo
+    if ($LASTEXITCODE -ne 0) { Bad "demo run failed (see above)"; exit 1 }
     Write-Host "`n  OK  Docker demo works." -ForegroundColor Green
     Write-Host "  Real investigation - ONE line:" -ForegroundColor White
     Write-Host "    .\setup.cmd C:\path\to\case      (or just .\setup.cmd - it asks for the folder)"
@@ -184,7 +191,7 @@ if ($Mode -eq 'docker') {
 # ===========================================================================
 #  RUN (and the default guided flow)
 #     .\setup.cmd                       -> banner + guide + ask for the folder
-#     .\setup.cmd run C:\path\to\case   -> straight to it
+#     .\setup.cmd C:\path\to\case       -> straight to it
 # ===========================================================================
 if ($Mode -eq 'run' -or $Mode -eq '') {
 
@@ -315,7 +322,7 @@ Show-Banner
 Write-Host "  Usage:" -ForegroundColor White
 Write-Host "    .\setup.cmd                        guided - shows the walkthrough, asks for your evidence"
 Write-Host "    .\setup.cmd docker                 zero-cost demo (no key, no evidence, ~30 s)"
-Write-Host "    .\setup.cmd run C:\path\to\case    real investigation - one line does everything"
+Write-Host "    .\setup.cmd C:\path\to\case    real investigation - one line does everything"
 Write-Host ""
 Write-Host "  Needs Docker Desktop: https://www.docker.com/products/docker-desktop/"
 exit 0

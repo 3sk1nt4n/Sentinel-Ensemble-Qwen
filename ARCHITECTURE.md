@@ -44,7 +44,7 @@ pre-parsed, validated JSON - never raw stdout.
 ## Entry Point
 
 ```
-./setup.sh run /path/to/case        ◀── what the user types (ONE line)
+./setup.sh /path/to/case            ◀── what the user types (ONE line)
   Docker: builds the image once, forwards the key + SIFT_* env,
   FUSE caps for .E01, mounts the evidence read-only
         │
@@ -65,7 +65,7 @@ findevil.sh  ──▶  findevil.py  ──▶  step0_onboard.py  ──▶  run
         ║   owns every step - the AI acts only inside the ⟦ AI ✦ ⟧ brackets ║
         ╚═══════════════════════════════════════════════════════════════════╝
 
- Step  0 ─▶ ONBOARDING (findevil.sh, the entrypoint behind ./setup.sh run) - human presses start
+ Step  0 ─▶ ONBOARDING (findevil.sh, the entrypoint behind ./setup.sh) - human presses start
             │      case discovery + per-case health cards · E01 disk mount (ro)
             │      OS/profile probe (vol3 windows.info · fsstat - must agree)
             │      SHA256 precompute · depth select: ⚡HEAVY / 🪶LIGHT
@@ -392,7 +392,7 @@ The finished report can never contradict itself:
 
 The conductor invokes the model **5 times** per run (Qwen on Alibaba Cloud
 DashScope by default; Anthropic via the same seam) - the 4 numbered invocations
-plus the Step-13AA self-correction finalize. Each is **stateless** --
+plus the Step-13AA self-correction finalize. Each is **stateless** -
 the AI never sees its own previous output; the conductor is the memory.
 
 ```
@@ -521,7 +521,7 @@ cleared every confirmation gate.
 Before the Qwen port the same architecture was proven on a Claude reference run
 (rd01), kept local per the case-neutral policy - **not** a Qwen result and **not**
 shipped: 509 s, 34 tools (30 data-producing / 0 failed), 201,260 typed facts,
-ensemble 4 members → 81 raw → 51 merged, 51 candidates / 22 blocked, final 2
+ensemble 4 members → 81 raw → 51 merged (+3 emitted = 54 candidates) / 22 blocked, final 2
 confirmed / 42 suspicious / 5 benign / 49 total, ~$15.45 est. (Claude Opus 4.8),
 SHA256 MATCH. It only shows the trust layer, the 195 typed tools, and the 16-step
 conductor are model-agnostic; the Qwen runs above independently reproduced the

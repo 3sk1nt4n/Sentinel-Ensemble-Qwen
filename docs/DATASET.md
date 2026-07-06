@@ -18,7 +18,7 @@ The agent was developed and validated against these Windows incident-response
 images spanning multiple OS versions and evidence shapes (memory-only, disk-only,
 and paired memory+disk). Neither the raw images nor the per-run outputs (which
 contain case-specific IOCs) are committed to this repo, per the **case-neutral
-policy** - reproduce a run with `./setup.sh run /path/to/case`; the demo video
+policy** - reproduce a run with `./setup.sh /path/to/case`; the demo video
 shows a live Qwen run end to end.
 
 > **Distribution note (2026-07-05):** the public download link that originally
@@ -41,7 +41,7 @@ shows a live Qwen run end to end.
 > is **not** a Qwen result; the **Qwen Cloud runs independently reproduce the
 > same intrusion chain with their own counts** (heavy tier: 34 findings /
 > 4 confirmed - [`docs/qwen-runs/`](qwen-runs/), shown in the demo). Paths
-> below are local, after you run `./setup.sh run /path/to/case`.
+> below are local, after you run `./setup.sh /path/to/case`.
 
 Local run: `artifacts/run-rd01/report.md` · execution log:
 `artifacts/run-rd01/agent_execution_log.txt` ·

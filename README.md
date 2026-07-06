@@ -120,7 +120,7 @@ cd Sentinel-Ensemble-Qwen
 time, ~15 min), reads your DashScope key from `.env` / the environment (or
 **asks once, hidden**), applies the verified-run flags, passes the `.E01`/FUSE
 capabilities, mounts your evidence **read-only**, walks you through the
-**case card → depth → run**, and **saves the report to `sentinel-results\<case>\`
+**case card → depth → run**, and **saves the report to `sentinel-results/<case>/`
 on your machine** (open `report.md` or `summary_report_*.html`). Full guide:
 [`docs/DOCKER.md`](docs/DOCKER.md). Stuck? See [Troubleshooting](#-troubleshooting).
 
@@ -235,7 +235,7 @@ line in, a finished report out:
    automatically; otherwise you're asked **once, at a hidden prompt** (never
    echoed, logged, saved, or baked into the image).
 5. Then **touch nothing** - minutes, not hours.
-6. Your **report lands on your machine** in `sentinel-results\<case>\`
+6. Your **report lands on your machine** in `sentinel-results/<case>/`
    (`report.md` + the interactive `summary_report_*.html`). Every finding links
    to the exact tool execution that proved it.
 

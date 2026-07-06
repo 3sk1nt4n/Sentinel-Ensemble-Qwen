@@ -24,6 +24,12 @@ API_KEY.txt
 reports/
 analysis/
 exports/
+sentinel-results/
+artifacts/
+run_archive/
+HANDOVER-QWEN.md
+DEVPOST-FORM-PACK.md
+.claude/
 /tmp
 *.log
 

@@ -42,7 +42,7 @@ else
       --native)  MODE_INSTALL=1 ;;
       --check)   MODE_INSTALL=0; USE_SUDO=0 ;;
       --no-sudo) USE_SUDO=0 ;;
-      -h|--help) sed -n '2,15p' "$0"; exit 0 ;;
+      -h|--help) sed -n '2,17p' "$0"; exit 0 ;;
     esac
   done
 fi
@@ -189,8 +189,13 @@ if [ "$RUN" = 1 ]; then
   ensure_docker
 
   CASE=""; PASS=()
+  # First EXISTING directory wins as the case path (a stray trailing word can't
+  # displace it - mirrors the setup.ps1 guard); other non-flag words are noted.
   for a in "${RUN_ARGS[@]-}"; do
-    case "$a" in --*) PASS+=("$a") ;; ?*) CASE="$a" ;; esac
+    case "$a" in
+      --*) PASS+=("$a") ;;
+      ?*)  if [ -z "$CASE" ] || { [ ! -d "$CASE" ] && [ -d "$a" ]; }; then CASE="$a"; fi ;;
+    esac
   done
   # No folder given? Ask for it (banner shown above if guided) - never dead-end.
   if [ -z "$CASE" ]; then
@@ -324,7 +329,7 @@ elif [ $MODE_INSTALL = 1 ]; then
     warn "venv unavailable (install python3-venv for an isolated env) - using the system Python instead"
   fi
 else
-  warn "no virtualenv active - re-run ./setup.sh to set one up (needs the python3-venv package)"
+  warn "no virtualenv active - re-run ./setup.sh --native to set one up (needs the python3-venv package)"
 fi
 
 # ── 2. Install Python deps ──────────────────────────────────────────────────
@@ -336,7 +341,7 @@ if [ $MODE_INSTALL = 1 ]; then
     warn "plain pip failed - retrying with --break-system-packages (PEP 668)"
     python3 -m pip install --break-system-packages -r requirements.txt \
       && ok "pip install (--break-system-packages)" \
-      || bad "pip install failed - create a venv (see Python section) and re-run ./setup.sh"
+      || bad "pip install failed - create a venv (see Python section) and re-run ./setup.sh --native"
   fi
 fi
 
@@ -388,7 +393,7 @@ sec "Qwen Cloud readiness (only for a live run - the demo needs no key)"
 # load .env the way findevil.sh does, then look for a key
 [ -f .env ] && { set -a; . ./.env 2>/dev/null || true; set +a; }
 if [ -n "${DASHSCOPE_API_KEY:-}" ] || [ -n "${QWEN_API_KEY:-}" ]; then
-  ok "DashScope/Qwen key detected (live runs enabled). Verify: python3 scripts/qwen_smoke.py"
+  ok "DashScope/Qwen key detected (live runs enabled). Verify: set -a; . ./.env; set +a; python3 scripts/qwen_smoke.py"
 elif [ -n "${ANTHROPIC_API_KEY:-}" ]; then
   note "only an Anthropic (fallback) key is set; for the Qwen submission set DASHSCOPE_API_KEY"
 else
@@ -416,7 +421,7 @@ if [ $FAIL -eq 0 ]; then
 else
   printf "\n  ${R}${B}=============================================================${X}\n"
   printf "  ${R}${B}  NOT READY - %d required item(s) missing.${X}\n" "$FAIL"
-  printf "  ${R}${B}  Fix the red FAIL line(s) above, then re-run:  ./setup.sh${X}\n"
+  printf "  ${R}${B}  Fix the red FAIL line(s) above, then re-run:  ./setup.sh --native${X}\n"
   printf "  ${R}${B}=============================================================${X}\n\n"
   exit 1
 fi

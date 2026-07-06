@@ -15,9 +15,6 @@ results/gpt/run03_rd01_bootstrap.log
 
 # Local-only run artifacts - nothing under artifacts/ ships
 artifacts/
-reports/*.md
-reports/*.json
-reports/*.html
 verify_*.sh
 telemetry/runs.db
 telemetry/artifacts/
@@ -36,9 +33,7 @@ audit/forbidden_tokens.local.txt
 # file (tests/fixtures/integrity_denylist.example.json) is tracked;
 # the real denylist with case-specific values is local-only.
 tests/fixtures/integrity_denylist.json
-run_archive/
 reports/
-artifacts/
 BACKLOG.md
 BLIND_TEST_ATTESTATION.md
 BRANCH_C_TRIGGER.md

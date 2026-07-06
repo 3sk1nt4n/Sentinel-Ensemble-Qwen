@@ -31,7 +31,7 @@ service on Alibaba Cloud (ECS compute + OSS evidence intake + DashScope
 inference - the runbook already exists in [`DEPLOY-ALIBABA.md`](DEPLOY-ALIBABA.md)),
 priced per investigation against the measured $0.28-$1.53 unit cost. The
 open-source route is already live: MIT-licensed, running in Docker on any OS
-(one `./setup.sh run` command; the image bundles the entire forensic
+(one `./setup.sh` command; the image bundles the entire forensic
 toolchain), with a documented tool-plugin contract
 ([`EXTENDING.md`](EXTENDING.md)) so the community can add parsers without
 touching the trust layer.
@@ -108,7 +108,7 @@ fresh repository:
    ensemble, ReAct, report). The seam's bare-env fallback stays Anthropic so the
    port is provably zero-regression (identical test results vs the pre-port
    tree); **every shipped launch path defaults to Qwen** - the Docker image,
-   `./setup.sh run`, and `.env.qwen.example` all set the provider.
+   `./setup.sh`, and `.env.qwen.example` all set the provider.
 3. **Qwen cost model + config** - `pricing.py` Qwen rate rows and a one-file
    `.env.qwen.example` (recommended model tiering for the $40 credit).
 4. **Alibaba Cloud inference (satisfied)** - the reasoning backend runs on the
@@ -130,7 +130,7 @@ export SIFT_LLM_PROVIDER=qwen
 export DASHSCOPE_API_KEY=...            # your Qwen Cloud key ($40 hackathon voucher)
 export SIFT_DEFAULT_MODEL=qwen3.7-max   # model_roles.py resolves it (flagship)
 
-./setup.sh run /path/to/case         # full autonomous investigation on Qwen
+./setup.sh /path/to/case             # full autonomous investigation on Qwen
                                      # (Docker, any OS - one line builds the image,
                                      #  forwards these envs, mounts evidence read-only)
 ```

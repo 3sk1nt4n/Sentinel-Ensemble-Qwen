@@ -58,10 +58,10 @@ that bar. Steps used:
 3. One live call: `docker run --rm -e SIFT_LLM_PROVIDER=qwen
    -e DASHSCOPE_API_KEY=... --entrypoint python3 sentinel-qwen:demo
    scripts/qwen_smoke.py` → `SENTINEL-QWEN-OK`.
-4. Capture the console Servers view with the instance **Running** (this file's
-   image), plus a short screen recording of the same view (covers the "short
-   recording" wording on the hackathon main page).
-5. Attach the same image to the Devpost "Proof of Deployment" question and
-   keep the instance running through judging.
+4. The console Servers view was captured with the instance **Running** (this
+   file's image); a short screen recording of the same view was captured for
+   the Devpost form (not committed to the repo).
+5. The same image was attached to the Devpost "Proof of Deployment" question;
+   the instance stays running through the judging period.
 
 </details>

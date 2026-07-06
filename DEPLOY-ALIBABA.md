@@ -113,7 +113,7 @@ Report artifacts can be pushed back to OSS after the run.
 ## 5) Run an investigation (on Qwen, on Alibaba Cloud)
 
 ```bash
-sudo ./setup.sh run /cases/evidence/<case>   # ONE line - image, key (.env), flags, read-only mount
+sudo ./setup.sh /cases/evidence/<case>   # ONE line - image, key (.env), flags, read-only mount
 ```
 Evidence is mounted **read-only** and SHA256-fingerprinted pre/post (chain of
 custody); the report lands in the run directory (and optionally OSS). The
@@ -137,18 +137,19 @@ setup."* A Model Studio / DashScope usage page does **not** meet this bar - the
 screenshot must show **compute (ECS or SAS) in the Running state** with this
 backend deployed on it.
 
-Capture and commit `docs/proof/alibaba-workbench.png`: deploy the repo on the
-instance (steps 1-5), run the agent there (at minimum `sudo ./setup.sh docker`
-plus one live `scripts/qwen_smoke.py` call), then screenshot the console
-Workbench Overview with the instance **Running**. Optionally add a short screen
-recording showing the run's `LIVE: ...` / HTTP 200 lines and the finished report
-(covers the older "short recording" wording on the main page).
+This was captured on 2026-07-06 and committed at
+[`docs/proof/alibaba-workbench.png`](docs/proof/README.md): the repo was
+deployed on the instance (steps 1-5: `./setup.sh docker` demo end-to-end plus a
+live `scripts/qwen_smoke.py` call - `SENTINEL-QWEN-OK`), and the console
+Servers view was screenshotted with the instance **Running**. A short screen
+recording of the same view was captured for the Devpost form (covers the older
+"short recording" wording on the main page).
 
-Then attach the screenshot to the Devpost "Proof of Deployment" question, link
-`llm_provider.py` as the code file, and **keep the instance running through the
-judging period (Jul 10-31)** - the FAQ says an Alibaba-hosted backend "enables
-live verification and direct execution testing during the validation period"
-and is an explicit evaluation plus-point.
+The screenshot is attached to the Devpost "Proof of Deployment" question with
+`llm_provider.py` as the code file, and **the instance stays running through
+the judging period (Jul 10-31)** - the FAQ says an Alibaba-hosted backend
+"enables live verification and direct execution testing during the validation
+period" and is an explicit evaluation plus-point.
 
 ---
 

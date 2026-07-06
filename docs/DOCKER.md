@@ -21,7 +21,7 @@ works too if scripts are enabled. Run just `.\setup.cmd` to be walked through it
 Handing the launcher your **case folder** builds the image on first use, reads
 your key from `.env` / the environment (or asks once, hidden), applies the
 verified-run config, adds the `.E01`/FUSE capabilities, mounts your evidence
-**read-only**, and saves the report to `sentinel-results\<case>\` on your machine.
+**read-only**, and saves the report to `sentinel-results/<case>/` on your machine.
 
 **Neither command assumes Docker is installed.** On **Linux**, if Docker is
 missing the script offers to install it (official `get.docker.com`), starts a

@@ -21,7 +21,7 @@ hallucinations the validator blocked before they reached the report.)*
   the deterministic validator verdicts, and the Step-13AA self-correction with
   per-finding reasoning), the interactive `summary_report.html`, and
   `run_summary.md` - so any claim is checkable in seconds. Reproduce with
-  `./setup.sh run /path/to/case`.
+  `./setup.sh /path/to/case`.
 
 ## How accuracy was assessed (methodology)
 
@@ -29,7 +29,9 @@ Accuracy here is **not self-graded by the model** - it is measured by determinis
 code checking the AI against real tool output, at four gates:
 
 1. **Merge** - the ensemble's 81 raw findings dedupe to 51 candidates on
-   structural artifact-identity keys, so the same evidence can't inflate the count.
+   structural artifact-identity keys, so the same evidence can't inflate the count
+   (3 deterministic candidate-semantic findings are then emitted after the merge,
+   `51 -> 54` entering validation - log gate `CANDIDATE_SEMANTIC_EMISSION`).
 2. **Validator** - every candidate is checked against the paired reference set
    built from raw tool output; a claim with no typed/validated backing is
    **blocked**, not trusted (22 blocked, routed onward, never dropped).
@@ -49,7 +51,8 @@ typed facts and the same gate decision on the confirmed set.
 ## The number that matters
 
 The 4-model ensemble produced **81 raw findings**, deterministically merged to
-**51 candidates**. The validator then checked every candidate against real tool
+**51 candidates** (plus 3 deterministic candidate-semantic emissions = **54**
+entering validation). The validator then checked every candidate against real tool
 output; **22 that lacked a typed/validated claim were blocked and routed to a
 final Step-13AA cross-check - never silently dropped.** That is the architecture
 working as designed: **code checks the AI; the AI never grades itself.** Every
@@ -66,15 +69,15 @@ surviving claim traces to real tool output.
 | Total findings / observations in report | 49 |
 | *Self-correction - ambiguous re-judged (Step-13AA · second SC layer)* | *46* |
 | *Self-correction - reclassified (Step-13AA)* | *39* |
-| *Self-corrected in total (ReAct layer 1 + 13AA layer 2)* | *40* |
+| *Self-corrected in total (ReAct layer 1 + 13AA layer 2)* | *43* |
 
 *(The last three rows are __process__ counts - how verdicts moved - not extra
 findings; the 49 above is the final, de-duplicated total.)*
 
 **Self-correction (ReAct + Step-13AA):** the agent re-judged **46** ambiguous
 findings and reclassified **39** of them (36 → suspicious/needs-review, 2 →
-confirmed, 1 → benign); **40** findings were self-corrected in total across the
-two passes. These are *process* counts (how the verdicts moved), not additional
+confirmed, 1 → benign); with the 4 distinct ReAct layer-1 overturns, **43**
+findings were self-corrected in total across the two passes. These are *process* counts (how the verdicts moved), not additional
 findings - the 49 above is the final, de-duplicated total.
 
 > 📄 **Every one of these corrections is enumerated** - both layers, before →
@@ -220,7 +223,7 @@ data) and enforced case-neutral by guard tests + a commit-time audit.
 
 On a held-out-style paired case the agent found the real attack end-to-end,
 blocked and re-routed 22 unsupported claims to a final cross-check (never
-silently dropped), and self-corrected 40 findings - clearing 5 to benign,
+silently dropped), and self-corrected 43 findings - clearing 5 to benign,
 including a signed forensic tool first flagged as a possible C2 listener - fully
 autonomously, in 8m 29s, for ~$15.45 (rd01 **Claude reference run** - live
 Qwen Cloud timings and costs are in [`docs/qwen-runs/`](qwen-runs/)), with
