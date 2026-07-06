@@ -640,14 +640,28 @@ def run_strings(file_path: str, encoding: str = "unicode") -> dict:
         _strings_timeout = int(os.environ.get("SIFT_STRINGS_TIMEOUT", "120") or "120")
     except (TypeError, ValueError):
         _strings_timeout = 120
+    _sift_strings_cap = int(os.environ.get("SIFT_STRINGS_MAX", "5000") or "5000")
+    _timed_out = False
     try:
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=_strings_timeout)
-        lines = [l for l in result.stdout.strip().split("\n") if l.strip()]
-        _sift_strings_cap = int(os.environ.get("SIFT_STRINGS_MAX", "5000") or "5000")
-        capped = lines if _sift_strings_cap <= 0 else lines[:_sift_strings_cap]
-        return make_envelope("strings", file_path, capped, ms)
-    except subprocess.TimeoutExpired:
-        return {"error": f"strings timed out after {_strings_timeout}s", "output": [], "record_count": 0}
+        _out = result.stdout or ""
+    except subprocess.TimeoutExpired as _te:
+        # SALVAGE: on a big image `strings` can exceed the cap, but the bytes it
+        # already emitted are valid strings. Keep them (up to SIFT_STRINGS_MAX)
+        # instead of dropping the whole result to zero. Dataset-agnostic: no case
+        # content, just "use what was produced before the wall-clock bound."
+        _timed_out = True
+        _out = _te.stdout or ""
+        if isinstance(_out, (bytes, bytearray)):
+            _out = _out.decode("utf-8", "replace")
+    lines = [l for l in _out.strip().split("\n") if l.strip()]
+    capped = lines if _sift_strings_cap <= 0 else lines[:_sift_strings_cap]
+    env = make_envelope("strings", file_path, capped, ms)
+    if _timed_out and isinstance(env, dict):
+        # Flag partiality for the record; the salvaged strings still flow to the DB.
+        env["partial"] = True
+        env["partial_reason"] = f"strings exceeded {_strings_timeout}s; kept {len(capped)} strings emitted before the cap"
+    return env
 
 
 def run_mftecmd(mft_path: str, output_csv: str = "/tmp/sift-sentinel-tools/mft.csv") -> dict:
