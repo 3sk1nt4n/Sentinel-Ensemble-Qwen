@@ -6,10 +6,10 @@
 ![Tests](https://img.shields.io/badge/pytest-4%2C700%2B%20passing-brightgreen)
 ![Evidence](https://img.shields.io/badge/Evidence-strictly%20read--only-critical)
 
-**Autonomous DFIR/SOC triage agent on Qwen Cloud (Alibaba DashScope) - Track 4
-Autopilot Agent. Deterministic trust layer: code, not the model, decides what
-is confirmed.**
-*(DFIR = Digital Forensics & Incident Response · SOC = Security Operations Center)*
+**Autonomous Digital Forensics & Incident Response / Security Operations
+Center (DFIR/SOC) triage agent on Qwen Cloud (Alibaba DashScope) - Track 4
+Autopilot Agent. Deterministic trust layer: code, not the LLM model, decides
+what is confirmed.**
 
 One Docker command, any OS: point it at Windows evidence (memory image, disk
 image, event logs) and it investigates end-to-end -

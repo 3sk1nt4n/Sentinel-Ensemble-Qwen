@@ -1,9 +1,10 @@
 # ARCHITECTURE.md
 
 **Sentinel Ensemble** - System Architecture
-Autonomous DFIR/SOC triage agent on Qwen Cloud (Alibaba DashScope) - Track 4
-Autopilot Agent. Deterministic trust layer: **code, not the model, decides
-what is confirmed.**
+Autonomous Digital Forensics & Incident Response / Security Operations Center
+(DFIR/SOC) triage agent on Qwen Cloud (Alibaba DashScope) - Track 4 Autopilot
+Agent. Deterministic trust layer: **code, not the LLM model, decides what is
+confirmed.**
 Global AI Hackathon with Qwen Cloud, Track 4 (Autopilot Agent) | Adil Eskintan
 *(internal Python package: `sift_sentinel`)*
 
