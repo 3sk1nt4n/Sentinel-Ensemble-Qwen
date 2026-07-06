@@ -647,7 +647,16 @@ def _parse_evtx_with_evtxecmd(evtx_dir, max_records: int):
                 logger.info("EvtxECmd produced no JSON (rc=%s); "
                             "falling back to python-evtx", r.returncode)
                 return None
-            records: list[dict] = []
+            # PER-CHANNEL caps (mirroring the python-evtx path) so the global
+            # cap never lets one chatty channel (Security, 73k+ records) starve
+            # another crown-jewel channel (System's 7045 service-installs, or
+            # PowerShell/WinRM/TaskScheduler). Each HV channel keeps up to
+            # SIFT_EVTX_HV_PER_CHANNEL_CAP, each other channel up to
+            # SIFT_EVTX_OTHER_PER_CHANNEL_CAP, then all concatenated (HV first).
+            _hv_cap = _sift_env_int("SIFT_EVTX_HV_PER_CHANNEL_CAP", 5000)
+            _other_cap = _sift_env_int("SIFT_EVTX_OTHER_PER_CHANNEL_CAP", 2000)
+            _by_chan: dict[str, list[dict]] = {}
+            _chan_hv: dict[str, bool] = {}
             with open(_jpath, "r", errors="replace") as _fh:
                 for _line in _fh:
                     _line = _line.strip()
@@ -659,20 +668,29 @@ def _parse_evtx_with_evtxecmd(evtx_dir, max_records: int):
                         continue
                     if not isinstance(rec, dict):
                         continue
+                    _chan = str(rec.get("Channel", "") or "")
+                    _is_hv = _chan in HIGH_VALUE_EVTX_CHANNELS
+                    _bucket = _by_chan.setdefault(_chan, [])
+                    _chan_hv[_chan] = _is_hv
+                    if len(_bucket) >= (_hv_cap if _is_hv else _other_cap):
+                        continue
                     try:
                         eid = int(rec.get("EventId", 0) or 0) & 0xFFFF
                     except (ValueError, TypeError):
                         eid = 0
-                    records.append({
+                    _bucket.append({
                         "EventID": eid,
                         "TimeCreated": str(rec.get("TimeCreated", "") or ""),
                         "Provider": str(rec.get("Provider", "") or ""),
-                        "Channel": str(rec.get("Channel", "") or ""),
+                        "Channel": _chan,
                         "Computer": str(rec.get("Computer", "") or ""),
                         "Message": _evtxecmd_message(rec.get("Payload", "")),
                     })
-                    if len(records) >= max_records:
-                        break
+            # HV channels first (so a global cap, if hit, keeps them), then others.
+            records = []
+            for _c in sorted(_by_chan, key=lambda c: (not _chan_hv[c], c)):
+                records.extend(_by_chan[_c])
+            records = records[:max_records]
     except (_sub.TimeoutExpired, OSError) as exc:
         logger.info("EvtxECmd failed (%s); falling back to python-evtx", exc)
         return None
