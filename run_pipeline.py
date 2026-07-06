@@ -4660,6 +4660,22 @@ try:
 except Exception as _actor2_exc:
     logger.warning("  WHO process/context resolution skipped: %s", _actor2_exc)
 
+# WHO-ATTRIBUTION (disk execution -> launching user): the two passes above only
+# see LIVE processes (vol_getsids token identity). A finding backed purely by
+# Amcache/AppCompatCache/MFT has no resident process, so it stayed blank even when
+# Security 4688 recorded which user launched that image. Join NewProcessName
+# basename -> SubjectUserName from 4688 for the still-blank findings. Universal:
+# EventID grammar + account-SID class + .exe path shape; never invents a user;
+# guarded by derive_actor()=="" so it never overwrites. Kill-switch SIFT_LOGON_ACTOR=0.
+try:
+    from sift_sentinel.analysis.logon_actor import resolve_actors_from_process_creation
+    _n_4688 = resolve_actors_from_process_creation(findings_final, _disp_evdb)
+    if _n_4688:
+        logger.info("  WHO-ATTRIBUTION(4688): resolved launching user for %d disk-execution findings", _n_4688)
+        print(f"{G}WHO-ATTRIBUTION: {_n_4688} by 4688 process-creation (image->launching user){X}", flush=True)
+except Exception as _actor3_exc:
+    logger.warning("  WHO 4688 resolution skipped: %s", _actor3_exc)
+
 _t = time.monotonic()
 _disposition_buckets = route_findings_for_report(
     findings_final,

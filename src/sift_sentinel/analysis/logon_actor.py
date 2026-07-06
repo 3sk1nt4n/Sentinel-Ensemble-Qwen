@@ -319,6 +319,103 @@ def enrich_findings_with_logon_context(findings, evidence_db) -> tuple[int, int]
     return n_user, n_service
 
 
+# ── 4688 process-creation -> launching user (attributes DISK-execution findings) ──
+# resolve_actors_from_sids / enrich_findings_with_logon_context only see live
+# processes (vol_getsids token identity). A finding backed purely by Amcache /
+# AppCompatCache / MFT has no resident process, so it stays "not attributed" even
+# when Security 4688 recorded WHICH user launched that image. This pass closes
+# that gap: it maps NewProcessName basename -> SubjectUserName from 4688 and
+# attributes any still-blank finding that references the same image. Structural
+# (EventID grammar + SID class + .exe path shape); no user/host/case literals.
+
+_SID_SHAPE_RE = re.compile(r"^S-1-\d[-\d]*$", re.IGNORECASE)
+
+
+def _looks_like_sid(s) -> bool:
+    return bool(_SID_SHAPE_RE.match(str(s or "").strip()))
+
+
+def _looks_like_exe_path(s) -> bool:
+    s = str(s or "").strip().lower()
+    return ("\\" in s or "/" in s) and s.endswith(".exe")
+
+
+def _parse_4688(fact) -> tuple[str, str, str]:
+    """(SubjectUserSid, SubjectUserName, NewProcessName-basename) from a 4688
+    event_log_fact, or ("","",""). Prefers the standard EventData positions
+    (SubjectUserSid[0], SubjectUserName[1], NewProcessName[5]) but validates each
+    by SHAPE and falls back to a structural scan (first user-SID + adjacent name;
+    first full .exe path = NewProcessName). Tolerant of ordering + the raw_excerpt
+    length cap. Universal; no case-specific tokens."""
+    parts, _ts = _parsed_message(fact)
+    if not parts:
+        return "", "", ""
+    sid = user = proc = ""
+    if len(parts) > 5 and _looks_like_sid(parts[0]) and _looks_like_exe_path(parts[5]):
+        sid, user, proc = parts[0].strip(), parts[1].strip(), parts[5].strip()
+    else:
+        for i, p in enumerate(parts):                    # first user SID + adjacent name
+            if _looks_like_sid(p):
+                sid = p.strip()
+                if i + 1 < len(parts):
+                    user = parts[i + 1].strip()
+                break
+        for p in parts:                                  # first full .exe path = NewProcessName
+            if _looks_like_exe_path(p):
+                proc = p.strip()
+                break
+    if not proc:
+        return "", "", ""
+    base = re.split(r"[\\/]", proc)[-1].strip().lower()
+    return (sid, user, base) if base.endswith(".exe") else ("", "", "")
+
+
+def build_launch_user_map_from_4688(evidence_db) -> dict:
+    """{process-basename -> launching human user} from Security 4688 New-Process
+    events. Only human launchers (``_is_user_sid`` + ``_ok_user``); service SIDs
+    (S-1-5-18/19/20) are dropped so we never call SYSTEM a "user". First human
+    launcher per image wins (stable). ``{}`` when disabled or none present."""
+    if not _enabled():
+        return {}
+    out: dict[str, str] = {}
+    for f in _event_facts(evidence_db):
+        if _event_id(f) != "4688":
+            continue
+        sid, user, base = _parse_4688(f)
+        if not base or not _is_user_sid(str(sid).lower()):
+            continue
+        clean = _clean_account_name(user)
+        if clean and _ok_user(clean):
+            out.setdefault(base, clean)
+    return out
+
+
+def resolve_actors_from_process_creation(findings, evidence_db) -> int:
+    """Attach the launching user (WHO) to still-blank findings by joining their
+    process image to Security 4688 SubjectUserName. Additive and guarded by
+    ``derive_actor(f)==""`` (never overwrites, never fabricates); returns the count
+    enriched. Universal; ``0`` when disabled or no 4688 user data exists."""
+    if not _enabled():
+        return 0
+    launch_user = build_launch_user_map_from_4688(evidence_db)
+    if not launch_user:
+        return 0
+    from sift_sentinel.analysis.finding_actor_time import derive_actor
+    enriched = 0
+    for f in (findings or []):
+        if not isinstance(f, dict) or derive_actor(f):
+            continue
+        for name in _finding_process_names(f):
+            user = launch_user.get(name)
+            if user:
+                f.setdefault("claims", []).append({
+                    "type": "user_account", "value": user,
+                    "source": "evt4688:SubjectUserName"})
+                enriched += 1
+                break
+    return enriched
+
+
 def summarize_logon_context(evidence_db) -> dict:
     """Structured summary for the report's WHO section:
     ``{"human_logons": [...], "logon_count": n, "any_service_only": bool}``.
