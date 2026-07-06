@@ -21,6 +21,11 @@ install; the image bundles **every** tool the agent calls (full guide:
 [`docs/DOCKER.md`](docs/DOCKER.md)). *Windows judges: open **PowerShell** and use
 `.\setup.cmd` (no setup needed). macOS/Linux: open the **Terminal** and use `./setup.sh`.*
 
+> **🆕 Brand-new computer?** Install **[Docker Desktop](https://www.docker.com/products/docker-desktop/)**
+> once (Windows: keep WSL2; macOS: pick Apple-chip or Intel, then open it once),
+> plus **Git**. That's the only setup - the image brings every forensic tool.
+> On **Linux**, `./setup.sh docker` even installs Docker for you.
+
 | Requirement | Version | Notes |
 |---|---|---|
 | **Docker** | current | the only prerequisite - and if it's missing, `./setup.sh docker` **offers to install it for you** (Linux: official script; Windows/macOS: it guides you to Docker Desktop). Demo image ~290 MB, full toolchain ~1 GB |

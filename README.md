@@ -37,7 +37,7 @@ tool execution that proved it.
 | Open-source license (MIT) | done | [`/LICENSE`](LICENSE) - detected by GitHub, visible in About |
 | Public code repository | done | [github.com/3sk1nt4n/Sentinel-Ensemble-Qwen](https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen) |
 | Text description | done | [`QWEN-SUBMISSION.md`](QWEN-SUBMISSION.md) + [What it does](#-what-it-does) |
-| Run instructions for judges | done | [Quick Start](#-quick-start) + [`JUDGE-QUICKSTART.md`](JUDGE-QUICKSTART.md) |
+| Run instructions for judges | done | [Run it - 3 steps](#-run-it---3-steps-any-computer) + [`JUDGE-QUICKSTART.md`](JUDGE-QUICKSTART.md) |
 | Proof of Deployment - code file + Base URL | done | [`src/sift_sentinel/llm_provider.py`](src/sift_sentinel/llm_provider.py) - live DashScope (Alibaba Cloud) HTTPS calls to `dashscope-intl.aliyuncs.com/compatible-mode/v1`; endpoint also recorded in [`docs/qwen-runs/`](docs/qwen-runs/) |
 | Proof of Deployment - Workbench screenshot | add before submit | capture per [`docs/proof/`](docs/proof/) + [`DEPLOY-ALIBABA.md`](DEPLOY-ALIBABA.md); attach to the Devpost "Proof of Deployment" question |
 | Architecture diagram | done | [`ARCHITECTURE.md`](ARCHITECTURE.md) + `ARCH_VERTICAL.png` (Qwen/DashScope inference box) |
@@ -66,64 +66,64 @@ model-agnostic; only the provider/tier differs.
 
 ---
 
-## 🐳 Run it (Docker, any OS)
+## 🚀 Run it - 3 steps, any computer
 
-**You need one thing: [Docker Desktop](https://www.docker.com/products/docker-desktop/)**
-(free). It bundles every forensic tool the agent calls, so there is nothing else
-to install.
+Everything runs in **Docker**, so the whole forensic toolchain (Volatility 3,
+Sleuth Kit, YARA, EZ Tools, Plaso, RegRipper, bulk_extractor, …) comes bundled -
+**nothing to install but Docker itself.** Follow the row for your computer.
 
-<details open>
-<summary><b>🆕 Brand-new computer with nothing installed? One-time setup (5 min)</b></summary>
+### 1️⃣ Install Docker Desktop (one time, ~5 min)
 
-| Your computer | Do this once |
-|---|---|
-| 🪟 **Windows** | Install **[Docker Desktop](https://www.docker.com/products/docker-desktop/)** (keep the WSL2 backend). Install **[Git](https://git-scm.com/download/win)**. Open **PowerShell**. |
-| 🍎 **macOS** | Install **[Docker Desktop](https://www.docker.com/products/docker-desktop/)** (pick Apple-chip or Intel to match your Mac), then **open Docker.app once**. Open **Terminal** and run `git --version` (macOS offers to install Git in one click). |
-| 🐧 **Linux** | Just open your **Terminal**. If Docker is missing, `./setup.sh docker` **installs it for you**. |
+| Your computer | Do this once | Then use |
+|---|---|---|
+| 🪟 **Windows** | Install **[Docker Desktop](https://www.docker.com/products/docker-desktop/)** (keep the WSL2 backend) + **[Git](https://git-scm.com/download/win)**. Open Docker Desktop once. | **PowerShell** |
+| 🍎 **macOS** | Install **[Docker Desktop](https://www.docker.com/products/docker-desktop/)** (pick **Apple-chip** or **Intel** to match your Mac). **Open Docker.app once.** Git installs in one click the first time you run it. | **Terminal** |
+| 🐧 **Linux** | Nothing - if Docker is missing, `./setup.sh docker` **installs it for you**. | **Terminal** |
 
-After that, everything is the two commands below. Nothing else to install, ever.
-</details>
+> ✅ You know Docker is ready when its **whale icon sits steady** (not animating).
 
-Pick your computer and copy the commands **one line at a time**.
+### 2️⃣ Get the code
 
-### 🪟 Windows - use **PowerShell**
-
-> Open **PowerShell** (Start menu → type "PowerShell" → Enter). Run each line separately.
-
+**🪟 Windows** - open **PowerShell**, run each line by itself:
 ```powershell
+cd $HOME\Desktop
 git clone https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen.git
 cd Sentinel-Ensemble-Qwen
-.\setup.cmd docker                      # 1) zero-cost demo (no key, no evidence, ~30 s)
-.\setup.cmd run C:\path\to\your\case    # 2) real investigation - ONE line does everything
 ```
 
-> **Use `.\setup.cmd`** (not `./setup.sh` - that's the Mac/Linux one and does
-> nothing on Windows). `.\setup.cmd` needs no setup and sidesteps PowerShell's
-> script policy. Prefer PowerShell-native? `.\setup.ps1 …` works too (if it says
-> "running scripts is disabled", run once:
-> `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned`).
-> Tip: run just `.\setup.cmd` with no arguments and it walks you through it.
-
-### 🍎 macOS / 🐧 Linux - use the **Terminal**
-
-> Open **Terminal** (macOS: Cmd+Space → "Terminal"; Linux: your terminal app). Run each line separately.
-
+**🍎 macOS / 🐧 Linux** - open the **Terminal**:
 ```bash
+cd ~
 git clone https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen.git
 cd Sentinel-Ensemble-Qwen
-./setup.sh docker                   # 1) zero-cost demo (no key, no evidence, ~30 s)
-./setup.sh run /path/to/your/case   # 2) real investigation - ONE line does everything
 ```
 
-### What command **2** does for you (any OS)
+### 3️⃣ Run it
 
-`setup` builds the toolchain image on first use (one time, ~15 min), reads your
-DashScope key from `.env` / the environment (or **asks once, hidden**), applies
-the verified-run flags, passes the `.E01`/FUSE capabilities, mounts your evidence
-**read-only**, launches the agent, and **saves the report to
-`sentinel-results\<case>\` on your machine**. On Linux, if Docker is missing it
-even offers to install it for you. Full guide (image targets, `.E01`/FUSE,
-Windows paths, all-Max env): [`docs/DOCKER.md`](docs/DOCKER.md).
+**🪟 Windows - PowerShell** (use **`.\setup.cmd`** - `./setup.sh` is the Mac/Linux one):
+```powershell
+.\setup.cmd docker                    # a) free demo - no key, no evidence (~30 s)
+.\setup.cmd run C:\path\to\your\case  # b) real investigation - ONE line does everything
+```
+
+**🍎 macOS / 🐧 Linux - Terminal:**
+```bash
+./setup.sh docker                   # a) free demo - no key, no evidence (~30 s)
+./setup.sh run /path/to/your/case   # b) real investigation - ONE line does everything
+```
+
+> 💡 **Don't have a path handy?** Run just **`.\setup.cmd`** (Windows) or
+> **`./setup.sh run`** (Mac/Linux) with nothing after it - it shows the banner,
+> explains what to drop in the folder, and **asks you to paste (or drag) your
+> evidence folder**. Just like the original.
+
+**What command (b) does for you:** builds the toolchain image on first use (one
+time, ~15 min), reads your DashScope key from `.env` / the environment (or
+**asks once, hidden**), applies the verified-run flags, passes the `.E01`/FUSE
+capabilities, mounts your evidence **read-only**, walks you through the
+**case card → depth → run**, and **saves the report to `sentinel-results\<case>\`
+on your machine** (open `report.md` or `summary_report_*.html`). Full guide:
+[`docs/DOCKER.md`](docs/DOCKER.md). Stuck? See [Troubleshooting](#-troubleshooting).
 
 <details>
 <summary>What the one line runs under the hood (manual docker commands)</summary>
@@ -221,40 +221,24 @@ authors; the pipeline is dataset-agnostic, so any Windows evidence works.)
 > 🔒 Evidence is mounted **strictly read-only** and SHA256-fingerprinted before
 > and after the run (chain of custody by math, not promises).
 
-## 🚀 Quick Start
+## 🎬 What you'll see when it runs
 
-> **Which command is mine?** 🪟 **Windows** (PowerShell): `.\setup.ps1 …` ·
-> 🍎🐧 **macOS/Linux** (Terminal): `./setup.sh …`. Everything below is identical
-> apart from that prefix.
+After you launch **command (b)** above, it walks you through everything - one
+line in, a finished report out:
 
-**🪟 Windows - PowerShell:**
-```powershell
-.\setup.cmd                               # guided - shows the walkthrough, asks for your evidence
-.\setup.cmd docker                        # zero-cost demo - no key, no evidence
-.\setup.cmd run C:\path\to\case           # real investigation - one line
-.\setup.cmd run -DryRun C:\path\to\case   # onboarding + printed plan only, nothing executed
-```
-
-**🍎🐧 macOS / Linux - Terminal:**
-```bash
-./setup.sh docker                        # zero-cost demo - no key, no evidence
-./setup.sh run /path/to/case             # real investigation - one line
-./setup.sh run --dry-run /path/to/case   # onboarding + printed plan only, nothing executed
-```
-
-A real run, start to finish - one line, two prompts:
-
-1. Run the **`run`** command above with the folder holding your memory/disk images.
-2. It scans the evidence and shows a **case card** (what it found, sizes, SHA256). Just read it.
-3. It asks the **analysis depth** - `1` (or Enter) = ⚡ HEAVY (the flagship model;
-   `qwen3.7-max` on the Qwen config) or `2` = 🪶 LIGHT (`qwen-plus`, cheaper). The
-   model per tier is env-driven (see [`.env.qwen.example`](.env.qwen.example)).
+1. A **fancy banner**, then it **probes your evidence** (memory vs disk, by
+   content not filename) and mounts the disk **read-only**.
+2. A **case card** - what it found, the OS, health, sizes, SHA256. Just read it.
+3. The **analysis depth** menu - press `1` (or Enter) for ⚡ **HEAVY**
+   (`qwen3.7-max`, deepest) or `2` for 🪶 **LIGHT** (`qwen-plus`, cheaper).
    **Choosing the depth launches the run.**
-4. The **API key** step - if you set it already (`.env` or `DASHSCOPE_API_KEY`)
-   it's forwarded automatically; otherwise `./setup.sh run` asks once at a hidden
-   prompt (never echoed, logged, or saved - and never baked into the image).
-5. Wait minutes, not hours. Touch nothing.
-6. Read the report - every finding links to the exact tool execution that proved it.
+4. The **🔑 API key** step - if it's in `.env` / your environment it's used
+   automatically; otherwise you're asked **once, at a hidden prompt** (never
+   echoed, logged, saved, or baked into the image).
+5. Then **touch nothing** - minutes, not hours.
+6. Your **report lands on your machine** in `sentinel-results\<case>\`
+   (`report.md` + the interactive `summary_report_*.html`). Every finding links
+   to the exact tool execution that proved it.
 
 Inside the container the launcher is `findevil.sh` (the image's entrypoint);
 contributors hacking on the code natively: see [`ONBOARDING.md`](ONBOARDING.md).
