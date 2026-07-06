@@ -6716,7 +6716,14 @@ try:
     if _html_report_path:
         _abs_html_rep = str(Path(_html_report_path).resolve())
         _rep_rows.append(("Interactive report", _abs_html_rep, "cyan"))
-        _rep_rows.append(("  open it with", "firefox " + _abs_html_rep, "green"))
+        # OS-neutral: this runs INSIDE the container, so a specific browser binary
+        # (firefox) may not exist on the operator's host. Just say "open in a browser".
+        _rep_rows.append(("  open it", "in any web browser", "green"))
+    # When persisting to a bind-mounted host dir (Docker via setup.sh/.cmd), the
+    # paths above are IN-CONTAINER. The same files are copied to the operator's
+    # machine; point there so nobody tries to `cat /app/reports/...` on the host.
+    if os.environ.get("SIFT_PERSIST_DIR"):
+        _rep_rows.append(("On your machine", "the results folder you passed (see the launcher's final line)", "green"))
     from sift_sentinel.reporting.reports_box import render_reports_box
     print("\n" + render_reports_box(_rep_rows, color=bool(_TTY)), flush=True)
     if _SESSION_TRANSCRIPT_FH is not None:
@@ -7102,8 +7109,9 @@ try:
     print(f"\n{M}{B}STEP 18: HTML SUMMARY REPORT (open in browser){X}")
     print(f"  Report:     {html_path}")
     print(f"  Full path:  {Path(html_path).resolve()}")
-    print(f"  Open:       firefox {html_path}")
-    print(f"  Copy to PC: scp sansforensics@<VM_IP>:{Path(html_path).resolve()} ~/Desktop/")
+    print(f"  Open:       in any web browser")
+    if os.environ.get("SIFT_PERSIST_DIR"):
+        print(f"  On your PC: in the results folder you passed (the launcher prints its exact path below)")
     logger.info("Step 18: HTML report saved to %s", html_path)
     # Patch the HTML path into the Artifacts box of BOTH run_summary.md
     # copies (the box is written at Step 16, before this path exists).

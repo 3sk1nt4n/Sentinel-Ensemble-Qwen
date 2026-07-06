@@ -282,9 +282,30 @@ if ($Mode -eq 'run' -or $Mode -eq '') {
         sentinel-qwen @pass /evidence
     $rc = $LASTEXITCODE
 
-    if ((Test-Path (Join-Path $Out 'report.md')) -or (Get-ChildItem $Out -Filter 'incident_report_*.md' -ErrorAction SilentlyContinue)) {
-        Write-Host "`n  OK  Report saved on your machine: $Out" -ForegroundColor Green
-        Write-Host "      open report.md (narrative) or summary_report_*.html (one-page view)`n"
+    # Show the ACTUAL deliverables on THIS machine + the exact open command.
+    # (The container's REPORTS box shows /app/reports/... - those are INSIDE the
+    # container. The real files are here, and `ii` opens them with your default app.)
+    $html = Get-ChildItem $Out -Filter 'summary_report_*.html' -ErrorAction SilentlyContinue | Sort-Object Name | Select-Object -Last 1
+    $md   = Get-ChildItem $Out -Filter 'incident_report_*.md'  -ErrorAction SilentlyContinue | Sort-Object Name | Select-Object -Last 1
+    if (-not $md) { $md = Get-ChildItem $Out -Filter 'report.md' -ErrorAction SilentlyContinue | Select-Object -First 1 }
+    if ($html -or $md) {
+        Write-Host "`n  ============================================================" -ForegroundColor Green
+        Write-Host "   REPORTS ARE ON YOUR MACHINE (ignore the /app/reports paths" -ForegroundColor Green
+        Write-Host "   above - those were inside the container). Open them here:" -ForegroundColor Green
+        Write-Host "  ============================================================" -ForegroundColor Green
+        Write-Host "   Folder:  $Out"
+        if ($html) {
+            Write-Host "`n   Interactive report (recommended - opens in your browser):" -ForegroundColor White
+            Write-Host "     ii `"$($html.FullName)`"" -ForegroundColor Cyan
+        }
+        if ($md) {
+            Write-Host "`n   Narrative report:" -ForegroundColor White
+            Write-Host "     ii `"$($md.FullName)`"" -ForegroundColor Cyan
+        }
+        Write-Host "`n   (or just open the folder:  ii `"$Out`" )`n"
+    }
+    else {
+        Write-Host "`n  WARN No report file found in $Out (the run may have exited early)." -ForegroundColor Yellow
     }
     exit $rc
 }

@@ -2085,16 +2085,48 @@ def _psscan_fallback(mandatory: dict[str, dict]) -> dict[str, dict]:
 _STEP6_WORKER_MAX = 16
 
 
+def _effective_cpu_count() -> int:
+    """CPUs the CONTAINER may actually use, not the host/VM total. Respects the
+    cpuset (sched_getaffinity) and the cgroup CFS quota (`docker run --cpus`), so a
+    Docker-Desktop-throttled container does not size 16 heavy vol3 workers onto a
+    few real CPUs. Degrades OPEN to os.cpu_count() when the cgroup files are absent
+    (bare metal / CI) -- so the core-aware contract test is unchanged there. Never
+    raises. Universal (host-shaped, not case-shaped)."""
+    n = os.cpu_count() or 1
+    try:
+        n = len(os.sched_getaffinity(0)) or n            # respects --cpuset-cpus
+    except (AttributeError, OSError):
+        pass
+    try:                                                 # cgroup v2 CFS quota
+        with open("/sys/fs/cgroup/cpu.max") as _f:
+            _parts = _f.read().split()
+            if _parts and _parts[0] != "max":
+                _period = float(_parts[1]) if len(_parts) > 1 else 100000.0
+                n = min(n, max(1, int(float(_parts[0]) / _period)))
+    except (OSError, ValueError, ZeroDivisionError):
+        try:                                             # cgroup v1 fallback
+            with open("/sys/fs/cgroup/cpu/cpu.cfs_quota_us") as _fq, \
+                 open("/sys/fs/cgroup/cpu/cpu.cfs_period_us") as _fp:
+                _q = int(_fq.read().strip()); _p = int(_fp.read().strip())
+                if _q > 0 and _p > 0:
+                    n = min(n, max(1, _q // _p))
+        except (OSError, ValueError):
+            pass
+    return max(1, n)
+
+
 def _step6_default_max_workers() -> int:
-    """Core-aware default: min(host CPUs, 16), at least 1.
+    """Core-aware default: min(container CPUs, 16), at least 1.
 
     Optional floor SIFT_STEP6_MIN_WORKERS (default UNSET = pure core-aware) lets a
     deployment guarantee >=N workers on a low/mis-reported cpu_count box -- e.g. a
     4-core VM that wants 8 slots so the heavy-first poles plus the light high-value
     backfill tools all run concurrently instead of queueing. The floor is itself
     clamped to the 16 ceiling. UNSET keeps the legacy min(cpu,16) exactly (so the
-    core-aware contract test holds); the launcher sets the floor where RAM allows."""
-    base = max(1, min(int(os.cpu_count() or 1), _STEP6_WORKER_MAX))
+    core-aware contract test holds); the launcher sets the floor where RAM allows.
+    Uses the cgroup-aware effective CPU count so a throttled container is not
+    over-subscribed from the WSL2 VM's core total."""
+    base = max(1, min(_effective_cpu_count(), _STEP6_WORKER_MAX))
     floor_raw = os.environ.get("SIFT_STEP6_MIN_WORKERS")
     if floor_raw is not None:
         try:

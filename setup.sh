@@ -254,9 +254,23 @@ if [ "$RUN" = 1 ]; then
   _rc=$?
   # Container may write /out as root (sudo docker); hand it back to the user.
   [ -d "$OUT" ] && ${DOCKER%docker}chown -R "$(id -u):$(id -g)" "$OUT" 2>/dev/null || true
-  if [ -s "$OUT/report.md" ] || ls "$OUT"/incident_report_*.md >/dev/null 2>&1; then
-    printf "\n  ${G}${B}✅  Report saved on your machine:${X} %s\n" "$OUT"
-    printf "     open ${B}report.md${X} (narrative) or ${B}summary_report_*.html${X} (one-page view)\n\n"
+  # Show the ACTUAL deliverables on THIS machine + the exact open command. The
+  # container's REPORTS box shows /app/reports/... (in-container); the real files
+  # are here. Pick the host's opener: macOS `open`, Linux `xdg-open`.
+  _html="$(ls -1 "$OUT"/summary_report_*.html 2>/dev/null | sort | tail -1)"
+  _md="$(ls -1 "$OUT"/incident_report_*.md 2>/dev/null | sort | tail -1)"; [ -n "$_md" ] || _md="$OUT/report.md"
+  _opener="xdg-open"; [ "$(uname)" = "Darwin" ] && _opener="open"
+  if [ -n "$_html" ] || [ -s "$_md" ]; then
+    printf "\n  ${G}============================================================${X}\n"
+    printf "  ${G}${B} REPORTS ARE ON YOUR MACHINE${X} (ignore the /app/reports paths\n"
+    printf "  ${G} above - those were inside the container). Open them here:${X}\n"
+    printf "  ${G}============================================================${X}\n"
+    printf "   Folder:  %s\n" "$OUT"
+    [ -n "$_html" ] && printf "\n   Interactive report (opens in your browser):\n     ${C}%s \"%s\"${X}\n" "$_opener" "$_html"
+    [ -s "$_md" ]   && printf "\n   Narrative report:\n     ${C}%s \"%s\"${X}\n" "$_opener" "$_md"
+    printf "\n   (or just open the folder:  %s \"%s\" )\n\n" "$_opener" "$OUT"
+  else
+    printf "\n  ${Y}WARN${X} no report file found in %s (the run may have exited early).\n" "$OUT"
   fi
   exit $_rc
 fi

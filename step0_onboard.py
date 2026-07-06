@@ -278,7 +278,7 @@ def mode_launch_env(mode: dict) -> dict:
     # cap. rec = min(2*cpu, avail_GB/1.25, 16): a 4-core/12GB VM gets 8 workers (was
     # core-bound at 4); peak 8*1.25=10GB < 12GB, no OOM. Only set when it beats the
     # bare core count (else the code stays core-aware).
-    _cpu = os.cpu_count() or 1
+    _cpu = _effective_cpu_count()
     _avail = _onboard_avail_ram_gb()
     if _avail >= 4.0:
         _rec_workers = max(1, min(2 * _cpu, int(_avail / 1.25), 16))
@@ -290,17 +290,65 @@ def mode_launch_env(mode: dict) -> dict:
     return env
 
 
+def _effective_cpu_count() -> int:
+    """CPUs the CONTAINER may actually use, not the host/VM total. Respects the
+    cpuset (sched_getaffinity) and the cgroup CFS quota (`docker run --cpus`).
+    Degrades OPEN to os.cpu_count() when cgroup files are absent (bare metal / CI),
+    so the core-aware contract is unchanged off-container. Never raises.
+
+    Rationale: on Docker Desktop, os.cpu_count() reports the WSL2 VM's cores, so a
+    throttled container would size 16 heavy vol3 workers onto a few real CPUs
+    (contention + OOM risk). Sizing to the real grant is universal, not per-case."""
+    n = os.cpu_count() or 1
+    try:
+        n = len(os.sched_getaffinity(0)) or n            # respects --cpuset-cpus
+    except (AttributeError, OSError):
+        pass
+    try:                                                 # cgroup v2 CFS quota
+        with open("/sys/fs/cgroup/cpu.max") as _f:
+            _parts = _f.read().split()
+            if _parts and _parts[0] != "max":
+                _period = float(_parts[1]) if len(_parts) > 1 else 100000.0
+                n = min(n, max(1, int(float(_parts[0]) / _period)))
+    except (OSError, ValueError, ZeroDivisionError):
+        try:                                             # cgroup v1 fallback
+            with open("/sys/fs/cgroup/cpu/cpu.cfs_quota_us") as _fq, \
+                 open("/sys/fs/cgroup/cpu/cpu.cfs_period_us") as _fp:
+                _q = int(_fq.read().strip()); _p = int(_fp.read().strip())
+                if _q > 0 and _p > 0:
+                    n = min(n, max(1, _q // _p))
+        except (OSError, ValueError):
+            pass
+    return max(1, n)
+
+
 def _onboard_avail_ram_gb() -> float:
-    """Available RAM in GiB (Linux /proc/meminfo); 0.0 if unreadable. Used only to
-    decide whether the Step-6 Vol3 floor is safe -- never raises."""
+    """Available RAM in GiB the CONTAINER may use: min(/proc/meminfo MemAvailable,
+    cgroup memory limit). 0.0 if unreadable. Used only to decide whether the Step-6
+    Vol3 worker floor is safe -- never raises. Cgroup-aware so we don't size for
+    WSL2 VM RAM the container can't touch (universal, not per-case)."""
+    _avail = 0.0
     try:
         with open("/proc/meminfo") as _mf:
             for _ln in _mf:
                 if _ln.startswith("MemAvailable:"):
-                    return int(_ln.split()[1]) / (1024 * 1024)
+                    _avail = int(_ln.split()[1]) / (1024 * 1024)
+                    break
     except (OSError, ValueError, IndexError):
         pass
-    return 0.0
+    for _path in ("/sys/fs/cgroup/memory.max",                     # cgroup v2
+                  "/sys/fs/cgroup/memory/memory.limit_in_bytes"):  # cgroup v1
+        try:
+            with open(_path) as _mf:
+                _raw = _mf.read().strip()
+            if _raw and _raw != "max":
+                _lim = int(_raw) / (1024 ** 3)
+                if 0 < _lim < 1_000_000:          # ignore the ~2^63 "unlimited" sentinel
+                    _avail = min(_avail, _lim) if _avail > 0 else _lim
+            break
+        except (OSError, ValueError):
+            continue
+    return _avail
 
 
 def _ensemble_size_default() -> int:
