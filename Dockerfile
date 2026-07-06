@@ -83,8 +83,10 @@ FROM base AS demo
 FROM base AS full
 RUN apt-get update && apt-get install -y --no-install-recommends \
         sleuthkit ewf-tools libewf-dev yara fuse3 util-linux procps ca-certificates \
-        sudo ntfs-3g dmsetup \
+        sudo ntfs-3g dmsetup binutils \
     && rm -rf /var/lib/apt/lists/*
+# binutils provides `strings`, which get_amcache uses to pull execution-history
+# SHA1s out of Amcache.hve - the atomic-proof source the confirm floor needs.
 RUN pip install volatility3==2.28.0
 
 # ---- full-plus target (DEFAULT): full + every high-value tool ----------
@@ -120,8 +122,12 @@ RUN apt-get update \
  && apt-get purge -y git && apt-get autoremove -y \
  && rm -rf /var/lib/apt/lists/*
 
-# EZ Tools: EvtxECmd + RECmd via the .NET 9 runtime. Pipeline calls the BARE
-# names on PATH, so install wrapper scripts named exactly EvtxECmd / RECmd.
+# EZ Tools via the .NET 9 runtime. The pipeline calls the BARE tool names on
+# PATH, so install a wrapper script named exactly like each tool's .dll.
+# These feed the CONFIRM path: AmcacheParser/AppCompatCacheParser give the
+# execution+hash atomic proof, SrumECmd the network-usage corroboration,
+# LECmd/JLECmd the LNK/jumplist activity. Missing them silently caps every
+# run at 0 confirmed on cases whose proof lives on disk (regression fix).
 ENV DOTNET_ROOT=/opt/dotnet \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \
     DOTNET_NOLOGO=1 \
@@ -133,13 +139,13 @@ RUN set -eux; \
     chmod +x /tmp/dotnet-install.sh; \
     /tmp/dotnet-install.sh --channel 9.0 --runtime dotnet --install-dir /opt/dotnet --no-path; \
     mkdir -p /opt/zimmermantools; cd /opt/zimmermantools; \
-    curl -fsSL -o EvtxECmd.zip https://download.ericzimmermanstools.com/net9/EvtxECmd.zip; \
-    curl -fsSL -o RECmd.zip    https://download.ericzimmermanstools.com/net9/RECmd.zip; \
-    unzip -q -o EvtxECmd.zip; unzip -q -o RECmd.zip; rm -f EvtxECmd.zip RECmd.zip; \
-    EVTX_DLL="$(find /opt/zimmermantools -iname EvtxECmd.dll | head -1)"; \
-    RECMD_DLL="$(find /opt/zimmermantools -iname RECmd.dll | head -1)"; \
-    printf '#!/bin/sh\nexec /opt/dotnet/dotnet "%s" "$@"\n' "$EVTX_DLL" > /usr/local/bin/EvtxECmd; \
-    printf '#!/bin/sh\nexec /opt/dotnet/dotnet "%s" "$@"\n' "$RECMD_DLL" > /usr/local/bin/RECmd; \
-    chmod +x /usr/local/bin/EvtxECmd /usr/local/bin/RECmd; \
+    for t in EvtxECmd RECmd AmcacheParser AppCompatCacheParser SrumECmd LECmd JLECmd; do \
+        curl -fsSL -o "$t.zip" "https://download.ericzimmermanstools.com/net9/$t.zip"; \
+        unzip -q -o "$t.zip"; rm -f "$t.zip"; \
+        dll="$(find /opt/zimmermantools -iname "$t.dll" | head -1)"; \
+        [ -n "$dll" ] || { echo "FATAL: $t.dll not found after unzip" >&2; exit 1; }; \
+        printf '#!/bin/sh\nexec /opt/dotnet/dotnet "%s" "$@"\n' "$dll" > "/usr/local/bin/$t"; \
+        chmod +x "/usr/local/bin/$t"; \
+    done; \
     test -f /opt/zimmermantools/RECmd/BatchExamples/Kroll_Batch.reb; \
     rm -rf /tmp/dotnet-install.sh /var/lib/apt/lists/*

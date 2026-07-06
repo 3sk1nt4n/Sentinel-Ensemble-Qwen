@@ -188,6 +188,8 @@ image with the documented FUSE capabilities (verified 2026-07-05).
 | File carving | `photorec` (testdisk) | - | - | ✅ |
 | Windows event logs | `EvtxECmd` (.NET 9) | - | - | ✅ |
 | Windows registry | `RECmd` (.NET 9) + `rip.pl` (RegRipper) | - | - | ✅ |
+| Execution history (confirm path) | `AmcacheParser` · `AppCompatCacheParser` (.NET 9) + `strings` | - | - | ✅ |
+| Network usage / LNK / jumplists | `SrumECmd` · `LECmd` · `JLECmd` (.NET 9) | - | - | ✅ |
 | Super-timeline / log collection | `log2timeline.py` (Plaso) | - | - | ✅ |
 | PST/OST email | `pffexport` | - | - | ✅ |
 
