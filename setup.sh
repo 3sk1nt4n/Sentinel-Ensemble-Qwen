@@ -288,7 +288,7 @@ if [ "$DOCKER_MODE" = 1 ]; then
   $DOCKER run --rm sentinel-qwen:demo || { printf "  ${R}FAIL${X} demo run failed\n"; exit 1; }
   printf "\n  ${G}${B}✅  Docker demo works.${X}\n"
   printf "  ${B}Real investigation on Qwen Cloud - ONE line:${X}\n"
-  printf "    ./setup.sh run /path/to/case   ${Y}# image, key, flags, read-only mount: all handled${X}\n"
+  printf "    ./setup.sh /path/to/case   ${Y}# image, key, flags, read-only mount: all handled${X}\n"
   printf "    (key from .env or a hidden prompt - get one at home.qwencloud.com/api-keys)\n"
   printf "    Full guide: docs/DOCKER.md\n\n"
   exit 0
@@ -408,7 +408,7 @@ if [ $FAIL -eq 0 ]; then
   printf "\n  ${G}${B}=============================================================${X}\n"
   printf "  ${G}${B}  OK - ready for the demo and the tests.${X}\n"
   printf "  ${G}${B}  Next:  ./findevil.sh --demo       ${X}${G}(zero cost, no key)${X}\n"
-  printf "  ${G}${B}  Live:  ./setup.sh run /path/to/case  ${X}${G}(ONE line, Docker; key from .env or a hidden prompt)${X}\n"
+  printf "  ${G}${B}  Live:  ./setup.sh /path/to/case  ${X}${G}(ONE line, Docker; key from .env or a hidden prompt)${X}\n"
   printf "  ${G}${B}=============================================================${X}\n"
   [ "$WARN" -gt 0 ] && printf "  (%d optional note(s) above - fine to ignore for the demo/judge path)\n" "$WARN"
   printf "\n"
