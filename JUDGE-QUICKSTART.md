@@ -5,7 +5,8 @@ Security Operations Center (DFIR/SOC) triage agent on Qwen Cloud (Alibaba
 DashScope) · Track 4 Autopilot Agent · deterministic trust layer: **code, not
 the LLM model, decides what is confirmed**
 Author: Adil Eskintan · Repo: github.com/3sk1nt4n/Sentinel-Ensemble-Qwen
-*(internal Python package name: `sift_sentinel`)*
+*(the engine's internal Python package keeps its historical name `sift_sentinel`;
+the product is Sentinel Ensemble)*
 
 Five minutes from clone to a verified end-to-end demo (**no evidence, no API
 key** - `./setup.sh docker`, §2). A real investigation **on Qwen models hosted
@@ -24,7 +25,7 @@ install; the image bundles **every** tool the agent calls (full guide:
 | **Docker Desktop** | current | the only prerequisite - demo image ~290 MB, full toolchain image ~1 GB |
 | Host resources | **≥ 8 GB RAM · ≥ 80 GB disk** | the run copies evidence to scratch and writes GBs of tool output; keep several × the evidence size free (hard floor 1 GB, override `SIFT_RUN_MIN_FREE_MB`) |
 | Qwen Cloud API key | DashScope / Model Studio | request the **$40 hackathon voucher**; create an API key in Model Studio (see §3). (`--demo` needs none.) |
-| Evidence | - | memory (`.img`/`.raw`/`.vmem`/`.mem`) and/or disk (`.E01`) in one folder - **free verified public cases in §4** |
+| Evidence | - | memory (`.img`/`.raw`/`.vmem`/`.mem`) and/or disk (`.E01`) in one folder (exported `.evtx` event logs ride along) - **free verified public cases in §4** |
 
 ---
 
@@ -77,8 +78,9 @@ time and **never echoed, logged, or written to disk** by the pipeline.
 ## 4️⃣ Run a real investigation
 
 > **Need a case?** Any Windows memory (`.img`/`.raw`/`.vmem`/`.mem`) and/or disk
-> (`.E01`) evidence in one folder works. Free, direct-download public cases
-> (no login; links verified 2026-07-05):
+> (`.E01`) evidence in one folder works (exported `.evtx` event logs in the same
+> folder are picked up too). Free, direct-download public cases (no login; links
+> verified 2026-07-05):
 >
 > | Case | Shape | Size |
 > |---|---|---|
@@ -119,8 +121,9 @@ What happens next (a couple of prompts, then it runs):
    `qwen3.7-max` on the Qwen config), `2` = 🪶 LIGHT (`qwen-plus`, cheaper). The
    model per tier is env-driven (see [`.env.qwen.example`](.env.qwen.example)).
    **Choosing the depth launches the run.**
-3. The **`🔑 API key`** step - if you set `DASHSCOPE_API_KEY` (file or env, §3)
-   it's used automatically; otherwise paste it at the **hidden prompt**.
+3. The **`🔑 API key`** step - if you configured it in §3 (`.env` or
+   `DASHSCOPE_API_KEY`), `./setup.sh run` forwards it automatically; otherwise
+   it asks once at a **hidden prompt** (never echoed, logged, or stored).
 4. Then touch nothing - minutes, not hours.
 
 <details>
@@ -184,6 +187,11 @@ PWDumpX credential dumping, an IFEO `sethc.exe` sticky-keys backdoor, `p.exe` fr
 a temp dir). **The trust layer is the constant; the model tier just changes how
 much clears the bar.**
 
+A **July 1 reproduction** re-confirmed the chain (3 confirmed / 0 inconclusive
+- normal model non-determinism), and a **flags-off ablation** on the same case
+measured the trust layer directly (1 confirmed / 11 inconclusive without it).
+All **four** run JSONs are shipped in [`docs/qwen-runs/`](docs/qwen-runs/).
+
 <details><summary>Earlier Claude reference run (architecture-proving, local / not committed)</summary>
 
 Before the Qwen port, the same architecture was proven end-to-end on a Claude
@@ -199,13 +207,25 @@ are model-agnostic - only the provider/tier differs.
 
 ## 7️⃣ Verify the claims yourself
 
-Focused, green proofs of the core guarantees (each runs in seconds):
+Focused, green proofs of the core guarantees (each runs in seconds). No local
+Python needed - the demo image from §2 carries the tests and the audit:
+
+```bash
+docker run --rm --entrypoint python3 sentinel-qwen:demo -m pytest -q tests/test_llm_provider.py   # Qwen/DashScope seam - 17 pass, 1 skip (the skip needs the optional anthropic fallback pkg)
+docker run --rm --entrypoint python3 sentinel-qwen:demo audit/nocheat.py   # dataset-agnostic gate -> NO_CHEAT_AUDIT_PASS
+```
+
+<details>
+<summary>Native equivalents (dev checkout with Python 3.10+)</summary>
+
 ```bash
 PYTHONPATH=src python3 -m pytest -q tests/test_llm_provider.py           # Qwen/DashScope seam (18)
 PYTHONPATH=src python3 -m pytest -q tests/test_agnostic_contract.py \
     tests/test_onboard_agnostic.py tests/test_secret_input_guard.py      # dataset-agnostic + no-secret guards
 python3 audit/nocheat.py                                                 # dataset-agnostic gate -> NO_CHEAT_AUDIT_PASS
 ```
+
+</details>
 
 > The full suite is large and green by default: `pytest tests/ -q` -> **4,700+
 > passed, 0 failed** (~2 min). A batch of legacy forensic-parser tests that went
@@ -235,6 +255,8 @@ After a run, the judge-facing invariants:
 
 | Symptom | What it means |
 |---|---|
+| `docker` not found / daemon not running | install + start **Docker Desktop** (docker.com), then re-run `./setup.sh docker` |
+| `.E01` disk won't mount | run via `./setup.sh run` - it passes the required FUSE capabilities automatically (manual flags: [`docs/DOCKER.md`](docs/DOCKER.md) §3) |
 | "Vol3 ISF profile not found" | Volatility 3 can't identify the memory image OS - the pipeline falls back to profile-independent scanning. Expected on some evidence sets. |
 | "SSDT trust: degraded" | the kernel-integrity check found hooked/unresolvable entries - memory-based confidence is capped at MEDIUM. A feature, not a bug. |
 | "DashScope HTTP 429" | DashScope rate limit on the parallel 4-model ensemble - the client retries with backoff (429/5xx); if it persists, pace the run or check your Model Studio quota. |
