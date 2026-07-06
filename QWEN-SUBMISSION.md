@@ -218,7 +218,7 @@ Python.
 | Proof-of-Alibaba-Cloud code file | done (`llm_provider.py`) |
 | Architecture diagram (Qwen box) | done (`ARCH_VERTICAL.png`) |
 | **Live Qwen runs + artifacts** | **done** - see "Verified Qwen Cloud runs" below |
-| Demo video (<3 min, YouTube) | built (`docs/sentinel-qwen-demo.mp4`, 2:52, title-card intro + the 0-vs-4 two-tier reveal + real run output from both runs, closing on the spelled-out DFIR card credited "Built by Adil Eskintan"). **Hosted link:** `<ADD-YOUTUBE-URL>` - upload to **YouTube** (the official FAQ accepts public or unlisted; we publish **Public**) and paste on the Devpost form before submitting |
+| Demo video (<3 min, YouTube) | built (`docs/sentinel-qwen-demo.mp4`, 2:52, title-card intro + the 0-vs-4 two-tier reveal + real run output from both runs, closing on the spelled-out DFIR card credited "Built by Adil Eskintan"; run footage predates the rename - on-screen banners read "SIFT Sentinel", the engine's former name). **Hosted link:** `<ADD-YOUTUBE-URL>` - upload to **YouTube** (the official FAQ accepts public or unlisted; we publish **Public**) and paste on the Devpost form before submitting |
 | Proof of Deployment on Alibaba Cloud | code-file + Base URL: **done** (`llm_provider.py`; endpoint also in `docs/qwen-runs/`). Workbench screenshot: add to `docs/proof/` before submitting (runbook: `DEPLOY-ALIBABA.md`) |
 | Legacy-doc reframe to Track 4 | done |
 
