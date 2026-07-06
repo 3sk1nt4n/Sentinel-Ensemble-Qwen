@@ -77,9 +77,13 @@ ensure_docker() {
           printf "         Manual guide: https://docs.docker.com/engine/install/\n"; exit 1; }
         ;;
       Darwin)
-        printf "  ${B}macOS:${X} install Docker Desktop: ${B}https://www.docker.com/products/docker-desktop/${X}\n"
-        command -v brew >/dev/null 2>&1 && printf "         (or: ${B}brew install --cask docker${X}, then open Docker.app once)\n"
-        printf "         Then re-run this command.\n"; exit 1
+        printf "  ${B}macOS - one-time setup:${X}\n"
+        printf "    1) Download Docker Desktop:  ${B}https://www.docker.com/products/docker-desktop/${X}\n"
+        printf "       (pick Apple chip or Intel chip to match your Mac)\n"
+        command -v brew >/dev/null 2>&1 && printf "       or, if you have Homebrew:  ${B}brew install --cask docker${X}\n"
+        printf "    2) Open ${B}Docker.app${X} once and wait for the whale icon to go steady.\n"
+        printf "    3) Come back to this Terminal and re-run:  ${B}./setup.sh docker${X}\n"
+        exit 1
         ;;
       *)
         printf "  ${B}Windows:${X} install Docker Desktop (WSL2 backend): ${B}https://www.docker.com/products/docker-desktop/${X}\n"

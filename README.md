@@ -70,7 +70,21 @@ model-agnostic; only the provider/tier differs.
 
 **You need one thing: [Docker Desktop](https://www.docker.com/products/docker-desktop/)**
 (free). It bundles every forensic tool the agent calls, so there is nothing else
-to install. Pick your computer and copy the commands **one line at a time**.
+to install.
+
+<details open>
+<summary><b>🆕 Brand-new computer with nothing installed? One-time setup (5 min)</b></summary>
+
+| Your computer | Do this once |
+|---|---|
+| 🪟 **Windows** | Install **[Docker Desktop](https://www.docker.com/products/docker-desktop/)** (keep the WSL2 backend). Install **[Git](https://git-scm.com/download/win)**. Open **PowerShell**. |
+| 🍎 **macOS** | Install **[Docker Desktop](https://www.docker.com/products/docker-desktop/)** (pick Apple-chip or Intel to match your Mac), then **open Docker.app once**. Open **Terminal** and run `git --version` (macOS offers to install Git in one click). |
+| 🐧 **Linux** | Just open your **Terminal**. If Docker is missing, `./setup.sh docker` **installs it for you**. |
+
+After that, everything is the two commands below. Nothing else to install, ever.
+</details>
+
+Pick your computer and copy the commands **one line at a time**.
 
 ### 🪟 Windows - use **PowerShell**
 
@@ -79,17 +93,16 @@ to install. Pick your computer and copy the commands **one line at a time**.
 ```powershell
 git clone https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen.git
 cd Sentinel-Ensemble-Qwen
-.\setup.ps1 docker                      # 1) zero-cost demo (no key, no evidence, ~30 s)
-.\setup.ps1 run C:\path\to\your\case    # 2) real investigation - ONE line does everything
+.\setup.cmd docker                      # 1) zero-cost demo (no key, no evidence, ~30 s)
+.\setup.cmd run C:\path\to\your\case    # 2) real investigation - ONE line does everything
 ```
 
-<details><summary>PowerShell says "running scripts is disabled"? (one-time unblock)</summary>
-
-```powershell
-Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
-```
-Answer `Y`, then re-run the `.\setup.ps1` line. (Or use Git Bash instead - see below.)
-</details>
+> **Use `.\setup.cmd`** (not `./setup.sh` - that's the Mac/Linux one and does
+> nothing on Windows). `.\setup.cmd` needs no setup and sidesteps PowerShell's
+> script policy. Prefer PowerShell-native? `.\setup.ps1 …` works too (if it says
+> "running scripts is disabled", run once:
+> `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned`).
+> Tip: run just `.\setup.cmd` with no arguments and it walks you through it.
 
 ### 🍎 macOS / 🐧 Linux - use the **Terminal**
 
@@ -216,9 +229,10 @@ authors; the pipeline is dataset-agnostic, so any Windows evidence works.)
 
 **🪟 Windows - PowerShell:**
 ```powershell
-.\setup.ps1 docker                        # zero-cost demo - no key, no evidence
-.\setup.ps1 run C:\path\to\case           # real investigation - one line
-.\setup.ps1 run -DryRun C:\path\to\case   # onboarding + printed plan only, nothing executed
+.\setup.cmd                               # guided - shows the walkthrough, asks for your evidence
+.\setup.cmd docker                        # zero-cost demo - no key, no evidence
+.\setup.cmd run C:\path\to\case           # real investigation - one line
+.\setup.cmd run -DryRun C:\path\to\case   # onboarding + printed plan only, nothing executed
 ```
 
 **🍎🐧 macOS / Linux - Terminal:**

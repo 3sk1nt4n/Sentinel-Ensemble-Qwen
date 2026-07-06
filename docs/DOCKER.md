@@ -6,9 +6,11 @@ VM, no forensic-toolchain install. Two commands cover everything on this page.
 
 **🪟 Windows - PowerShell** (Start → "PowerShell"):
 ```powershell
-.\setup.ps1 docker                   # zero-cost demo - no key, no evidence (~30 s)
-.\setup.ps1 run C:\path\to\your\case # real investigation - ONE line does everything
+.\setup.cmd docker                   # zero-cost demo - no key, no evidence (~30 s)
+.\setup.cmd run C:\path\to\your\case # real investigation - ONE line does everything
 ```
+*(`.\setup.cmd` needs no setup and sidesteps PowerShell's script policy. `.\setup.ps1`
+works too if scripts are enabled. Run just `.\setup.cmd` to be walked through it.)*
 
 **🍎🐧 macOS / Linux - Terminal:**
 ```bash
@@ -25,7 +27,7 @@ report to `sentinel-results\<case>\` on your machine.
 missing the script offers to install it (official `get.docker.com`), starts a
 stopped daemon, and falls back to `sudo docker` automatically. On **Windows/macOS**
 it points you to Docker Desktop. *(The rest of this page uses the macOS/Linux
-`./setup.sh` form; on Windows use `.\setup.ps1` with the same arguments.)*
+`./setup.sh` form; on Windows use `.\setup.cmd` with the same arguments.)*
 Everything below is reference: what those two lines run, and the manual equivalents.
 
 > 🔒 The image **never contains a key**. `.env` and `*_API_KEY*` files are excluded

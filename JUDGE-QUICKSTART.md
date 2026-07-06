@@ -18,7 +18,8 @@ on Alibaba Cloud** is then one line (first toolchain build ~15 min, once).
 
 **Judge path: Docker, any OS** (Windows/macOS/Linux) - no forensic-toolchain
 install; the image bundles **every** tool the agent calls (full guide:
-[`docs/DOCKER.md`](docs/DOCKER.md)). *Windows: run the commands in WSL2 or Git Bash.*
+[`docs/DOCKER.md`](docs/DOCKER.md)). *Windows judges: open **PowerShell** and use
+`.\setup.cmd` (no setup needed). macOS/Linux: open the **Terminal** and use `./setup.sh`.*
 
 | Requirement | Version | Notes |
 |---|---|---|
@@ -31,7 +32,8 @@ install; the image bundles **every** tool the agent calls (full guide:
 
 ## 2️⃣ Install
 
-> **Which terminal?** 🪟 **Windows** → open **PowerShell** and use `.\setup.ps1`.
+> **Which terminal?** 🪟 **Windows** → open **PowerShell** and use `.\setup.cmd`
+> (needs no setup; `./setup.sh` is the Mac/Linux one and does nothing on Windows).
 > 🍎🐧 **macOS/Linux** → open the **Terminal** and use `./setup.sh`. Run each line
 > separately (older PowerShell rejects `&&`).
 
@@ -39,7 +41,7 @@ install; the image bundles **every** tool the agent calls (full guide:
 ```powershell
 git clone https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen.git
 cd Sentinel-Ensemble-Qwen
-.\setup.ps1 docker          # builds the demo image (~30 s) + runs it - no key, no evidence
+.\setup.cmd docker          # builds the demo image (~30 s) + runs it - no key, no evidence
 ```
 
 **🍎🐧 macOS / Linux - Terminal:**
@@ -107,7 +109,7 @@ forwards the key from `.env`/env (or asks once, hidden), mounts the case
 
 **🪟 Windows - PowerShell:**
 ```powershell
-.\setup.ps1 run C:\path\to\case-folder
+.\setup.cmd run C:\path\to\case-folder
 ```
 
 **🍎🐧 macOS / Linux - Terminal:**
