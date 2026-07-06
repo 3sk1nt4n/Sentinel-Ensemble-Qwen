@@ -6,16 +6,16 @@ VM, no forensic-toolchain install. Two commands cover everything on this page.
 
 **🪟 Windows - PowerShell** (Start → "PowerShell"):
 ```powershell
-.\setup.cmd docker                   # zero-cost demo - no key, no evidence (~30 s)
-.\setup.cmd run C:\path\to\your\case # real investigation - ONE line does everything
+.\setup.cmd docker               # zero-cost demo - no key, no evidence (~30 s)
+.\setup.cmd C:\path\to\your\case # real investigation - just the folder, ONE line
 ```
 *(`.\setup.cmd` needs no setup and sidesteps PowerShell's script policy. `.\setup.ps1`
 works too if scripts are enabled. Run just `.\setup.cmd` to be walked through it.)*
 
 **🍎🐧 macOS / Linux - Terminal:**
 ```bash
-./setup.sh docker                   # zero-cost demo - no key, no evidence (~30 s)
-./setup.sh run /path/to/your/case   # real investigation - ONE line does everything
+./setup.sh docker               # zero-cost demo - no key, no evidence (~30 s)
+./setup.sh /path/to/your/case   # real investigation - just the folder, ONE line
 ```
 
 The **`run`** command builds the image on first use, reads your key from `.env` /

@@ -21,8 +21,12 @@ cd "$REPO_DIR"
 
 # ── arg parsing ──────────────────────────────────────────────────────────────
 MODE_INSTALL=1; USE_SUDO=1; DOCKER_MODE=0; RUN=0; RUN_ARGS=()
+# Friendly shortcut: "./setup.sh /path/to/case" (a directory as the first arg)
+# means the same as "./setup.sh run /path/to/case" - no "run" keyword needed.
 if [ "${1:-}" = "run" ]; then
   RUN=1; shift; RUN_ARGS=("$@")
+elif [ -n "${1:-}" ] && [ -d "$1" ]; then
+  RUN=1; RUN_ARGS=("$@")
 else
   for a in "$@"; do
     case "$a" in

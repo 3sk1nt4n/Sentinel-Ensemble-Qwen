@@ -114,13 +114,16 @@ forwards the key from `.env`/env (or asks once, hidden), mounts the case
 
 **🪟 Windows - PowerShell:**
 ```powershell
-.\setup.cmd run C:\path\to\case-folder
+.\setup.cmd C:\path\to\case-folder      # just the folder - no "run" keyword needed
 ```
 
 **🍎🐧 macOS / Linux - Terminal:**
 ```bash
-./setup.sh run /path/to/case-folder
+./setup.sh /path/to/case-folder         # just the folder - no "run" keyword needed
 ```
+
+> 💡 Or run just `.\setup.cmd` (Windows) / `./setup.sh` (Mac/Linux) and **drag your
+> evidence folder** into the window when it asks - no path to type.
 
 <details>
 <summary>What that one line runs (manual docker command)</summary>

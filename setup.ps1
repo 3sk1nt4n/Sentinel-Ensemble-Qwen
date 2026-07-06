@@ -145,8 +145,18 @@ function Read-CasePath {
     }
 }
 
-# Normalize the requested mode. Anything unrecognized -> guided menu.
+# Normalize the requested mode.
+$rawMode = $Mode
 $Mode = $Mode.ToLower()
+
+# Friendly shortcut: if the first word isn't a known subcommand, treat it as the
+# evidence path - so ".\setup.cmd C:\path\to\case" works with no "run" keyword.
+if ($Mode -ne 'docker' -and $Mode -ne 'run' -and $Mode -ne 'help' -and $Mode -ne '') {
+    if (-not $CasePath) { $CasePath = $rawMode }
+    $Mode = 'run'
+}
+# A stray trailing word (e.g. ".\setup.cmd C:\case pair") lands in $Rest; if the
+# path somehow arrived there instead, pick the first folder-like token.
 if ($Rest -and $Mode -eq 'run' -and -not $CasePath) {
     foreach ($r in $Rest) { if (Test-Path -LiteralPath $r -PathType Container) { $CasePath = $r; break } }
 }
@@ -197,7 +207,10 @@ if ($Mode -eq 'run' -or $Mode -eq '') {
     }
     if (-not (Test-Path -LiteralPath $CasePath -PathType Container)) {
         Bad "case folder not found: $CasePath"
-        Write-Host "  Point it at the FOLDER holding this case's memory + disk images."
+        Write-Host "  That path doesn't exist. Two things to check:" -ForegroundColor Yellow
+        Write-Host "    1) If your download is still a .zip, unzip it first, then use the unzipped FOLDER."
+        Write-Host "    2) Point at the FOLDER (not a file) that holds the memory + disk images."
+        Write-Host "  Easiest: run just  .\setup.cmd  and DRAG the folder into the window when it asks." -ForegroundColor Cyan
         exit 2
     }
     $Case = (Resolve-Path -LiteralPath $CasePath).Path

@@ -101,20 +101,20 @@ cd Sentinel-Ensemble-Qwen
 
 **🪟 Windows - PowerShell** (use **`.\setup.cmd`** - `./setup.sh` is the Mac/Linux one):
 ```powershell
-.\setup.cmd docker                    # a) free demo - no key, no evidence (~30 s)
-.\setup.cmd run C:\path\to\your\case  # b) real investigation - ONE line does everything
+.\setup.cmd docker                # a) free demo - no key, no evidence (~30 s)
+.\setup.cmd C:\path\to\your\case  # b) real investigation - just the folder, ONE line
 ```
 
 **🍎 macOS / 🐧 Linux - Terminal:**
 ```bash
-./setup.sh docker                   # a) free demo - no key, no evidence (~30 s)
-./setup.sh run /path/to/your/case   # b) real investigation - ONE line does everything
+./setup.sh docker               # a) free demo - no key, no evidence (~30 s)
+./setup.sh /path/to/your/case   # b) real investigation - just the folder, ONE line
 ```
 
-> 💡 **Don't have a path handy?** Run just **`.\setup.cmd`** (Windows) or
-> **`./setup.sh run`** (Mac/Linux) with nothing after it - it shows the banner,
-> explains what to drop in the folder, and **asks you to paste (or drag) your
-> evidence folder**. Just like the original.
+> 💡 **Easiest of all - let it ask you.** Run just **`.\setup.cmd`** (Windows) or
+> **`./setup.sh`** (Mac/Linux) with nothing after it: it shows the banner,
+> explains what to drop in the folder, and **asks you to paste - or drag - your
+> evidence folder** into the window. Just like the original. No path to type.
 
 **What command (b) does for you:** builds the toolchain image on first use (one
 time, ~15 min), reads your DashScope key from `.env` / the environment (or
