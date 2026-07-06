@@ -40,6 +40,8 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $RepoDir = $PSScriptRoot
+# Always operate from THIS repo folder, no matter where you launched from, so
+# everything (the image, your results) is in the same place every time.
 Set-Location $RepoDir
 
 function Ok   ($m) { Write-Host "  OK   $m"   -ForegroundColor Green }
@@ -177,6 +179,8 @@ if ($Mode -eq 'run' -or $Mode -eq '') {
     else {
         Write-Host "Sentinel Ensemble - one-line Docker run" -ForegroundColor White
     }
+    Note "working folder: $RepoDir"
+    Note "results always land in: $RepoDir\sentinel-results\<case>\"
 
     Test-Docker
 
