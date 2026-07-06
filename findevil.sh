@@ -28,4 +28,23 @@ if [ -f "$REPO_DIR/.env" ]; then
     set +a
 fi
 
+# Persist the run's deliverables to a mounted host dir when SIFT_PERSIST_DIR is
+# set (setup.sh sets it to /out). Without it (e.g. --demo, native runs) behavior
+# is unchanged. We wrap instead of exec so the copy runs after the pipeline exits;
+# the pipeline still owns its own signal handling + mount teardown.
+if [ -n "${SIFT_PERSIST_DIR:-}" ]; then
+    python3 "$REPO_DIR/findevil.py" "$@"; rc=$?
+    latest="$(ls -dt /tmp/sift-sentinel-run-*/ 2>/dev/null | head -1)"
+    if [ -n "$latest" ]; then
+        mkdir -p "$SIFT_PERSIST_DIR" 2>/dev/null || true
+        for f in report.md run_summary.md customer_findings_table.md \
+                 finding_disposition_buckets.json agent_execution_log.txt; do
+            [ -f "$latest$f" ] && cp -f "$latest$f" "$SIFT_PERSIST_DIR/" 2>/dev/null || true
+        done
+        [ -d "$REPO_DIR/reports" ] && cp -rf "$REPO_DIR/reports/." "$SIFT_PERSIST_DIR/" 2>/dev/null || true
+        echo "  Results saved to your machine: the folder you passed to ./setup.sh run"
+    fi
+    exit $rc
+fi
+
 exec python3 "$REPO_DIR/findevil.py" "$@"

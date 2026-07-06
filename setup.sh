@@ -153,13 +153,29 @@ if [ "$RUN" = 1 ]; then
   for v in $(compgen -A variable | grep -E '^(SIFT|DASHSCOPE|QWEN|ANTHROPIC)_'); do
     [ -n "${!v:-}" ] && ENVARGS+=(-e "$v=${!v}")
   done
-  TTY=(); [ -t 0 ] && TTY=(-it)
+  # Where results land on YOUR machine (report + dashboard), inside the repo folder.
+  OUT="$REPO_DIR/sentinel-results/$(basename "$CASE")"
+  mkdir -p "$OUT" 2>/dev/null || true
+  note "results will be saved to: $OUT"
+
+  # Always keep stdin open (-i) so piped/scripted input reaches the prompts;
+  # add a pseudo-TTY (-t) only for a real terminal (a TTY with a pipe errors).
+  TTY=(-i); [ -t 0 ] && TTY=(-it)
   sec "Launching the agent on your case (evidence mounted read-only)"
-  exec $DOCKER run --rm "${TTY[@]}" \
+  $DOCKER run --rm "${TTY[@]}" \
     --cap-add SYS_ADMIN --device /dev/fuse --security-opt apparmor:unconfined \
-    "${ENVARGS[@]}" \
+    "${ENVARGS[@]}" -e SIFT_PERSIST_DIR=/out \
     -v "$CASE":/evidence:ro \
+    -v "$OUT":/out \
     sentinel-qwen "${PASS[@]}" /evidence
+  _rc=$?
+  # Container may write /out as root (sudo docker); hand it back to the user.
+  [ -d "$OUT" ] && ${DOCKER%docker}chown -R "$(id -u):$(id -g)" "$OUT" 2>/dev/null || true
+  if [ -s "$OUT/report.md" ] || ls "$OUT"/incident_report_*.md >/dev/null 2>&1; then
+    printf "\n  ${G}${B}✅  Report saved on your machine:${X} %s\n" "$OUT"
+    printf "     open ${B}report.md${X} (narrative) or ${B}summary_report_*.html${X} (one-page view)\n\n"
+  fi
+  exit $_rc
 fi
 
 # =============================================================================

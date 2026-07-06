@@ -63,6 +63,9 @@ That's the whole command. It handles the rest:
 - **Config**: the verified-run settings (`SIFT_HTTP_TIMEOUT=600`,
   `SIFT_ALLOW_YARA=1`) and the `.E01`/FUSE capabilities are applied for you;
   any `SIFT_*` / `DASHSCOPE_*` variable you set is forwarded into the container.
+- **Results land on your machine**: the container is ephemeral (`--rm`), but the
+  report, HTML dashboard, and disposition buckets are saved to
+  `sentinel-results/<case-name>/` in the repo folder.
 
 > **No evidence handy?** Free public Windows cases with direct downloads (no
 > login; links verified 2026-07-05): **DFIR Madness "The Stolen Szechuan Sauce"**

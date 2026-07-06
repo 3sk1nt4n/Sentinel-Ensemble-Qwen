@@ -145,19 +145,23 @@ entrypoint, for you) unless you are developing.
 
 ## 5️⃣ What you get
 
+`./setup.sh run` saves the results **on your machine** in
+`sentinel-results/<case-name>/` (inside the repo folder) - the container is
+ephemeral, but these files persist:
+
 | Artifact | What it is |
 |---|---|
 | `report.md` | the investigative narrative - findings first, plain-English "why it matters", WHO/WHEN context, network-IOC roll-up |
 | `run_summary.md` | tools · dispositions · cost · tokens · **LLM provider / model** (proves the run executed on Qwen; full `llm_provider`/`llm_endpoint` provenance is also in the run summary JSON, §7) |
 | `agent_execution_log.txt` | append-only execution log - every tool call, timestamps, token usage, the 4-model ensemble, validator verdicts, Step-13AA reasoning |
-| `reports/summary_report_<timestamp>.html` | interactive one-page summary |
-| `reports/incident_report_YYYYMMDD.md` | dated copy of the final report |
+| `summary_report_<timestamp>.html` | interactive one-page summary |
+| `incident_report_YYYYMMDD.md` | dated copy of the final report |
+| `finding_disposition_buckets.json` | confirmed / needs-review / benign / FP buckets with reasons |
 
-> A live run writes these (plus `finding_disposition_buckets.json`) into its run
-> directory. Per the **case-neutral repo policy**, run outputs (which contain
-> case-specific IOCs) are **not committed** to the public repo - reproduce them
-> by running `./setup.sh run /path/to/case` on your evidence; the demo video shows a live Qwen
-> run end to end.
+> Per the **case-neutral repo policy**, run outputs (which contain case-specific
+> IOCs) are **not committed** to the public repo - reproduce them by running
+> `./setup.sh run /path/to/case` on your evidence; the demo video shows a live
+> Qwen run end to end.
 
 Every finding links to the exact tool execution that proved it - pick any
 claim and trace it to raw tool output in seconds.
