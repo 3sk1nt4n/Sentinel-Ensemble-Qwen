@@ -11,6 +11,11 @@ VM, no forensic-toolchain install. Two commands cover everything on this page:
 `./setup.sh run` builds the image on first use, reads your key from `.env` /
 the environment (or asks once, hidden), applies the verified-run config, adds
 the `.E01`/FUSE capabilities, and mounts your evidence **read-only**.
+
+**Neither command assumes Docker is installed.** If it's missing, `./setup.sh`
+offers to install it for you (Linux, official `get.docker.com` script), guides
+you to Docker Desktop on Windows/macOS, starts a stopped daemon, and falls back
+to `sudo docker` automatically when your user isn't in the docker group.
 *(Windows: run these inside WSL2 or Git Bash.)* Everything below is reference:
 what those two lines run, and the manual equivalents.
 

@@ -22,7 +22,7 @@ install; the image bundles **every** tool the agent calls (full guide:
 
 | Requirement | Version | Notes |
 |---|---|---|
-| **Docker Desktop** | current | the only prerequisite - demo image ~290 MB, full toolchain image ~1 GB |
+| **Docker** | current | the only prerequisite - and if it's missing, `./setup.sh docker` **offers to install it for you** (Linux: official script; Windows/macOS: it guides you to Docker Desktop). Demo image ~290 MB, full toolchain ~1 GB |
 | Host resources | **≥ 8 GB RAM · ≥ 80 GB disk** | the run copies evidence to scratch and writes GBs of tool output; keep several × the evidence size free (hard floor 1 GB, override `SIFT_RUN_MIN_FREE_MB`) |
 | Qwen Cloud API key | DashScope / Model Studio | request the **$40 hackathon voucher**; create an API key in Model Studio (see §3). (`--demo` needs none.) |
 | Evidence | - | memory (`.img`/`.raw`/`.vmem`/`.mem`) and/or disk (`.E01`) in one folder (exported `.evtx` event logs ride along) - **free verified public cases in §4** |
@@ -255,7 +255,7 @@ After a run, the judge-facing invariants:
 
 | Symptom | What it means |
 |---|---|
-| `docker` not found / daemon not running | install + start **Docker Desktop** (docker.com), then re-run `./setup.sh docker` |
+| No Docker / daemon not running | just run `./setup.sh docker` - it offers to **install Docker for you** (Linux), guides you to Docker Desktop (Windows/macOS), starts a stopped daemon, and falls back to `sudo docker` automatically |
 | `.E01` disk won't mount | run via `./setup.sh run` - it passes the required FUSE capabilities automatically (manual flags: [`docs/DOCKER.md`](docs/DOCKER.md) §3) |
 | "Vol3 ISF profile not found" | Volatility 3 can't identify the memory image OS - the pipeline falls back to profile-independent scanning. Expected on some evidence sets. |
 | "SSDT trust: degraded" | the kernel-integrity check found hooked/unresolvable entries - memory-based confidence is capped at MEDIUM. A feature, not a bug. |

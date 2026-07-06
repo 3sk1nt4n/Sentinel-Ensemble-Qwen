@@ -69,13 +69,11 @@ proof-of-deployment run; pick ECS (Option B) for full-evidence investigations.
 ## 2) Install Docker + the agent on the instance (SAS or ECS)
 
 ```bash
-# Docker (skip if step 1 provisioned a Docker application image)
-sudo apt-get update && sudo apt-get install -y docker.io git
-sudo systemctl enable --now docker
-
+sudo apt-get update && sudo apt-get install -y git
 git clone https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen.git
 cd Sentinel-Ensemble-Qwen
-sudo ./setup.sh docker      # zero-cost demo proves the flow end to end (~30 s build)
+./setup.sh docker   # installs Docker itself if missing (official script), then
+                    # builds + runs the zero-cost demo - proves the flow end to end
 ```
 
 The `sentinel-qwen` image bundles the **entire forensic toolchain**

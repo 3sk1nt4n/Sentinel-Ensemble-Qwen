@@ -82,8 +82,11 @@ git clone https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen.git && cd Sentinel-
 `./setup.sh run` builds the toolchain image on first use (one time, ~15 min),
 reads your DashScope key from `.env` / the environment (or asks once, hidden),
 applies the verified-run flags, mounts your evidence **read-only**, and launches
-the agent. *(Windows: run these inside **WSL2** or **Git Bash**.)* Full guide
-(image targets, `.E01`/FUSE, Windows paths, all-Max env):
+the agent. **No Docker yet? Run the same command** - it offers to install Docker
+for you (Linux, official script), guides you to Docker Desktop on
+Windows/macOS, starts a stopped daemon, and falls back to `sudo docker`
+automatically. *(Windows: run these inside **WSL2** or **Git Bash**.)* Full
+guide (image targets, `.E01`/FUSE, Windows paths, all-Max env):
 [`docs/DOCKER.md`](docs/DOCKER.md).
 
 <details>
@@ -273,7 +276,7 @@ flowchart LR
 
 | Symptom | Fix |
 |---|---|
-| `docker` not found / daemon not running | install + start **Docker Desktop** (docker.com), then re-run `./setup.sh docker` |
+| No Docker / daemon not running | just run `./setup.sh docker` - it offers to **install Docker for you** (Linux), guides you to Docker Desktop (Windows/macOS), starts a stopped daemon, and falls back to `sudo docker` automatically |
 | `.E01` disk won't mount in the container | use `./setup.sh run` - it passes the required FUSE flags automatically (manual flags: [`docs/DOCKER.md`](docs/DOCKER.md) §3) |
 | The run doesn't start after you pick depth | you ran `step0_onboard.py` directly (staged / dev mode) - use `./setup.sh run` / `findevil.sh`, which are live by default |
 | No prompt appears in CI/scripts | that's by design: headless + no path → usage + exit 2 (no hang) |

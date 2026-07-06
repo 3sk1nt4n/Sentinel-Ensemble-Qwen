@@ -20,13 +20,13 @@ REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$REPO_DIR"
 
 # ── arg parsing ──────────────────────────────────────────────────────────────
-MODE_INSTALL=1; USE_SUDO=1; DOCKER=0; RUN=0; RUN_ARGS=()
+MODE_INSTALL=1; USE_SUDO=1; DOCKER_MODE=0; RUN=0; RUN_ARGS=()
 if [ "${1:-}" = "run" ]; then
   RUN=1; shift; RUN_ARGS=("$@")
 else
   for a in "$@"; do
     case "$a" in
-      docker)    DOCKER=1 ;;
+      docker)    DOCKER_MODE=1 ;;
       --check)   MODE_INSTALL=0; USE_SUDO=0 ;;
       --no-sudo) USE_SUDO=0 ;;
       -h|--help) sed -n '2,15p' "$0"; exit 0 ;;
@@ -44,6 +44,73 @@ bad()  { printf "  ${R}FAIL${X} %s\n" "$1"; FAIL=$((FAIL+1)); }
 note() { printf "  ${B}--${X}   %s\n" "$1"; }
 
 # =============================================================================
+#  DOCKER DOCTOR - shared by the `docker` and `run` modes.
+#  Missing Docker? Offer to install it (Linux, official get.docker.com script)
+#  or point at Docker Desktop (macOS/Windows). Daemon down? Offer to start it.
+#  No docker-group membership? Fall back to `sudo docker` automatically.
+# =============================================================================
+DOCKER="docker"
+ensure_docker() {
+  if ! command -v docker >/dev/null 2>&1; then
+    printf "  ${Y}Docker is not installed on this machine.${X}\n"
+    case "$(uname -s)" in
+      Linux)
+        if [ -t 0 ]; then
+          printf "  ${B}Install it now via Docker's official script (get.docker.com)? [Y/n] ${X}"
+          read -r _ans
+          case "$_ans" in
+            n|N|no|NO) : ;;
+            *)
+              printf "  ${B}--${X}   Installing Docker (you may be asked for your sudo password)...\n"
+              if curl -fsSL https://get.docker.com | sudo sh; then
+                sudo systemctl enable --now docker >/dev/null 2>&1 || sudo service docker start >/dev/null 2>&1 || true
+                printf "  ${G}OK${X}   Docker installed\n"
+              else
+                printf "  ${R}FAIL${X} automatic install failed - manual guide: https://docs.docker.com/engine/install/\n"; exit 1
+              fi
+              ;;
+          esac
+        fi
+        command -v docker >/dev/null 2>&1 || {
+          printf "  ${R}FAIL${X} Install Docker, then re-run this command.\n"
+          printf "         One-liner: ${B}curl -fsSL https://get.docker.com | sudo sh${X}\n"
+          printf "         Manual guide: https://docs.docker.com/engine/install/\n"; exit 1; }
+        ;;
+      Darwin)
+        printf "  ${B}macOS:${X} install Docker Desktop: ${B}https://www.docker.com/products/docker-desktop/${X}\n"
+        command -v brew >/dev/null 2>&1 && printf "         (or: ${B}brew install --cask docker${X}, then open Docker.app once)\n"
+        printf "         Then re-run this command.\n"; exit 1
+        ;;
+      *)
+        printf "  ${B}Windows:${X} install Docker Desktop (WSL2 backend): ${B}https://www.docker.com/products/docker-desktop/${X}\n"
+        printf "         Then re-run this command inside WSL2 or Git Bash.\n"; exit 1
+        ;;
+    esac
+  fi
+  # Daemon reachable as-is?
+  docker info >/dev/null 2>&1 && { DOCKER="docker"; return 0; }
+  # Not running? On Linux offer to start it (Docker Desktop must be started by hand).
+  if [ "$(uname -s)" = "Linux" ] && [ -t 0 ]; then
+    printf "  ${Y}Docker daemon is not reachable.${X} Try starting it (needs sudo)? [Y/n] "
+    read -r _ans
+    case "$_ans" in n|N|no|NO) : ;; *)
+      sudo systemctl start docker >/dev/null 2>&1 || sudo service docker start >/dev/null 2>&1 || true ;;
+    esac
+    docker info >/dev/null 2>&1 && { DOCKER="docker"; return 0; }
+  fi
+  # Installed + running but this user lacks docker-group access -> sudo fallback.
+  if [ -t 0 ]; then _SUDO="sudo"; else _SUDO="sudo -n"; fi
+  if command -v sudo >/dev/null 2>&1 && $_SUDO docker info >/dev/null 2>&1; then
+    DOCKER="sudo docker"
+    printf "  ${B}--${X}   using '${B}sudo docker${X}' (drop sudo later: ${B}sudo usermod -aG docker %s${X}, then re-login)\n" "${USER:-$(id -un)}"
+    return 0
+  fi
+  printf "  ${R}FAIL${X} Docker is installed but not reachable. Start Docker Desktop (macOS/Windows)\n"
+  printf "         or '${B}sudo systemctl start docker${X}' (Linux), then re-run this command.\n"
+  exit 1
+}
+
+# =============================================================================
 #  ONE-LINE DOCKER RUN - ./setup.sh run [--dry-run] /path/to/case
 #  Builds the full toolchain image on first use, applies the verified-run
 #  config (FUSE caps for .E01, SIFT_HTTP_TIMEOUT, SIFT_ALLOW_YARA), reads the
@@ -51,8 +118,7 @@ note() { printf "  ${B}--${X}   %s\n" "$1"; }
 # =============================================================================
 if [ "$RUN" = 1 ]; then
   printf "${B}Sentinel Ensemble - one-line Docker run${X}\n"
-  command -v docker >/dev/null 2>&1 || { printf "  ${R}FAIL${X} Docker not found. Install Docker Desktop (docker.com), then re-run.\n"; exit 1; }
-  docker info >/dev/null 2>&1 || { printf "  ${R}FAIL${X} Docker is installed but not running. Start Docker Desktop and re-run.\n"; exit 1; }
+  ensure_docker
 
   CASE=""; PASS=()
   for a in "${RUN_ARGS[@]}"; do
@@ -62,9 +128,9 @@ if [ "$RUN" = 1 ]; then
   [ -d "$CASE" ] || { printf "  ${R}FAIL${X} case folder not found: %s\n" "$CASE"; exit 2; }
   CASE="$(cd "$CASE" && pwd)"
 
-  if ! docker image inspect sentinel-qwen >/dev/null 2>&1; then
+  if ! $DOCKER image inspect sentinel-qwen >/dev/null 2>&1; then
     sec "Building the full toolchain image (one time, ~15 min)"
-    docker build -t sentinel-qwen . || { printf "  ${R}FAIL${X} build failed (see above)\n"; exit 1; }
+    $DOCKER build -t sentinel-qwen . || { printf "  ${R}FAIL${X} build failed (see above)\n"; exit 1; }
   fi
   ok "image ready: sentinel-qwen"
 
@@ -89,7 +155,7 @@ if [ "$RUN" = 1 ]; then
   done
   TTY=(); [ -t 0 ] && TTY=(-it)
   sec "Launching the agent on your case (evidence mounted read-only)"
-  exec docker run --rm "${TTY[@]}" \
+  exec $DOCKER run --rm "${TTY[@]}" \
     --cap-add SYS_ADMIN --device /dev/fuse --security-opt apparmor:unconfined \
     "${ENVARGS[@]}" \
     -v "$CASE":/evidence:ro \
@@ -99,15 +165,14 @@ fi
 # =============================================================================
 #  DOCKER PATH - works on any OS, no Python/forensic install needed
 # =============================================================================
-if [ "$DOCKER" = 1 ]; then
+if [ "$DOCKER_MODE" = 1 ]; then
   printf "${B}Sentinel Ensemble - Docker demo${X}\n"
-  command -v docker >/dev/null 2>&1 || { printf "  ${R}FAIL${X} Docker not found. Install Docker Desktop (docker.com), then: ./setup.sh docker\n"; exit 1; }
-  docker info >/dev/null 2>&1 || { printf "  ${R}FAIL${X} Docker is installed but not running. Start Docker Desktop and re-run.\n"; exit 1; }
+  ensure_docker
   sec "Building the zero-cost demo image (~290 MB, one time)"
-  docker build --target demo -t sentinel-qwen:demo . || { printf "  ${R}FAIL${X} build failed (see above)\n"; exit 1; }
+  $DOCKER build --target demo -t sentinel-qwen:demo . || { printf "  ${R}FAIL${X} build failed (see above)\n"; exit 1; }
   ok "image built: sentinel-qwen:demo"
   sec "Running the demo (no key, no evidence)"
-  docker run --rm sentinel-qwen:demo || { printf "  ${R}FAIL${X} demo run failed\n"; exit 1; }
+  $DOCKER run --rm sentinel-qwen:demo || { printf "  ${R}FAIL${X} demo run failed\n"; exit 1; }
   printf "\n  ${G}${B}✅  Docker demo works.${X}\n"
   printf "  ${B}Real investigation on Qwen Cloud - ONE line:${X}\n"
   printf "    ./setup.sh run /path/to/case   ${Y}# image, key, flags, read-only mount: all handled${X}\n"
