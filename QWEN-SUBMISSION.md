@@ -1,9 +1,11 @@
 # Sentinel Ensemble - Qwen Cloud edition (Track 4: Autopilot Agent)
 
-> An autonomous DFIR / SOC triage agent that turns the raw evidence behind an alert
-> into a verified, analyst-ready incident report - running on **Qwen models
-> hosted on Alibaba Cloud**, with a deterministic trust layer so the agent never
-> reports a finding it cannot prove.
+> **Autonomous DFIR/SOC triage agent on Qwen Cloud (Alibaba DashScope) -
+> Track 4 Autopilot Agent. Deterministic trust layer: code, not the model,
+> decides what is confirmed.** It turns the raw evidence behind an alert into a
+> verified, analyst-ready incident report - the agent never reports a finding
+> it cannot prove. *(DFIR = Digital Forensics & Incident Response · SOC =
+> Security Operations Center.)*
 
 **Hackathon:** Global AI Hackathon with Qwen Cloud
 **Track:** 4 - Autopilot Agent

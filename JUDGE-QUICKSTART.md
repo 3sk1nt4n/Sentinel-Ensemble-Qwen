@@ -1,6 +1,8 @@
 # 🧑‍⚖️ Judge Quickstart
 
-**Sentinel Ensemble** - Agentic DFIR Pipeline · Global AI Hackathon with Qwen Cloud, Track 4 (Autopilot Agent)
+**Sentinel Ensemble** - Autonomous DFIR/SOC triage agent on Qwen Cloud (Alibaba
+DashScope) · Track 4 Autopilot Agent · deterministic trust layer: **code, not
+the model, decides what is confirmed**
 Author: Adil Eskintan · Repo: github.com/3sk1nt4n/Sentinel-Ensemble-Qwen
 *(internal Python package name: `sift_sentinel`)*
 

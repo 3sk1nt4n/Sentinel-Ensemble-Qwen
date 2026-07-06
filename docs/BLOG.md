@@ -6,9 +6,12 @@ canonical_url:
 description: An autonomous incident-response agent on Qwen models where deterministic code, not the model, gets the final word, and a two-tier run plus an ablation that proves the trust layer resolves uncertainty without ever manufacturing a confirmation.
 ---
 
-> Built for the **Global AI Hackathon with Qwen Cloud** (Track 4, Autopilot
-> Agent). Code: https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen (MIT).
-> 2:52 demo in the repo.
+> **Autonomous DFIR/SOC triage agent on Qwen Cloud (Alibaba DashScope) -
+> Track 4 Autopilot Agent. Deterministic trust layer: code, not the model,
+> decides what is confirmed.** Built for the **Global AI Hackathon with Qwen
+> Cloud**. Code: https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen (MIT).
+> 2:52 demo in the repo. *(DFIR = Digital Forensics & Incident Response ·
+> SOC = Security Operations Center.)*
 
 ## The problem nobody wants to say out loud
 
