@@ -17,8 +17,8 @@ python3 -c "import pydantic, mcp" 2>/dev/null || {
 }
 
 # Load .env so the documented `cp .env.qwen.example .env` flow actually takes
-# effect: without this, SIFT_LLM_PROVIDER stays unset and the launcher runs in
-# Anthropic mode even after the user configured Qwen. Real env vars still win
+# effect: without this, SIFT_LLM_PROVIDER stays unset and a NATIVE launcher
+# would fall back to Anthropic (the Docker image sets SIFT_LLM_PROVIDER=qwen). Real env vars still win
 # (set -a exports; a value already in the environment is not overwritten by a
 # later identical assignment, and users can always export to override).
 if [ -f "$REPO_DIR/.env" ]; then

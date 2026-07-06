@@ -48,11 +48,12 @@ same intrusion case - same deterministic trust layer, two model tiers:
 |---|---|---|
 | **Confirmed malicious** | **0** - no atomic proof, no confirm (the trust layer working, not a gap) | **4** - PsExec lateral movement · PWDumpX credential dumping · IFEO `sethc.exe` sticky-keys backdoor · `p.exe` from a temp dir |
 | Runtime · cost | 5m 37s · ~$0.28 | 14m 44s · ~$1.53 |
-| Evidence integrity | SHA-256 MATCH | SHA-256 MATCH |
+| Evidence integrity | SHA256 MATCH | SHA256 MATCH |
 
-A July rerun re-confirmed the chain, and a **flags-off ablation** on the same
-case measured the trust layer directly: inconclusive jumped **0 → 11** and
-confirmations fell **3 → 1** without it. **The bar does not move; the model's
+A July rerun re-confirmed the chain (3 of the 4 findings - normal model
+non-determinism), and a **flags-off ablation** against that rerun measured the
+trust layer directly: inconclusive jumped **0 → 11** and confirmations fell
+**3 → 1** without it. **The bar does not move; the model's
 ability to clear it does.** Full comparison + shipped metrics:
 [`QWEN-SUBMISSION.md`](QWEN-SUBMISSION.md) · [`docs/qwen-runs/`](docs/qwen-runs/).
 The trust layer, the 195 typed tools, and the 16-step conductor are
@@ -89,8 +90,8 @@ docker build --target demo -t sentinel-qwen:demo .
 docker run --rm -it sentinel-qwen:demo
 
 # toolchain image for real runs:
-#   --target full  = memory+disk core (Vol3 + Sleuth Kit + EWF + YARA), ~465 MB
-#   (default)      = full-plus: EVERYTHING the agent calls, ~990 MB
+#   --target full  = memory+disk core (Vol3 + Sleuth Kit + EWF + YARA), ~485 MB
+#   (default)      = full-plus: EVERYTHING the agent calls, ~1 GB
 docker build -t sentinel-qwen .
 # (the --cap-add/--device/--security-opt trio enables .E01 disk mounting via
 #  FUSE - all three public cases below ship .E01; harmless for memory-only)
@@ -134,7 +135,9 @@ export DASHSCOPE_API_KEY=sk-...        # QWEN_API_KEY is also accepted
 export SIFT_DEFAULT_MODEL=qwen3.7-max
 export SIFT_HTTP_TIMEOUT=600           # heavy-tier calls can run >120 s (see .env.qwen.example)
 export SIFT_ALLOW_YARA=1               # match the verified-run tool selection
-python3 scripts/qwen_smoke.py          # confirm connectivity before any full run
+# confirm connectivity before any full run (uses the demo image from ./setup.sh docker):
+docker run --rm -e SIFT_LLM_PROVIDER=qwen -e DASHSCOPE_API_KEY=sk-... \
+  --entrypoint python3 sentinel-qwen:demo scripts/qwen_smoke.py
 ```
 
 The international (Singapore) DashScope endpoint is the default; set
@@ -230,13 +233,13 @@ event logs) end-to-end with **zero human steering and zero model shell access**:
 
 ```mermaid
 flowchart LR
-    A[🔒 Evidence\nread-only + SHA256] --> B[🧰 Typed forensic tools\nno shell, ever]
-    B --> C[(EvidenceDB\ntyped facts + provenance)]
-    C --> D[🤖 AI analysis\n5 AI calls only]
-    D --> E{🧪 Deterministic validator\ncode checks AI}
-    E -- unsupported --> F[♻️ Self-correction\nor honest UNRESOLVED]
+    A[🔒 Evidence<br/>read-only + SHA256] --> B[🧰 Typed forensic tools<br/>no shell, ever]
+    B --> C[(EvidenceDB<br/>typed facts + provenance)]
+    C --> D[🤖 AI analysis<br/>5 AI calls only]
+    D --> E{🧪 Deterministic validator<br/>code checks AI}
+    E -- unsupported --> F[♻️ Self-correction<br/>or honest UNRESOLVED]
     F --> E
-    E -- validated --> G[📋 Report\nnarrative + WHO/WHEN + IOC\n+ audit trail + SHA256 re-check]
+    E -- validated --> G[📋 Report<br/>narrative + WHO/WHEN + IOC<br/>+ audit trail + SHA256 re-check]
 ```
 
 ## 🪜 The five stages
@@ -256,7 +259,7 @@ flowchart LR
 
 | Artifact | What it is |
 |---|---|
-| `report.md` | the investigative narrative - findings first, plain-English "why it matters" per finding (the per-finding customer table renders into its sections) |
+| `report.md` | the investigative narrative - findings first, plain-English "why it matters" per finding, each rendered as its own detail section |
 | `run_summary.md` | tools · dispositions · cost · tokens at a glance |
 | `agent_execution_log.txt` | append-only execution log - every tool call, timestamps, token usage |
 | `finding_disposition_buckets.json` | confirmed / needs-review / benign / false-positive buckets, each with its reasoning - written to the run directory; `report.md` renders from it |

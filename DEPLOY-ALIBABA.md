@@ -9,7 +9,7 @@ evidence/artifacts in **Alibaba Cloud OSS**.
 
 ```
                  Alibaba Cloud
-  ┌───────────────────────────────────────────────┐
+  ┌────────────────────────────────────────────────┐
   │  ECS instance (Ubuntu)                         │
   │   - run_pipeline.py (the 16-step conductor)    │
   │   - forensic toolchain (Volatility 3, Sleuth   │
@@ -18,7 +18,7 @@ evidence/artifacts in **Alibaba Cloud OSS**.
   │            ├──HTTPS──> DashScope API (Qwen)  ◄─┼── reasoning (llm_provider.py)
   │            │                                   │
   │            └──(opt)──> OSS bucket            ◄─┼── evidence in / report out
-  └───────────────────────────────────────────────┘
+  └────────────────────────────────────────────────┘
 ```
 
 The single code file that proves Alibaba Cloud API use is
@@ -168,5 +168,5 @@ and is an explicit evaluation plus-point.
   models via the Alibaba Cloud DashScope API (see `QWEN-SUBMISSION.md` for the
   verified numbers). This runbook is the turnkey path to *also* run the backend
   on Alibaba Cloud **ECS** and capture the Workbench screenshot the Proof-of-
-  Deployment question requires (step 7). All that is pending is provisioning an
+  Deployment question requires (step 6). All that is pending is provisioning an
   ECS instance under your account.

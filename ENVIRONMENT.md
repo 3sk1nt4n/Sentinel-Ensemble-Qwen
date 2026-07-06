@@ -7,7 +7,7 @@ prints **"Everything verified and ready."**, all of this is in place.
 
 > 🐳 **Running the Docker image?** Everything on this page is already baked into
 > the `full`/`full-plus` image ([`docs/DOCKER.md`](docs/DOCKER.md)) - nothing
-> needs manual install. This page covers the **native SIFT / Linux** path.
+> needs manual install. This page covers the **native Linux (contributor/dev)** path.
 
 ## Platform
 
@@ -15,8 +15,8 @@ prints **"Everything verified and ready."**, all of this is in place.
 |---|---|---|
 | Docker image (`full`/`full-plus`) - **the run path** | Debian 12 base | every tool below pre-baked; nothing to install (see [`docs/DOCKER.md`](docs/DOCKER.md)) |
 | Native Ubuntu 22.04 (contributors/dev) | Python 3.10+ | for hacking on the code + running the test suite (see [`ONBOARDING.md`](ONBOARDING.md)) |
-| Python | 3.10+ (3.12 on SIFT) | |
-| Volatility 3 Framework | **2.27.0** | installed by SIFT via pip user site-packages (`~/.local/lib/python3.X/site-packages/volatility3`) - no manual install needed |
+| Python | 3.10+ (3.12 in the Docker image) | |
+| Volatility 3 Framework | **2.28.0** (pinned in the Docker image) | native dev: `pip install volatility3` (2.27.0 also verified) |
 
 ## Python Packages
 
@@ -28,9 +28,10 @@ registry - and the failure is sneaky: several unrelated plugins return empty
 output that surfaces as `"Expecting value: line 1 column 1"` JSON errors at
 the MCP transport layer.
 
-**Install:**
+**Install:** nothing manual - it ships pinned in `requirements.txt` (and baked
+into the Docker image). Repairing a bespoke environment that lost it:
 
-    pip install pycryptodome --break-system-packages
+    pip install pycryptodome
 
 **Verify (should print OK):**
 
@@ -54,8 +55,9 @@ these previously crashed with JSON errors, now work correctly):
 ## Tool-Registry Invariants (guarded by tests)
 
 The tool surface is discovered at runtime, so exact counts grow as tools are
-added - the *floors* below are what the regression guards enforce
-(`tests/test_commit25_crypto_dependency.py`):
+added - the floors below are the invariants (the registry floor is enforced by
+`tests/test_commit25_crypto_dependency.py`; the advertised surface is registry
++ 9 core/meta tools by construction):
 
 | Invariant | Floor | Measured (June 2026) |
 |---|---:|---:|

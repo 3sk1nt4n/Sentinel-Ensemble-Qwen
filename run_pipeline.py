@@ -275,10 +275,10 @@ except Exception:
 _sd_atexit.register(_sd_reap_once)
 
 # ── CLI arguments ──────────────────────────────────────────────────────
-_parser = argparse.ArgumentParser(description="SIFT Sentinel Pipeline Runner")
+_parser = argparse.ArgumentParser(description="Sentinel Ensemble Pipeline Runner")
 _parser.add_argument(
     "--live", action="store_true",
-    help="Use the real cloud LLM API (Qwen/DashScope by default; Anthropic optional fallback) for AI analysis",
+    help="LIVE run - Qwen/DashScope by default via ./setup.sh run and .env; Anthropic optional fallback",
 )
 _parser.add_argument(
     "--ollama", action="store_true",
@@ -693,7 +693,7 @@ def generate_self_assessment(summary, findings_final, blocked_list,
     def _b(items):
         return "\n".join(f"- {r}" for r in items) if items else "- (no data)"
 
-    md = f"""# SIFT Sentinel -- Self-Assessment Report
+    md = f"""# Sentinel Ensemble -- Self-Assessment Report
 
 *Auto-generated from pipeline run data. Every score computed from actual metrics.*
 
@@ -792,7 +792,7 @@ disposition.
 **{total} validator-backed observations after correction | {_sa_cm} confirmed malicious atomic after final disposition routing | {_sa_benign} benign/false positive | {_sa_incon} inconclusive/unresolved | {_sa_susp} suspicious needing review | {_sa_syn} synthesis/narrative**
 
 ---
-*SIFT Sentinel | Adil Eskintan | SolventAi CyberSecurity*
+*Sentinel Ensemble | Adil Eskintan | SolventAi CyberSecurity*
 """
     from datetime import datetime as _dt_sa
     ts = _dt_sa.now().strftime("%Y%m%d_%H%M%S")
@@ -1051,7 +1051,7 @@ def generate_html_report(summary, findings_final, blocked_list,
     html = f'''<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>SIFT Sentinel -- Incident Report</title>
+<title>Sentinel Ensemble -- Incident Report</title>
 <style>
 *{{box-sizing:border-box}}
 body{{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
@@ -1079,7 +1079,7 @@ body{{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-ser
 </style></head><body>
 
 <div class="hdr">
-  <h1>SIFT Sentinel -- Autonomous DFIR Agent</h1>
+  <h1>Sentinel Ensemble -- Autonomous DFIR Agent</h1>
   <p>Incident Analysis Report | Generated automatically from forensic evidence</p>
   <p style="margin-top:10px">
     <span class="badge {profile_class}">{profile_text}</span>
@@ -1218,7 +1218,7 @@ body{{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-ser
 </div>
 
 <div class="ft">
-  <strong>SIFT Sentinel v1.0</strong> | Autonomous DFIR Agent<br/>
+  <strong>Sentinel Ensemble</strong> | Autonomous DFIR Agent<br/>
   Adil Eskintan | SolventAi CyberSecurity<br/>
   solventcyber.com
 </div>
@@ -5947,7 +5947,7 @@ try:
 except Exception as _cft_e:
     logger.warning("Step 14: customer_findings_table.md emit skipped: %s", _cft_e)
 
-report = "# SIFT Sentinel Incident Report\n\nNo findings available."
+report = "# Sentinel Ensemble Incident Report\n\nNo findings available."
 
 # Add Requires Analyst Review section for blocked findings
 blocked_findings = [f for f in findings if f.get("deterministic_check") != "passed"]
@@ -6809,7 +6809,7 @@ try:
 
     print(f"""
 {_BAR}
-{B}{C}  SIFT SENTINEL -- Autonomous DFIR Agent{X}
+{B}{C}  SENTINEL ENSEMBLE -- Autonomous DFIR Agent{X}
 {B}{C}  Pipeline Execution Report{X}
 {_BAR}
 
@@ -7065,7 +7065,7 @@ try:
   downgraded, or routed out of confirmed malicious output.
   Confirmed malicious atomic: {G}{_disposition_counts.get(BUCKET_CONFIRMED, 0)}{X}  |  Benign/FP: {_disposition_counts.get(BUCKET_BENIGN, 0)}  |  Inconclusive: {Y}{_disposition_counts.get(BUCKET_INCONCLUSIVE, 0)}{X}  |  Suspicious: {_disposition_counts.get(BUCKET_SUSPICIOUS, 0)}  |  Synthesis: {_disposition_counts.get(BUCKET_SYNTHESIS, 0)}
 {_BAR}
-{D}  SIFT Sentinel | Adil Eskintan | SolventAi CyberSecurity
+{D}  Sentinel Ensemble | Adil Eskintan | SolventAi CyberSecurity
   solventcyber.com{X}
 """)
 except Exception as _exc:
@@ -7363,7 +7363,7 @@ try:
 
     print(f"""
 {BAR}
-{D}  SIFT Sentinel v1.0 | {summary['findings_passed']} findings | {sum(1 for v in tool_record_counts.values() if v > 0)} tools | {int(summary['elapsed_s']//60)}m {int(summary['elapsed_s']%60)}s
+{D}  Sentinel Ensemble | {summary['findings_passed']} findings | {sum(1 for v in tool_record_counts.values() if v > 0)} tools | {int(summary['elapsed_s']//60)}m {int(summary['elapsed_s']%60)}s
   Adil Eskintan | SolventAi CyberSecurity{X}
 {BAR}
 """)

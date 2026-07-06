@@ -4,9 +4,9 @@
 Author: Adil Eskintan · Repo: github.com/3sk1nt4n/Sentinel-Ensemble-Qwen
 *(internal Python package name: `sift_sentinel`)*
 
-Five minutes from clone to a running investigation **on Qwen models hosted on
-Alibaba Cloud**. The free `--demo` mode needs **no evidence and no API key** - you
-can verify the whole flow first.
+Five minutes from clone to a verified end-to-end demo (**no evidence, no API
+key** - `./setup.sh docker`, §2). A real investigation **on Qwen models hosted
+on Alibaba Cloud** is then one line (first toolchain build ~15 min, once).
 
 ---
 
@@ -18,7 +18,7 @@ install; the image bundles **every** tool the agent calls (full guide:
 
 | Requirement | Version | Notes |
 |---|---|---|
-| **Docker Desktop** | current | the only prerequisite - demo image ~290 MB, full toolchain image ~990 MB |
+| **Docker Desktop** | current | the only prerequisite - demo image ~290 MB, full toolchain image ~1 GB |
 | Host resources | **≥ 8 GB RAM · ≥ 80 GB disk** | the run copies evidence to scratch and writes GBs of tool output; keep several × the evidence size free (hard floor 1 GB, override `SIFT_RUN_MIN_FREE_MB`) |
 | Qwen Cloud API key | DashScope / Model Studio | request the **$40 hackathon voucher**; create an API key in Model Studio (see §3). (`--demo` needs none.) |
 | Evidence | - | memory (`.img`/`.raw`/`.vmem`/`.mem`) and/or disk (`.E01`) in one folder - **free verified public cases in §4** |
@@ -131,7 +131,8 @@ python3 run_pipeline.py --live --inv2-ensemble \
 ```
 
 The launcher handles read-only mounting and flag wiring automatically -
-prefer `./findevil.sh` unless you are developing.
+prefer `./setup.sh run` (which invokes `findevil.sh`, the container
+entrypoint, for you) unless you are developing.
 </details>
 
 ---
@@ -141,7 +142,7 @@ prefer `./findevil.sh` unless you are developing.
 | Artifact | What it is |
 |---|---|
 | `report.md` | the investigative narrative - findings first, plain-English "why it matters", WHO/WHEN context, network-IOC roll-up |
-| `run_summary.md` | tools · dispositions · cost · tokens · **`llm_provider` / `model`** (proves the run executed on Qwen) |
+| `run_summary.md` | tools · dispositions · cost · tokens · **LLM provider / model** (proves the run executed on Qwen; full `llm_provider`/`llm_endpoint` provenance is also in the run summary JSON, §7) |
 | `agent_execution_log.txt` | append-only execution log - every tool call, timestamps, token usage, the 4-model ensemble, validator verdicts, Step-13AA reasoning |
 | `reports/summary_report_<timestamp>.html` | interactive one-page summary |
 | `reports/incident_report_YYYYMMDD.md` | dated copy of the final report |
@@ -149,7 +150,7 @@ prefer `./findevil.sh` unless you are developing.
 > A live run writes these (plus `finding_disposition_buckets.json`) into its run
 > directory. Per the **case-neutral repo policy**, run outputs (which contain
 > case-specific IOCs) are **not committed** to the public repo - reproduce them
-> by running `./findevil.sh` on your evidence; the demo video shows a live Qwen
+> by running `./setup.sh run /path/to/case` on your evidence; the demo video shows a live Qwen
 > run end to end.
 
 Every finding links to the exact tool execution that proved it - pick any

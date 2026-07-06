@@ -30,7 +30,7 @@ whose entire design is organized around a single rule:
 
 Point it at Windows evidence (a memory image, a disk image, or both) and walk
 away. A **16-step deterministic conductor** runs the whole investigation with
-zero human steering:
+zero human steering (the 16 steps, condensed):
 
 1. SHA-256 fingerprints the evidence (chain of custody, before anything else).
 2. Checks kernel integrity.
@@ -60,7 +60,7 @@ the 16-step pipeline; the provider and model are chosen purely by environment:
 export SIFT_LLM_PROVIDER=qwen
 export DASHSCOPE_API_KEY=...          # your Qwen Cloud key
 export SIFT_DEFAULT_MODEL=qwen3.7-max
-./findevil.sh /path/to/case
+./setup.sh run /path/to/case   # one line: builds the Docker image, forwards these envs, mounts evidence read-only
 ```
 
 Model tiering keeps it cheap: `qwen-plus` for the high-volume work (ensemble,
@@ -147,9 +147,7 @@ trust layer made that reasoning *safe to act on.*
 ## Try it
 
 - **Repo (MIT):** https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen
-- **Zero-cost demo (no key, no evidence):** `./findevil.sh --demo`
+- **Zero-cost demo (no key, no evidence, any OS):** `./setup.sh docker`
 - **Proof-of-Alibaba-Cloud code:** `src/sift_sentinel/llm_provider.py`
 - **Shipped run metrics (both tiers + the ablation):** `docs/qwen-runs/`
 - **Demo video:** <ADD-YOUTUBE-URL> (2:52, the overrule happens on camera)
-
-#QwenCloud #AlibabaCloud #AIagents #DFIR

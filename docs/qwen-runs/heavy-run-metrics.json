@@ -1,5 +1,5 @@
 {
-  "_note": "Sanitized aggregate metrics extracted from the live Qwen Cloud run summary. Case-specific IOCs are deliberately excluded per the case-neutral repo policy. Reproduce the full run with ./findevil.sh on your own evidence.",
+  "_note": "Sanitized aggregate metrics extracted from the live Qwen Cloud run summary. Case-specific IOCs are deliberately excluded per the case-neutral repo policy. Reproduce the full run with ./setup.sh run /path/to/case on your own evidence.",
   "_tier": "heavy",
   "corrections_attempted": 0,
   "corrections_contained": 0,

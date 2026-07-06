@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-SIFT Sentinel -- Self-Correction Demo (Pipeline Step 12)
-Proves the Ralph Wiggum loop works with 3 distinct strategies:
-  Attempt 1: TARGETED_FIX   -- fix the exact failing claim
-  Attempt 2: DIFFERENT_EVIDENCE -- drop failing claim, use different tools
-  Attempt 3: MINIMAL_CLAIM  -- one claim or null (honest)
+Sentinel Ensemble -- Self-Correction Demo (Pipeline Step 12)
+Proves the bounded retry (self-correction) loop works with 3 distinct strategies:
+  Attempt 1: EXPLAIN_AND_RETRY   -- explain the failure, fix the exact claim
+  Attempt 2: SIMPLIFY_TO_PID     -- drop the failing claim, pivot to different validator-typed evidence
+  Attempt 3: LAST_CHANCE_OR_DROP -- one minimal claim or an honest null
 
 Three scenarios:
-  F001: wrong hash  -> TARGETED_FIX fixes it    -> MATCH (attempt 1)
-  F002: fake PID    -> TARGETED_FIX fails,
-                       DIFFERENT_EVIDENCE uses connection -> MATCH (attempt 2)
+  F001: wrong hash  -> EXPLAIN_AND_RETRY fixes it -> MATCH (attempt 1)
+  F002: fake PID    -> EXPLAIN_AND_RETRY fails,
+                       SIMPLIFY_TO_PID pivots to a connection claim -> MATCH (attempt 2)
   F003: no evidence -> all 3 strategies fail     -> UNRESOLVED (honest)
 
 No API calls. No API key needed. Uses mock correctors with real validator.
@@ -21,9 +21,14 @@ Usage:
 
 from __future__ import annotations
 
+import os
 import sys
 import time
 from datetime import datetime, timezone
+
+# Make the demo runnable from a fresh clone (no install): the package lives
+# under src/, so anchor sys.path there before the sift_sentinel imports.
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "src"))
 
 from sift_sentinel.correction.self_correct import self_correct, STRATEGIES
 from sift_sentinel.validation.reference_set import build_reference_set
@@ -83,8 +88,8 @@ TOOL_OUTPUTS = {
 
 def main() -> int:
     print(f"\n{BOLD}{CYAN}{'=' * 64}{RESET}")
-    print(f"{BOLD}{CYAN}  SIFT Sentinel -- Self-Correction Demo (Step 12){RESET}")
-    print(f"{BOLD}{CYAN}  3 Strategies: TARGETED_FIX / DIFFERENT_EVIDENCE / MINIMAL_CLAIM{RESET}")
+    print(f"{BOLD}{CYAN}  Sentinel Ensemble -- Self-Correction Demo (Step 12){RESET}")
+    print(f"{BOLD}{CYAN}  3 Strategies: EXPLAIN_AND_RETRY / SIMPLIFY_TO_PID / LAST_CHANCE_OR_DROP{RESET}")
     print(f"{BOLD}{CYAN}  No API calls. Real validator. Mock correctors.{RESET}")
     print(f"{BOLD}{CYAN}{'=' * 64}{RESET}\n")
 
@@ -99,9 +104,9 @@ def main() -> int:
     print()
 
     # ════════════════════════════════════════════════════════════════════
-    # F001: Wrong hash -> TARGETED_FIX -> corrects hash -> MATCH
+    # F001: Wrong hash -> EXPLAIN_AND_RETRY -> corrects hash -> MATCH
     # ════════════════════════════════════════════════════════════════════
-    print(f"{BOLD}  Scenario 1: Wrong hash -> TARGETED_FIX -> MATCH{RESET}\n")
+    print(f"{BOLD}  Scenario 1: Wrong hash -> EXPLAIN_AND_RETRY -> MATCH{RESET}\n")
 
     f001 = {
         "finding_id": "F001",
@@ -122,8 +127,8 @@ def main() -> int:
     print()
 
     def corrector_f001(raw_data, error):
-        """Attempt 1 TARGETED_FIX: reads amcache, returns correct hash."""
-        log("Step 12:", f"Strategy: {YELLOW}TARGETED_FIX{RESET}", YELLOW)
+        """Attempt 1 (EXPLAIN_AND_RETRY): reads amcache, returns correct hash."""
+        log("Step 12:", f"Strategy: {YELLOW}EXPLAIN_AND_RETRY{RESET}", YELLOW)
         log("", f"  PROMPT: {error[:80]}...", DIM)
         amcache = raw_data.get("get_amcache", {}).get("output", [])
         if amcache:
@@ -150,17 +155,17 @@ def main() -> int:
     print()
 
     # ════════════════════════════════════════════════════════════════════
-    # F002: Fabricated PID -> TARGETED_FIX fails -> DIFFERENT_EVIDENCE
+    # F002: Fabricated PID -> EXPLAIN_AND_RETRY fails -> SIMPLIFY_TO_PID
     #       uses connection claim -> MATCH
     # ════════════════════════════════════════════════════════════════════
-    print(f"{BOLD}  Scenario 2: Fabricated PID -> DIFFERENT_EVIDENCE -> MATCH{RESET}\n")
+    print(f"{BOLD}  Scenario 2: Fabricated PID -> pivot to different evidence -> MATCH{RESET}\n")
 
     f002 = {
         "finding_id": "F002",
         "artifact": "sample_payload.exe",
         "confidence_level": "HIGH",
         "claims": [
-            {"type": "pid", "pid": 9999, "process": "fake.exe"},
+            {"type": "pid", "pid": 9999, "process": "sample_payload.exe"},
         ],
     }
 
@@ -191,7 +196,7 @@ def main() -> int:
                 ],
             }
 
-        # Attempt 2: DIFFERENT_EVIDENCE -- use connection claim
+        # Attempt 2 (SIMPLIFY_TO_PID): pivot to a connection claim
         netscan = raw_data.get("vol_netscan", {}).get("output", [])
         if netscan:
             conn = netscan[0]
@@ -205,7 +210,7 @@ def main() -> int:
             "confidence_level": "HIGH",
             "claims": [
                 {"type": "connection", "pid": 9001,
-                 "foreign_addr": "192.0.2.129",
+                 "foreign_addr": "192.0.2.129", "foreign_port": 443,
                  "process": "sample_payload.exe"},
             ],
         }
@@ -288,8 +293,8 @@ def main() -> int:
     print(f"{BOLD}{CYAN}{'=' * 64}{RESET}")
 
     scenarios = [
-        ("F001", result_f001, "TARGETED_FIX"),
-        ("F002", result_f002, "DIFFERENT_EVIDENCE"),
+        ("F001", result_f001, "EXPLAIN_AND_RETRY"),
+        ("F002", result_f002, "SIMPLIFY_TO_PID"),
         ("F003", result_f003, "all 3 strategies"),
     ]
 
@@ -322,20 +327,20 @@ def main() -> int:
          9001 in ref_set["pid_to_process"]),
         ("F001 blocked by validator (wrong hash)",
          v1["status"] == "MISMATCH"),
-        ("F001 corrected via TARGETED_FIX (attempt 1)",
+        ("F001 corrected on attempt 1 (EXPLAIN_AND_RETRY)",
          result_f001["status"] == "CORRECTED"
          and result_f001["attempt_count"] == 1),
-        ("F001 attempt 1 strategy is TARGETED_FIX",
-         result_f001["attempts"][0].get("strategy") == "TARGETED_FIX"),
+        ("F001 attempt 1 strategy is EXPLAIN_AND_RETRY",
+         result_f001["attempts"][0].get("strategy") == "EXPLAIN_AND_RETRY"),
         ("F002 blocked by validator (fake PID)",
          v2["status"] == "MISMATCH"),
-        ("F002 corrected via DIFFERENT_EVIDENCE (attempt 2)",
+        ("F002 corrected on attempt 2 (evidence pivot)",
          result_f002["status"] == "CORRECTED"
          and result_f002["attempt_count"] == 2),
-        ("F002 attempt 1 strategy is TARGETED_FIX",
-         result_f002["attempts"][0].get("strategy") == "TARGETED_FIX"),
-        ("F002 attempt 2 strategy is DIFFERENT_EVIDENCE",
-         result_f002["attempts"][1].get("strategy") == "DIFFERENT_EVIDENCE"),
+        ("F002 attempt 1 strategy is EXPLAIN_AND_RETRY",
+         result_f002["attempts"][0].get("strategy") == "EXPLAIN_AND_RETRY"),
+        ("F002 attempt 2 strategy is SIMPLIFY_TO_PID",
+         result_f002["attempts"][1].get("strategy") == "SIMPLIFY_TO_PID"),
         ("F003 blocked by validator (no matching hash)",
          v3["status"] == "MISMATCH"),
         ("F003 UNRESOLVED after 3 attempts (honest failure)",
@@ -343,7 +348,7 @@ def main() -> int:
          and result_f003["attempt_count"] == 3),
         ("F003 used all 3 strategies",
          [a.get("strategy") for a in result_f003["attempts"]]
-         == ["TARGETED_FIX", "DIFFERENT_EVIDENCE", "MINIMAL_CLAIM"]),
+         == ["EXPLAIN_AND_RETRY", "SIMPLIFY_TO_PID", "LAST_CHANCE_OR_DROP"]),
         ("F003 score=0 (honest unknown)",
          result_f003["finding"].get("score") == 0),
     ]

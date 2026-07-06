@@ -16,7 +16,7 @@ An alert fires. Evidence gets captured (memory, disk). Then the expensive part
 begins: a trained analyst spends hours - often a full shift - reconstructing
 what actually happened, and a hallucinated AI "finding" is worse than no answer,
 because a false attribution in an incident report burns response hours and
-credibility. Sentinel Ensemble runs that entire triage autonomously in **5-15
+credibility. Sentinel Ensemble runs that entire triage autonomously in **5-20
 minutes for $0.28-$1.53 per full paired investigation** (measured; both runs
 shipped in [`docs/qwen-runs/`](docs/qwen-runs/)), refuses to confirm anything it
 cannot prove from tool output, and gives the analyst an approve/override
@@ -100,8 +100,10 @@ fresh repository:
    16-step pipeline now runs on **Qwen models on Alibaba Cloud**, selected purely
    by environment - no model literal is hardcoded.
 2. **All four LLM call sites rewired** to the provider factory (coordinator,
-   ensemble, ReAct, report) - default provider stays Anthropic so the change is
-   zero-regression (proven: identical test-failure set vs the pre-port tree).
+   ensemble, ReAct, report). The seam's bare-env fallback stays Anthropic so the
+   port is provably zero-regression (identical test results vs the pre-port
+   tree); **every shipped launch path defaults to Qwen** - the Docker image,
+   `./setup.sh run`, and `.env.qwen.example` all set the provider.
 3. **Qwen cost model + config** - `pricing.py` Qwen rate rows and a one-file
    `.env.qwen.example` (recommended model tiering for the $40 credit).
 4. **Alibaba Cloud inference (satisfied)** - the reasoning backend runs on the
@@ -123,7 +125,9 @@ export SIFT_LLM_PROVIDER=qwen
 export DASHSCOPE_API_KEY=...            # your Qwen Cloud key ($40 hackathon voucher)
 export SIFT_DEFAULT_MODEL=qwen3.7-max   # model_roles.py resolves it (flagship)
 
-./findevil.sh /path/to/case          # full autonomous investigation on Qwen
+./setup.sh run /path/to/case         # full autonomous investigation on Qwen
+                                     # (Docker, any OS - one line builds the image,
+                                     #  forwards these envs, mounts evidence read-only)
 ```
 
 **Models used** (flagship where reasoning matters; cheaper tier where call
@@ -163,7 +167,8 @@ Four pieces of DashScope-specific engineering, all exercised by the live runs:
 - **Read-timeout resilience** - the all-`qwen3.7-max` ensemble initially died on
   socket read timeouts mid-generation (reasoning calls routinely exceed 120s);
   bounded retries honoring `Retry-After` plus explicit bare-`TimeoutError`
-  handling fixed the live run (`SIFT_HTTP_TIMEOUT`, default 600s).
+  handling fixed the live run (`SIFT_HTTP_TIMEOUT`; `.env.qwen.example` and every
+  documented run command set 600 s - the bare code default is 120 s).
 
 **And a designed model-tier A/B, not two lucky runs:** the light (`qwen-plus` ×4) vs
 heavy (`qwen3.7-max`) pair holds the deterministic trust layer constant and
@@ -211,7 +216,7 @@ Python.
 | Proof-of-Alibaba-Cloud code file | done (`llm_provider.py`) |
 | Architecture diagram (Qwen box) | done (`ARCH_VERTICAL.png`) |
 | **Live Qwen runs + artifacts** | **done** - see "Verified Qwen Cloud runs" below |
-| Demo video (<3 min, YouTube/Vimeo/Youku) | built (`docs/sentinel-qwen-demo.mp4`, 2:52, title-card intro + the 0-vs-4 two-tier reveal + real run output from both runs, closing on the spelled-out DFIR card credited "Built by Adil Eskintan"). **Hosted link:** `<ADD-YOUTUBE-URL>` - upload to **YouTube as Public** (accepted hosts are YouTube / Vimeo / Facebook Video, and it must be public) and paste on the Devpost form before submitting |
+| Demo video (<3 min, YouTube) | built (`docs/sentinel-qwen-demo.mp4`, 2:52, title-card intro + the 0-vs-4 two-tier reveal + real run output from both runs, closing on the spelled-out DFIR card credited "Built by Adil Eskintan"). **Hosted link:** `<ADD-YOUTUBE-URL>` - upload to **YouTube** (the official FAQ accepts public or unlisted; we publish **Public**) and paste on the Devpost form before submitting |
 | Proof of Deployment on Alibaba Cloud | code-file + Base URL: **done** (`llm_provider.py`; endpoint also in `docs/qwen-runs/`). Workbench screenshot: add to `docs/proof/` before submitting (runbook: `DEPLOY-ALIBABA.md`) |
 | Legacy-doc reframe to Track 4 | done |
 
@@ -236,17 +241,19 @@ uncommitted per the case-neutral policy).
 | Runtime | 5m 37s | 14m 44s |
 | Cost (cache-aware) | ~$0.28 | ~$1.53 |
 | Integrity (mem + disk) | MATCH | MATCH |
-| Disposition + 4 confirm gates | PASS | PASS |
+| Disposition gate (shipped JSON) + 4 confirm sub-gates (run logs) | PASS | PASS |
 
 **13AA gives a final verdict on everything.** Step-13AA (inv3a) review-all
 re-judges every ambiguous finding to a final TP / FP / needs-review disposition,
 so the heavy run leaves **zero inconclusive** (it reclassified 22 of the
-36-candidate ambiguous set, which reconciles to 34 findings after dedup; a proven-evil floor keeps confirmed findings in the table regardless of
+36-candidate ambiguous set per the run log - the shipped JSON records the
+36 → 34 counts and `inconclusive_unresolved = 0` - reconciling to 34 findings
+after dedup; a proven-evil floor keeps confirmed findings in the table regardless of
 the model's verdict). The light tier's 13AA still confirmed **nothing** - no
 atomic proof, no confirm.
 
 **Same gates, different depth.** On the light tier the ensemble's strongest lead -
-RWX code injection in `powershell.exe` (PID 8712) - never cleared the atomic-proof
+RWX code injection in `powershell.exe` - never cleared the atomic-proof
 bar: **0 confirmed**. The AI proposed; the code disposed. On the heavy tier the
 flagship reconstructed a real intrusion chain and **4 findings cleared every
 confirmation gate**:
@@ -261,7 +268,8 @@ Each traces to its proof tools (`extract_mft_timeline`, `get_amcache`,
 DashScope prompt caching** reused 381,696 tokens on the heavy run (the shared
 ensemble / ReAct / 13AA prefix), cutting its cost ~36%. **The trust layer is the
 constant; the model tier just changes how much clears the bar.** Dashboards:
-`docs/qwen_paired_dashboard.png` (light), `docs/qwen_allmax_dashboard.png` (heavy);
+`docs/qwen_paired_dashboard.png` (light), `docs/qwen_allmax_dashboard.png` (heavy)
+- their headers read "SIFT Sentinel", the engine's pre-rebrand report title;
 demo video `docs/sentinel-qwen-demo.mp4`.
 
 **Reproduced, and ablated (2026-07-01).** An independent rerun on the same case

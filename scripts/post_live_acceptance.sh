@@ -223,11 +223,11 @@ fi
 # forbidden-token list.
 # Provider prefixes assembled from fragments at runtime so this script
 # is not itself a forbidden contiguous provider/model literal.
-P1="claude"; P2="gpt"; P3="gemini"; SEP="-"
+P1="claude"; P2="gpt"; P3="gemini"; P4="qwen"; SEP="-"
 LEAK=0
 for d in "${STATE_DIR}" "${REPORT_DIR}"; do
   [ -d "${d}" ] || continue
-  if grep -RInqE "${P1}${SEP}[0-9]|${P2}${SEP}[0-9]|${P3}${SEP}[0-9]" "${d}" 2>/dev/null; then
+  if grep -RInqE "${P1}${SEP}[0-9]|${P2}${SEP}[0-9]|${P3}${SEP}[0-9]|${P4}[0-9${SEP}]" "${d}" 2>/dev/null; then
     LEAK=1
   fi
 done

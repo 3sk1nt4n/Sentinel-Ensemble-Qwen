@@ -3,13 +3,13 @@
 The point of this hackathon is that good tooling goes back into the community. This
 guide is the **as-built** contract for adding a forensic tool, grounded in the real
 code (not a wishlist). A tool you add this way is auto-discoverable by the AI, typed,
-shell-free, and **fails CI if you half-wire it** - so contributors can extend the
-agent safely.
+shell-free, and **fails the test suite and the run itself if you half-wire it** -
+so contributors can extend the agent safely.
 
 > **One rule above all (Rule 6):** everything you add is **universal / dataset-agnostic**.
 > Detect *behavior* or OS-primitive *structure* - never hardcode a case's artifact
 > names, IPs, PIDs, hashes, or observed counts. Case data lives in reports, never in
-> source. A commit-time audit + `tests/test_phase_a_dispatcher.py` enforce this.
+> source. A commit-time audit + `tests/test_pipeline/test_phase_a_dispatcher.py` enforce this.
 
 ---
 
@@ -95,9 +95,9 @@ select but the pipeline can't use.
 ## Verify ritual (after every change - no exceptions)
 
 ```bash
-pytest tests/ -x                               # stop on first failure
-python -m py_compile src/**/*.py               # syntax
-python -m sift_sentinel.coordinator --dry-run  # boot + drift-gate check
+pytest tests/ -x                                          # stop on first failure
+find src -name '*.py' -exec python -m py_compile {} +     # syntax
+PYTHONPATH=src python -m sift_sentinel.coordinator --dry-run   # boot + drift-gate check
 ```
 
 Gate every new *behavior* behind an env kill-switch (`SIFT_<FEATURE>`), default chosen

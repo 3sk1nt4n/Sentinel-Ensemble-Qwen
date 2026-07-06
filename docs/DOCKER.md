@@ -17,8 +17,8 @@ sections below document what it runs and the manual equivalents.
 | Target | Size | Adds on top | Use it for |
 |---|---|---|---|
 | `demo` | ~290 MB | Python + 4 deps only | The zero-cost `--demo` (synthetic case, **no key, no evidence, no tools**) |
-| `full` | ~465 MB | + **Volatility 3, Sleuth Kit, EWF tools, YARA** | Real **memory/disk** investigations, lean image |
-| `full-plus` **(default)** | ~990 MB | + **bulk_extractor, EZ Tools (EvtxECmd/RECmd, .NET 9), Plaso (log2timeline), RegRipper, pff-tools, photorec** | **Everything** the pipeline can call |
+| `full` | ~485 MB | + **Volatility 3, Sleuth Kit, EWF tools, YARA** | Real **memory/disk** investigations, lean image |
+| `full-plus` **(default)** | ~1 GB | + **bulk_extractor, EZ Tools (EvtxECmd/RECmd, .NET 9), Plaso (log2timeline), RegRipper, pff-tools, photorec** | **Everything** the pipeline can call |
 
 Base is pinned to Debian 12 "bookworm" for reproducibility (.NET needs `libicu72`).
 Only the stages your target needs are built, so `--target demo` stays fast and
@@ -42,6 +42,9 @@ image with the documented `--cap-add SYS_ADMIN --device /dev/fuse` flags
 ---
 
 ## 1. Just try it (zero cost, ~30 seconds)
+
+> One command does all of this: **`./setup.sh docker`** - the steps below are
+> the manual equivalent.
 
 No API key, no evidence, no forensic tools needed.
 

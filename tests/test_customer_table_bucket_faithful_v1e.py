@@ -49,7 +49,7 @@ def test_customer_table_bucket_section_gate_repair_rewrites_stale_table(tmp_path
     }
     (state / "finding_disposition_buckets.json").write_text(json.dumps(buckets))
     (state / "customer_findings_table.md").write_text(
-        "SIFT Sentinel Customer Findings\n\n"
+        "Sentinel Ensemble Customer Findings\n\n"
         "## Actionable / Needs Review\n"
         "| # | ID | Finding | IOCs / Artifacts | Tools Hit | Details |\n"
         "|---:|---|---|---|---|---|\n"

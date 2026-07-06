@@ -123,7 +123,7 @@ def render_run_summary_md(
     total_obs = sum(counts.values()) + n_holdout
 
     L: list[str] = []
-    L.append("# 🛡️ SIFT-Sentinel — Run Summary")
+    L.append("# 🛡️ Sentinel Ensemble - Run Summary")
     L.append("")
     L.append("> **Fully Autonomous Agentic-AI DFIR Platform**")
     L.append("")
@@ -132,6 +132,7 @@ def render_run_summary_md(
         ("Status", str(sm.get("status") or "?")),
         ("Runtime", _hms(sm.get("elapsed_s", 0))),
         ("Model", _derive_model(sm, state_dir)),
+        ("LLM provider", sm.get("llm_provider") or "unknown"),
     ] + ([("Return code", str(return_code))] if return_code is not None else []))
     L.append("")
 

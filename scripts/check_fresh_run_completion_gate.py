@@ -8,6 +8,9 @@ import sys
 from pathlib import Path
 from typing import Any
 
+_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(_ROOT / "src"))
+
 # SIFT_FRESH_COMPLETION_BUCKET_FAITHFUL_TABLE_V1E
 from sift_sentinel.reporting.customer_findings_table_bucket_faithful import build_bucket_faithful_customer_findings_table as _sift_bucket_table_v1e
 

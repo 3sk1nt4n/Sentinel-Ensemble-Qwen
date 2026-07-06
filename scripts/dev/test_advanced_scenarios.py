@@ -1,11 +1,13 @@
 """
+RETIRED design-phase scratchpad - kept for provenance, not part of the test suite.
+
 SIFT Sentinel - Advanced Scenario Tests
 Covers: DKOM, Process Hollowing, DLL Hijack, SSDT Hook, Timestomping
 
 ZEROFAKE STATUS PER TEST:
 - Logic: TESTED (runs here in sandbox, assertions verified)
 - Data format: INFERRED (built against expected Volatility output structure)
-- Real tool output: GUESSING until Task 0 runs these on actual SIFT OVA evidence
+- Real tool output: GUESSING until Task 0 runs these on real evidence (never ran)
   Every test that says INFERRED must be re-verified against real vol.py output in Task 0.
 
 Run: pytest test_advanced_scenarios.py -v
@@ -57,7 +59,7 @@ def parse_mft_entry(raw_entry: dict) -> dict:
        - FN much older than SI = attacker forged SI forward (rare)
     2. SI fractional seconds zeroed (.0000000) - timestomping tool artifact
     NOTE: FN older than SI by minutes/hours is NORMAL (file copy preserves original timestamps).
-    INFERRED: field names match MFTECmd output - verify against real SIFT OVA.
+    INFERRED: field names match MFTECmd output - never verified against real evidence.
     """
     si_created = raw_entry.get("si_created")
     fn_created = raw_entry.get("fn_created")
@@ -143,7 +145,7 @@ def assess_ssdt(ssdt_output: dict) -> dict:
     Assess SSDT hook output and determine trust level.
     Returns trust assessment that affects confidence ceilings for pstree findings.
     VERIFIED: windows.ssdt plugin exists in Volatility 3.
-    INFERRED: output field names - verify against real SIFT OVA in Task 0.
+    INFERRED: output field names - never verified against real evidence.
     """
     if not ssdt_output.get("hooks"):
         return {"trust_level": "full", "hooks_detected": False, "message": ""}

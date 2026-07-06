@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""SIFT Sentinel Tool Verification. Tests every layer without API calls.
+"""Sentinel Ensemble Tool Verification. Tests every layer without API calls.
 Run: python3 verify_tools.py         (free, cached only)
 Run: python3 verify_tools.py --live  (runs real Volatility, ~5 min)"""
 
@@ -130,7 +130,7 @@ def level_4_normalizer():
     bad = [{"finding_id":"T","title":"x","description":"x","claims":[
         {"type":"pid","pid":9001,"process_name":"sample_payload.exe"},
         {"type":"hash","hash":"fake","path":"C:\\\\evil.exe"},
-        {"type":"connection","pid":0,"foreign_addr":"1.1.1.1"},
+        {"type":"connection","pid":0,"foreign_addr":"192.0.2.1"},
     ]}]
     fixed = normalize_claims(bad)
     ok(f"Normalizer: 3 -> {len(fixed[0]['claims'])} claims") if len(fixed[0]["claims"]) < 3 else fail("Normalizer didn't remove bad claims")
@@ -188,7 +188,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--live", action="store_true")
     args = parser.parse_args()
-    print("SIFT Sentinel Tool Verification")
+    print("Sentinel Ensemble Tool Verification")
     print(f"Memory: {MEMORY}")
     print(f"Disk:   {DISK}")
     level_1_imports()

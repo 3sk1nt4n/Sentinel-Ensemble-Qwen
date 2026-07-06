@@ -39,13 +39,13 @@ class TestOllamaUsesChat:
 
 
 class TestConsolesUseChat:
-    """Both console.py files must also use /api/chat."""
+    """Both console.py files (src + scripts/, the legacy console) must also use /api/chat."""
 
     @pytest.fixture(autouse=True)
     def _parse_sources(self):
         from pathlib import Path
         self.src_console = Path("src/sift_sentinel/console.py").read_text()
-        self.root_console = Path("console.py").read_text()
+        self.root_console = Path("scripts/console.py").read_text()
 
     def test_src_console_uses_chat(self):
         assert "/api/chat" in self.src_console

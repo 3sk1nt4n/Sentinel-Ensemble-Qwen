@@ -1,6 +1,6 @@
 # Quarantined tests - the honest state
 
-`quarantine_list.txt` holds 183 legacy tests (of ~4,970 collected) that are
+`quarantine_list.txt` holds 183 legacy tests (of 4,985 collected) that are
 **skipped by default** by the hook in `conftest.py`. They went stale during
 tool-signature refactors: keyword arguments were renamed or removed
 (e.g. `parse_powershell_transcripts(max_bytes_per_file=...)`), default ranges

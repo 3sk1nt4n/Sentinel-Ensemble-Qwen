@@ -100,8 +100,8 @@ def _glyphs(color: bool) -> dict:
 def banner(color: Optional[bool] = None, file=None) -> str:
     file = file or sys.stdout
     use = _resolve_color(color, file)
-    title = "S I F T   —   S E N T I N E L"
-    sub = "Fully Autonomous Agentic-AI DFIR Platform"
+    title = "S E N T I N E L   E N S E M B L E"
+    sub = "Autonomous DFIR - Qwen on Alibaba Cloud"
     tag = '"Point me at your evidence. I\'ll do the rest."'
     width = 64
     if use:

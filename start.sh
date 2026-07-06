@@ -11,5 +11,5 @@ python3 -c "import pydantic; import mcp" 2>/dev/null || {
     exit 1
 }
 
-echo "Starting SIFT Sentinel MCP Server..."
+echo "Starting Sentinel Ensemble MCP Server..."
 exec python3 src/server.py "$@"

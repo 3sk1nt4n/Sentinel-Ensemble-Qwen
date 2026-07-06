@@ -871,7 +871,7 @@ def _build_summary_header(summary: Any) -> str:
     if not parts:
         return ""
     sep = _colorize(" · ", "DIM")
-    return _colorize("SIFT Sentinel run", "B") + "  " + sep.join(parts)
+    return _colorize("Sentinel Ensemble run", "B") + "  " + sep.join(parts)
 
 
 def print_compact_pipeline_summary(

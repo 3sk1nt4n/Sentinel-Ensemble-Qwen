@@ -1,4 +1,9 @@
-## VALIDATOR DESIGN
+# Validator Design (historical pre-build notes)
+
+> **Historical pre-build design notes**, kept for design provenance. The
+> as-built validator lives in `src/sift_sentinel/validation/` (`validator.py`,
+> `typed_validator.py`, `reference_set.py`) - see [`ARCHITECTURE.md`](../ARCHITECTURE.md).
+
 ### [paired values - not flat set]
 
 **WRONG (flat set - cannot catch cross-contamination):**
@@ -58,12 +63,13 @@ def dkom_check(pstree_output: dict, psscan_output: dict) -> list[dict]:
 
 # DLL known-good baseline - must exist before validator can check paths
 # Source: clean Windows 10 build 16299 installation, same version as target evidence
-# Location: tests/dll_baseline.json
+# Location: (planned; never shipped - superseded by the structural/behavioral
+#            checks in src/sift_sentinel/validation/)
 # IMPORTANT: Path comparison MUST be case-insensitive (Gap 5 - semantic drift)
 # "C:\Windows\System32" == "C:\Windows\system32" for baseline matching
 # Flag: process name matches known-good BUT path differs by MORE than case = malicious
 # Format: {"wbemcomn.dll": ["C:\Windows\System32\wbem\wbemcomn.dll"], ...}
-# GUESSING: whether SIFT OVA sample evidence matches Windows 10 16299 DLL paths.
+# GUESSING: whether public practice-case evidence (see docs/DATASET.md) matches Windows 10 16299 DLL paths.
 # Task 0: extract DLL baseline from a clean Windows VM matching target OS version.
 ```
 

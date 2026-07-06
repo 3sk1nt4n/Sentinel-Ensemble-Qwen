@@ -5,17 +5,20 @@ Package name is `sift_sentinel`; the product/repo is **Sentinel Ensemble**.
 
 ```
 Sentinel-Ensemble-Qwen/
-├── findevil.sh / findevil.py     # ⭐ the one-command front door (delegates to step0_onboard)
+├── setup.sh                      # ⭐ THE front door: ./setup.sh docker (demo) · ./setup.sh run /case (real run)
+├── Dockerfile                    # demo + full-toolchain images (findevil.sh is the ENTRYPOINT)
+├── findevil.sh / findevil.py     # container ENTRYPOINT (delegates to step0_onboard)
 ├── step0_onboard.py              # conversational onboarding: find + profile + mount evidence
 ├── run_pipeline.py               # the 16-step conductor (deterministic Python)
-├── console.py                    # interactive console
 ├── generate_report.py            # standalone report regeneration
 ├── start.sh / stop.sh            # MCP server lifecycle
 ├── requirements.txt / pyproject.toml
 ├── LICENSE                       # MIT
 ├── README.md                     # setup + compliance checklist
 ├── ARCHITECTURE.md               # system architecture + diagram (root-level deliverable)
-├── JUDGE-QUICKSTART.md           # judge path · EXTENDING.md (add a tool) · ONBOARDING.md (contributor)
+├── JUDGE-QUICKSTART.md           # the judge path
+├── EXTENDING.md                  # add a forensic tool
+├── ONBOARDING.md                 # contributor onboarding
 │
 ├── src/
 │   ├── server.py                 # MCP server entry point (advertises 195 typed tools)
@@ -51,12 +54,12 @@ Sentinel-Ensemble-Qwen/
 ├── audit/
 │   └── nocheat.py               # commit-time guard: bans answer-key vocab + case-specific artifacts
 │
-├── docs/                        # ACCURACY.md, this file, DATASET.md, INVOCATIONS.md,
+├── docs/                        # ACCURACY.md, this file, DATASET.md, DOCKER.md, INVOCATIONS.md,
 │   │                            #   VALIDATOR.md + design/
-│   ├── qwen-runs/               # shipped sanitized metrics of the two live Qwen Cloud runs
+│   ├── qwen-runs/               # shipped sanitized metrics of the live Qwen Cloud runs (2 headline + Jul 1 repro + ablation)
 │   └── proof/                   # Proof-of-Deployment: Alibaba Cloud Workbench screenshot slot
 ├── yara_rules/                  # behavioural YARA signatures
-├── scripts/ · bin/              # operational helpers (incl. scripts/qwen_smoke.py)
+├── scripts/ · bin/              # operational helpers (qwen_smoke.py, gates, legacy console + dev tools)
 └── artifacts/                   # local run outputs (gitignored - never committed, case-neutral policy)
 ```
 
@@ -64,7 +67,7 @@ Sentinel-Ensemble-Qwen/
 
 | You want to… | Look at |
 |---|---|
-| **Run it** | `./findevil.sh` → `step0_onboard.py` |
+| **Run it** | `./setup.sh run /path/to/case` (Docker) → `findevil.sh` (container entrypoint) → `step0_onboard.py` |
 | Understand the pipeline | [`ARCHITECTURE.md`](../ARCHITECTURE.md) (16 steps + diagrams) |
 | Understand a finding's provenance | `src/sift_sentinel/validation/` + your local run's `agent_execution_log.txt` (run outputs are never committed) |
 | See what it was tested on | [`DATASET.md`](DATASET.md) |

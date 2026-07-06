@@ -42,7 +42,7 @@ def main() -> int:
         "DASHSCOPE_BASE_URL",
         "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions",
     )
-    print(f"Calling Qwen on Alibaba Cloud DashScope ...")
+    print("Calling Qwen on Alibaba Cloud DashScope ...")
     print(f"  model    : {model}")
     print(f"  endpoint : {endpoint}")
     try:

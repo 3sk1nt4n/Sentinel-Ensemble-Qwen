@@ -42,7 +42,7 @@ def render_fallback_report(pre_disposition_findings: list[dict]) -> str:
     """
     flat_list = list(pre_disposition_findings or [])
     lines: list[str] = [
-        "# SIFT Sentinel Incident Report",
+        "# Sentinel Ensemble Incident Report",
         "",
         "## Status",
         "",
@@ -181,7 +181,7 @@ def render_fallback_report_from_buckets(
         observations = report_truth.get("validator_backed_observations")
 
     lines: list[str] = [
-        "# SIFT Sentinel Incident Report",
+        "# Sentinel Ensemble Incident Report",
         "",
         "## Status",
         "",

@@ -13,13 +13,8 @@ apikey.txt
 cached_outputs/
 results/gpt/run03_rd01_bootstrap.log
 
-# Session 6a.5+ local-only artifacts
-# Policy: ignore all artifacts by default, explicitly negate submission-track named runs
-artifacts/*
-!artifacts/phase2_post_phase1/
-!artifacts/phase2_post_phase1/**
-!artifacts/rd02_blind_run_20260418/
-!artifacts/rd02_blind_run_20260418/**
+# Local-only run artifacts - nothing under artifacts/ ships
+artifacts/
 reports/*.md
 reports/*.json
 reports/*.html
@@ -41,7 +36,7 @@ audit/forbidden_tokens.local.txt
 # file (tests/fixtures/integrity_denylist.example.json) is tracked;
 # the real denylist with case-specific values is local-only.
 tests/fixtures/integrity_denylist.json
-run12_archive/
+run_archive/
 reports/
 artifacts/
 BACKLOG.md
@@ -64,7 +59,6 @@ tests/M1_criteria.md
 *.agn
 *.orig
 # Evidence stays local-only (chain of custody) -- never commit evidence
-*-case/
 *-case/
 *.E01
 *.vmem

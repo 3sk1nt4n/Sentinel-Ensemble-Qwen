@@ -11,7 +11,7 @@ An autonomous DFIR agent: a **deterministic Python conductor** drives a
 invocations + the Step-13AA self-correction finalize). The AI has **zero shell
 access** - every forensic tool is a typed MCP function - and every AI claim is
 validated against real tool output before it reaches the report. A large test
-suite guards the behavior (**4,700+ passing** by default; ~4,950 collected, 183
+suite guards the behavior (**4,700+ passing** by default; 4,985 collected, 183
 legacy tests quarantined - see [`tests/QUARANTINE.md`](tests/QUARANTINE.md)).
 
 ## First steps
@@ -33,18 +33,18 @@ legacy tests quarantined - see [`tests/QUARANTINE.md`](tests/QUARANTINE.md)).
 | `src/sift_sentinel/validation/` | deterministic validator - claims vs. the paired reference set |
 | `src/sift_sentinel/analysis/` | disposition, dedup/reconcile, confidence, report-integrity passes |
 | `src/sift_sentinel/reporting/` | customer findings table, display hygiene, report polish |
-| `tests/` | the contract - 4,700+ passing (~4,950 collected, 183 quarantined), `conftest.py` has autouse fixtures |
+| `tests/` | the contract - 4,700+ passing (4,985 collected, 183 quarantined), `conftest.py` has autouse fixtures |
 
 **Adding a forensic tool?** See [`EXTENDING.md`](EXTENDING.md) - the typed-envelope
-contract, registry + capability wiring, and the drift-gate that fails CI on a
-half-wired tool.
+contract, registry + capability wiring, and the drift-gate that fails the test
+suite and the run itself on a half-wired tool.
 
 ## The verify ritual (after EVERY change - no exceptions)
 
 ```bash
-pytest tests/ -x                               # stop on first failure
-python -m py_compile src/**/*.py               # syntax check
-python -m sift_sentinel.coordinator --dry-run  # boot check, must exit 0
+pytest tests/ -x                                          # stop on first failure
+find src -name '*.py' -exec python -m py_compile {} +     # syntax check
+PYTHONPATH=src python -m sift_sentinel.coordinator --dry-run   # boot check, must exit 0
 ```
 
 After any `run_pipeline.py` import edit, also run

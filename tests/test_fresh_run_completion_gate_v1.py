@@ -47,7 +47,7 @@ def test_fresh_run_completion_gate_passes_and_writes_table(tmp_path: Path):
     assert "FRESH_RUN_COMPLETION_GATE=PASS" in proc.stdout
     assert (state / "customer_findings_table.md").exists()
     text = (state / "customer_findings_table.md").read_text()
-    assert "SIFT Sentinel Customer Findings" in text
+    assert "Sentinel Ensemble Customer Findings" in text
     assert "Severity" not in text
     assert "Confidence" not in text
 

@@ -307,6 +307,9 @@ _IPV4_RE = _re.compile(r"\b(?:(?:25[0-5]|2[0-4]\d|[01]?\d?\d)\.){3}"
 # specifics. We intentionally allow these because they show up in
 # unrelated infra examples (e.g. localhost, RFC1918 textbook ranges).
 _ALLOWED_IPS = {"127.0.0.1", "0.0.0.0", "255.255.255.255"}
+# RFC 5737 documentation ranges are by definition NOT dataset specifics --
+# they exist for exactly this kind of mock/demo content.
+_DOC_NET_PREFIXES = ("192.0.2.", "198.51.100.", "203.0.113.")
 
 
 def test_no_dataset_literals_in_changed_files() -> None:
@@ -321,7 +324,7 @@ def test_no_dataset_literals_in_changed_files() -> None:
             continue
         for ln in _added_lines_for(path):
             for ip in _IPV4_RE.findall(ln):
-                if ip in _ALLOWED_IPS:
+                if ip in _ALLOWED_IPS or ip.startswith(_DOC_NET_PREFIXES):
                     continue
                 offenders.append((str(path), f"{ip} :: {ln.strip()}"))
     assert not offenders, (

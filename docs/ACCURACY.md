@@ -9,7 +9,9 @@ hallucinations the validator blocked before they reached the report.)*
 > ⚠️ **Claude reference run.** These metrics are from the **rd01 Claude
 > reference run** (the architecture proven before the Qwen port), kept **local /
 > not committed** (case-neutral policy). They are **not** a Qwen result; the
-> **Qwen Cloud run regenerates** them, and no Qwen-specific number is claimed here.
+> **Qwen Cloud runs independently re-derive the same intrusion chain with their
+> own counts** (heavy tier: 34 findings / 4 confirmed - `docs/qwen-runs/`); no
+> Qwen-specific number is claimed here.
 
 - Primary case: a paired Windows memory+disk image (see [`DATASET.md`](DATASET.md)).
 - Model: Claude Opus 4.8, 4-member ensemble (the rd01 reference run).
@@ -19,7 +21,7 @@ hallucinations the validator blocked before they reached the report.)*
   the deterministic validator verdicts, and the Step-13AA self-correction with
   per-finding reasoning), the interactive `summary_report.html`, and
   `run_summary.md` - so any claim is checkable in seconds. Reproduce with
-  `./findevil.sh`.
+  `./setup.sh run /path/to/case`.
 
 ## How accuracy was assessed (methodology)
 
@@ -60,7 +62,7 @@ surviving claim traces to real tool output.
 | Validator-blocked → routed to final cross-check (not dropped) | 22 |
 | Final confirmed malicious (atomic) | 2 |
 | Suspicious - needs analyst review | 42 |
-| Benign / false-positive (ReAct AI-Cross-Check - first SC layer) | 5 |
+| Benign / false-positive (ReAct layer 1 + 13AA layer 2) | 5 |
 | Total findings / observations in report | 49 |
 | *Self-correction - ambiguous re-judged (Step-13AA · second SC layer)* | *46* |
 | *Self-correction - reclassified (Step-13AA)* | *39* |
@@ -147,7 +149,7 @@ synthetic data so a hardcoded answer could never pass):
 Also: corroboration floor accepts execution-history + hash
 (`SIFT_FLOOR_EXEC_HASH_CORROB`), confirmed tier orders by severity, WHO-first
 identity on every finding, per-invocation prompt-cache health logging, a
-Step-7 build that skips redundant same-source parsing (the 225s→seconds fix),
+Step-7 build that skips redundant same-source parsing (minutes → seconds),
 and a launch-time storage guard rail.
 
 ## What it under-called / missed - honest false negatives
@@ -220,6 +222,8 @@ On a held-out-style paired case the agent found the real attack end-to-end,
 blocked and re-routed 22 unsupported claims to a final cross-check (never
 silently dropped), and self-corrected 40 findings - clearing 5 to benign,
 including a signed forensic tool first flagged as a possible C2 listener - fully
-autonomously, in 8m 29s, for ~$15.45, with evidence integrity preserved. The
+autonomously, in 8m 29s, for ~$15.45 (rd01 **Claude reference run** - live
+Qwen Cloud timings and costs are in [`docs/qwen-runs/`](qwen-runs/)), with
+evidence integrity preserved. The
 known limitations above are accuracy *polish*, not
 missed attacks.

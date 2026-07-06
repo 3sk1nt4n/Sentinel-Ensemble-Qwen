@@ -1,5 +1,8 @@
 # Proof of Deployment on Alibaba Cloud - screenshot
 
+> **Status:** capture pending - the screenshot will be committed here (and the
+> image link below activated) before the Devpost form is submitted.
+
 Devpost x Qwen Cloud requires **visual evidence** that the project ran on Alibaba
 Cloud, in addition to the code-file proof ("No proof = not eligible", per the
 official 2026-06-30 update). Drop the screenshot here as
@@ -22,7 +25,7 @@ screenshot from your active platform console showing that your operational
 application backend is running live inside an Alibaba Cloud ECS or SAS container
 setup."* So: deploy this repo on the instance per
 [`../../DEPLOY-ALIBABA.md`](../../DEPLOY-ALIBABA.md), run the agent there (at
-minimum `./findevil.sh --demo` plus one live `scripts/qwen_smoke.py` call, or a
+minimum `sudo ./setup.sh docker` plus one live `scripts/qwen_smoke.py` call, or a
 full light run), then capture the Workbench Overview showing the instance
 **Running**. A 10-second screen recording of the same view cheaply covers the
 older "short recording" wording still on the hackathon main page.

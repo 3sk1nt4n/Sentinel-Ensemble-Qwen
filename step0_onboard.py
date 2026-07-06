@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""SIFT-Sentinel Step-Zero — conversational onboarding launcher.
+"""Sentinel Ensemble Step-Zero - conversational onboarding launcher.
 
 Wraps the deterministic onboarding engine in a warm, talkative terminal
 experience: a branded welcome, ONE question (the evidence path), live honest
@@ -555,12 +555,12 @@ _SK_ANT_TOKEN_RE = re.compile(r"sk-ant-[A-Za-z0-9_\-]+")
 _SK_QWEN_TOKEN_RE = re.compile(r"sk-[A-Za-z0-9_\-.]{16,}")
 _VISIBLE_KEY_FILE_TEMPLATE = (
     "# ─────────────────────────────────────────────────────────────────────────────\n"
-    "#  SIFT Sentinel — your Anthropic API key\n"
+    "#  Sentinel Ensemble - your Anthropic API key\n"
     "# ─────────────────────────────────────────────────────────────────────────────\n"
     "#  Paste YOUR key on the LAST line below (replace the placeholder), then SAVE.\n"
     "#  Get one at  https://console.anthropic.com  →  API keys  →  Create key.\n"
     "#  Read locally only — never uploaded, logged, or committed (this file is\n"
-    "#  gitignored). You can also just run ./findevil.sh and paste it when asked.\n"
+    "#  gitignored). Or skip this file: ./setup.sh run asks once at a hidden prompt.\n"
     "#\n"
     "# ─────────────────────────────────────────────────────────────────────────────\n"
     "#  ⚠️  API USAGE TIER — IMPORTANT\n"
@@ -581,13 +581,13 @@ _VISIBLE_KEY_FILE_TEMPLATE = (
 
 _VISIBLE_KEY_FILE_TEMPLATE_QWEN = (
     "# ─────────────────────────────────────────────────────────────────────────────\n"
-    "#  SIFT Sentinel — your Qwen Cloud (DashScope) API key\n"
+    "#  Sentinel Ensemble - your Qwen Cloud (DashScope) API key\n"
     "# ─────────────────────────────────────────────────────────────────────────────\n"
     "#  Paste YOUR key on the LAST line below (replace the placeholder), then SAVE.\n"
     "#  Get one at  https://qwencloud.com  →  Model Studio (Singapore/Intl region)\n"
     "#  →  API Keys  →  Create API Key.\n"
     "#  Read locally only — never uploaded, logged, or committed (this file is\n"
-    "#  gitignored). You can also just run ./findevil.sh and paste it when asked.\n"
+    "#  gitignored). Or skip this file: ./setup.sh run asks once at a hidden prompt.\n"
     "#\n"
     "#  Cost expectations (measured on the reference paired case): a full LIGHT\n"
     "#  run ~$0.28 (qwen-plus), a full HEAVY run ~$1.53 (qwen3.7-max) — the $40\n"
@@ -1540,7 +1540,7 @@ def main(argv: Optional[list] = None) -> int:
     parser = argparse.ArgumentParser(
         # Dynamic so the findevil.py front door shows its own name in --help.
         prog=os.path.basename(sys.argv[0]) if sys.argv else "step0_onboard.py",
-        description="SIFT-Sentinel conversational onboarding (Step Zero).")
+        description="Sentinel Ensemble conversational onboarding (Step Zero).")
     parser.add_argument("--demo", action="store_true",
                         help="Render a synthetic onboarding (no real evidence).")
     parser.add_argument("--dry-run", "--plan", dest="dry_run",

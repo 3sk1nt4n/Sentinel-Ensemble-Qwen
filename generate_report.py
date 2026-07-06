@@ -4,6 +4,7 @@ import os
 import sys
 import json
 import re
+from html import escape
 
 def generate(md_path=None, findings_path=None, summary_path=None, out_path=None):
     if not md_path:
@@ -58,25 +59,31 @@ def generate(md_path=None, findings_path=None, summary_path=None, out_path=None)
     </div>"""
 
     findings_html = ""
-    if findings:
+    # Only deterministically validated findings belong here; blocked findings
+    # are rendered once, under "Requires Analyst Review" below.
+    validated = [f for f in findings if f.get("deterministic_check") == "passed"]
+    if validated:
         findings_html = '<div class="findings-section"><h2>Validated Findings</h2>'
-        for f in findings:
-            fid = f.get("finding_id", "?")
-            conf = f.get("confidence_level", "UNKNOWN").upper()
+        for f in validated:
+            fid = escape(str(f.get("finding_id", "?")))
+            conf = escape(str(f.get("confidence_level", "UNKNOWN")).upper())
             badge_class = f"badge-{conf.lower()}" if conf in ("HIGH", "MEDIUM", "LOW") else "badge-unknown"
-            title = f.get("title", f.get("artifact", ""))
-            desc = f.get("description", "")
-            check = f.get("deterministic_check", "?")
+            title = escape(str(f.get("title", f.get("artifact", "")) or ""))
+            desc = escape(str(f.get("description", "") or "")[:300])
+            check = escape(str(f.get("deterministic_check", "?")))
             claims = f.get("claims", [])
             claims_html = ""
             for c in claims:
                 ctype = c.get("type", "?")
                 if ctype == "pid":
-                    claims_html += f'<span class="claim claim-pid">PID {c.get("pid")} = {c.get("process", "?")}</span>'
+                    text = f'PID {c.get("pid")} = {c.get("process", "?")}'
+                    claims_html += f'<span class="claim claim-pid">{escape(text)}</span>'
                 elif ctype == "hash":
-                    claims_html += f'<span class="claim claim-hash">SHA1: {c.get("sha1", "?")[:12]}... = {c.get("filename", "?")}</span>'
+                    text = f'SHA1: {str(c.get("sha1", "?"))[:12]}... = {c.get("filename", "?")}'
+                    claims_html += f'<span class="claim claim-hash">{escape(text)}</span>'
                 elif ctype == "connection":
-                    claims_html += f'<span class="claim claim-conn">{c.get("foreign_addr", "?")}:{c.get("foreign_port", "?")}</span>'
+                    text = f'{c.get("foreign_addr", "?")}:{c.get("foreign_port", "?")}'
+                    claims_html += f'<span class="claim claim-conn">{escape(text)}</span>'
             findings_html += f"""
             <div class="finding-card">
                 <div class="finding-header">
@@ -85,7 +92,7 @@ def generate(md_path=None, findings_path=None, summary_path=None, out_path=None)
                     <span class="validator-{check}">{check}</span>
                 </div>
                 <h3>{title}</h3>
-                <p>{desc[:300]}</p>
+                <p>{desc}</p>
                 <div class="claims">{claims_html}</div>
             </div>"""
         findings_html += "</div>"
@@ -96,10 +103,10 @@ def generate(md_path=None, findings_path=None, summary_path=None, out_path=None)
         findings_html += '<div class="review-section"><h2>Requires Analyst Review</h2>'
         findings_html += '<p>These observations could not be machine-verified. Each entry explains why and what to do next.</p>'
         for bf in blocked:
-            fid = bf.get("finding_id", "?")
-            title = bf.get("title", bf.get("artifact", ""))
-            desc = bf.get("description", "")
-            reason = bf.get("block_reason", "No checkable claims attached")
+            fid = escape(str(bf.get("finding_id", "?")))
+            title = escape(str(bf.get("title", bf.get("artifact", "")) or ""))
+            desc = escape(str(bf.get("description", "") or "")[:300])
+            reason = str(bf.get("block_reason", "No checkable claims attached"))
 
             rl = reason.lower()
             if "no checkable claims" in rl or "no recognized claim" in rl:
@@ -129,9 +136,9 @@ def generate(md_path=None, findings_path=None, summary_path=None, out_path=None)
                 </div>
                 <h3>{title}</h3>
                 <div style="background: #fffbeb; padding: 10px; border-radius: 6px; margin: 8px 0;">
-                    <strong>Why this needs review:</strong> {friendly}
+                    <strong>Why this needs review:</strong> {escape(friendly)}
                 </div>
-                <p>{desc[:300]}</p>
+                <p>{desc}</p>
                 <p style="color: #6b7280; font-size: 0.85em;">
                     <strong>What to do:</strong> Check raw tool outputs in the analysis/ folder.
                     Look for this activity in pstree, netscan, and amcache data.
@@ -143,7 +150,7 @@ def generate(md_path=None, findings_path=None, summary_path=None, out_path=None)
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>SIFT Sentinel - Incident Report</title>
+<title>Sentinel Ensemble - Incident Report</title>
 <style>
     * {{ margin: 0; padding: 0; box-sizing: border-box; }}
     body {{ font-family: 'DM Sans', -apple-system, sans-serif; max-width: 960px; margin: 0 auto; padding: 24px; line-height: 1.6; color: #1a1a2e; background: #f8fafc; }}
@@ -189,7 +196,7 @@ def generate(md_path=None, findings_path=None, summary_path=None, out_path=None)
 </head>
 <body>
     <div class="report-header">
-        <h1>SIFT Sentinel -- Incident Report</h1>
+        <h1>Sentinel Ensemble -- Incident Report</h1>
         <div class="subtitle">Autonomous DFIR Pipeline | 16-Step Forensic Analysis</div>
         <div class="brand">SolventAi CyberSecurity | solventcyber.com</div>
     </div>
@@ -198,7 +205,7 @@ def generate(md_path=None, findings_path=None, summary_path=None, out_path=None)
     {findings_html}
     <hr>
     {html_body}
-    <div class="footer">Generated by SIFT Sentinel v1.0 | SolventAi CyberSecurity | solventcyber.com | Global AI Hackathon with Qwen Cloud - Track 4</div>
+    <div class="footer">Generated by Sentinel Ensemble | SolventAi CyberSecurity | solventcyber.com | Global AI Hackathon with Qwen Cloud - Track 4</div>
 </body>
 </html>"""
 
@@ -223,7 +230,7 @@ def md_to_html(md):
                 in_code = True
             continue
         if in_code:
-            html_lines.append(line)
+            html_lines.append(escape(line))
             continue
         if stripped.startswith("### "):
             html_lines.append(f"<h3>{inline(stripped[4:])}</h3>")
@@ -275,6 +282,9 @@ def md_to_html(md):
     return "\n".join(html_lines)
 
 def inline(text):
+    # The markdown is built from evidence-derived (and LLM-generated) content:
+    # escape it before layering the inline HTML markup on top.
+    text = escape(text)
     text = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", text)
     text = re.sub(r"`(.+?)`", r"<code>\1</code>", text)
     text = re.sub(r"\[(.+?)\]\((.+?)\)", r'<a href="\2">\1</a>', text)

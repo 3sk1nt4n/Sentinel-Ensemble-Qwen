@@ -289,7 +289,7 @@ def _trim_context(data: Any, max_chars: int = MAX_CONTEXT_CHARS) -> str:
 def _build_ai_prompt(question: str, context: str, history: list[dict]) -> str:
     """Build prompt with reasoning tag, context, and conversation memory."""
     parts = [
-        "You are a DFIR analyst assistant for the SIFT Sentinel forensic workstation.",
+        "You are a DFIR analyst assistant for the Sentinel Ensemble forensic platform.",
         "Analyze the evidence loaded in the current pipeline state. Do not assume any specific case or threat actor.",
         "Before answering, output your reasoning in a <thinking> tag.",
         "Be concise and forensically precise. Reference PIDs, timestamps, IPs when relevant.",
@@ -738,7 +738,7 @@ class SIFTConsole:
 
     def cmd_help(self) -> None:
         """Show command help."""
-        table = Table(title="SIFT Sentinel Commands", show_header=False)
+        table = Table(title="Sentinel Ensemble Commands", show_header=False)
         table.add_column("Command", style="bold cyan", min_width=24)
         table.add_column("Description")
         cmds = [
@@ -868,7 +868,7 @@ def render_welcome(mode: str) -> None:
 
     panel = Panel(
         "\n".join(lines),
-        title="[bold cyan]SIFT SENTINEL[/bold cyan] - Agentic DFIR Terminal",
+        title="[bold cyan]SENTINEL ENSEMBLE[/bold cyan] - Agentic DFIR Terminal (legacy console)",
         subtitle="Autonomous DFIR Analysis",
         border_style="cyan",
         padding=(1, 2),
@@ -881,7 +881,7 @@ def render_welcome(mode: str) -> None:
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="SIFT Sentinel - Agentic DFIR Terminal",
+        description="Sentinel Ensemble - Agentic DFIR Terminal (legacy console)",
     )
     group = parser.add_mutually_exclusive_group()
     group.add_argument(

@@ -1240,7 +1240,7 @@ def render_findings_terminal(buckets, width=None, summary=None, image_path=None,
         )
 
         lines += [_bar("t"),
-                  _bln_c("SIFT-SENTINEL  \u00b7  Fully Autonomous Agentic-AI DFIR Platform"),
+                  _bln_c("SENTINEL ENSEMBLE  \u00b7  Fully Autonomous Agentic-AI DFIR Platform"),
                   _bar("m"),
                   _lv("Sample", sample),
                   _lv("Runtime", "%s     Status: %s" % (_hms(sm.get("elapsed_s", 0)), status)),
@@ -1313,7 +1313,7 @@ def build_bucket_faithful_customer_findings_table(
     _plain_benign = [f for f in _benign_all if not _is_ai_self_corrected(f)]
     _n_findings = counts['confirmed_malicious_atomic'] + counts['suspicious_needs_review'] + counts['inconclusive_unresolved']
     lines: list[str] = [
-        "SIFT Sentinel Customer Findings",
+        "Sentinel Ensemble Customer Findings",
         "",
         "Customer view: findings first, the false positives the AI caught next, other benign / false-positive last.",
         f"Findings (confirmed + suspicious + inconclusive): {_n_findings}  (confirmed malicious: {counts['confirmed_malicious_atomic']})",

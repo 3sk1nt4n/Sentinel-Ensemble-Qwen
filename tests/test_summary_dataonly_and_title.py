@@ -1,4 +1,4 @@
-"""Console summary: the SIFT-SENTINEL banner title renders inside its box at the
+"""Console summary: the SENTINEL ENSEMBLE banner title renders inside its box at the
 right width even when colored. (The standalone 'data-only tools' line was removed
 per operator request.) Universal: no case data.
 """
@@ -21,7 +21,7 @@ def _summary():
 
 def test_title_box_line_keeps_visible_width():
     out = render_findings_terminal(_buckets(), summary=_summary())
-    title_line = next(l for l in out.splitlines() if "SIFT-SENTINEL" in l)
+    title_line = next(l for l in out.splitlines() if "SENTINEL ENSEMBLE" in l)
     visible = re.sub(r"\x1b\[[0-9;]*m", "", title_line)
     assert visible.startswith("║") and visible.rstrip().endswith("║")
 

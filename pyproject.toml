@@ -11,6 +11,9 @@ dependencies = [
     "mcp>=1.0",
     "defusedxml>=0.7",   # hardened XML parsing of untrusted evidence
     "pycryptodome>=3.20",  # crypto helpers used by the coordinator
+    "rich>=13.0",          # live console + onboarding UI
+    "psutil>=5.9",         # runtime/health telemetry
+    "python-evtx>=0.7",    # Windows event-log parsing
 ]
 
 [project.optional-dependencies]

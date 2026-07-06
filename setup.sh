@@ -3,9 +3,9 @@
 # setup.sh - ONE command to install + verify everything Sentinel Ensemble needs.
 #            Global AI Hackathon with Qwen Cloud - Track 4 (Autopilot Agent).
 #
-#   ./setup.sh            install what pip/apt can, verify EVERYTHING, run the demo
 #   ./setup.sh docker     build + run the zero-cost demo in Docker (any OS, no Python)
 #   ./setup.sh run /case  ONE line, real Docker run: image, key, flags, mount - all handled
+#   ./setup.sh            (contributors) native install: pip/apt deps, verify, run the demo
 #   ./setup.sh --check    check only (doctor mode - no install, no sudo)
 #   ./setup.sh --no-sudo  install pip deps + check; skip apt system packages
 #
@@ -230,7 +230,7 @@ if [ $FAIL -eq 0 ]; then
   printf "\n  ${G}${B}=============================================================${X}\n"
   printf "  ${G}${B}  OK - ready for the demo and the tests.${X}\n"
   printf "  ${G}${B}  Next:  ./findevil.sh --demo       ${X}${G}(zero cost, no key)${X}\n"
-  printf "  ${G}${B}  Live:  cp .env.qwen.example .env  ${X}${G}(paste DashScope key) then ./findevil.sh /path/to/case${X}\n"
+  printf "  ${G}${B}  Live:  ./setup.sh run /path/to/case  ${X}${G}(ONE line, Docker; key from .env or a hidden prompt)${X}\n"
   printf "  ${G}${B}=============================================================${X}\n"
   [ "$WARN" -gt 0 ] && printf "  (%d optional note(s) above - fine to ignore for the demo/judge path)\n" "$WARN"
   printf "\n"

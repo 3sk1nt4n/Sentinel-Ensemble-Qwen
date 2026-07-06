@@ -57,6 +57,7 @@ def main(argv: list[str]) -> int:
     add("TOOL_HIT_INTEGRITY_GATE", "scripts/check_tool_hit_integrity_gate.py", "TOOL_HIT_INTEGRITY_GATE=PASS", True)
     add("ZERO_INFERENCE_CONTRACT_GATE", "scripts/check_zero_inference_contract_gate.py", "ZERO_INFERENCE_CONTRACT_GATE=PASS", True)
     add("VALIDATION_FAMILY_WIRING_GATE", "scripts/check_validation_family_wiring_gate.py", "VALIDATION_FAMILY_WIRING_GATE=PASS", False)
+    add("SSDT_HEALTH_GATE", "scripts/check_ssdt_health_gate.py", "SSDT_HEALTH_GATE=PASS", False, required=False)
     add("PATH_FIDELITY_GATE", "scripts/postrun_path_fidelity_gate.py", "PATH_FIDELITY_GATE=PASS", False)
     add("CUSTOMER_TABLE_ZERO_HIT_TOOL_GATE", "scripts/check_customer_table_zero_hit_tools_gate.py", "CUSTOMER_TABLE_ZERO_HIT_TOOL_GATE=PASS", False)
     add("TOOL_CONTRIBUTION_GATE", "scripts/summarize_tool_contribution.py", "TOOL_CONTRIBUTION_GATE=PASS", False)
@@ -77,4 +78,3 @@ def main(argv: list[str]) -> int:
 if __name__ == "__main__":
     raise SystemExit(main(sys.argv[1:]))
 
-# SIFT_SSDT_HEALTH_OUTPUT_TRUTH_TODO check_ssdt_health_gate.py must be included in output truth gates.

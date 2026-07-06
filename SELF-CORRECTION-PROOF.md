@@ -4,21 +4,51 @@
 > page is the receipt. Every number below is a timestamped line in the execution
 > log of the **Claude reference run** (rd01) - `artifacts/run-rd01/agent_execution_log.txt`,
 > a **local** run not committed to the repo (case-neutral policy; reproduce with
-> `./findevil.sh`). It is an architecture demonstration, not a Qwen result; the
+> `./setup.sh run /path/to/case`). It is an architecture demonstration, not a Qwen result; the
 > shipped, verifiable Qwen Cloud run metrics are in
 > [`docs/qwen-runs/`](docs/qwen-runs/). Nothing here is narration - it's grep-able
 > once you regenerate the run.
 
 Sentinel Ensemble corrects itself **twice**: once while it's *thinking* (Layer 1,
 ReAct - the AI re-investigates its own findings and changes its mind), and once
-while the system is *deciding* (Layer 2, Step 13AA - deterministic **code**
-re-judges the AI's verdicts and refuses the ones it can't prove). The design is
+while the system is *deciding* (Layer 2, Step 13AA - a final AI re-judgment
+whose every promotion deterministic **code** re-gates, refusing the ones it
+can't prove). The design is
 in [`ARCHITECTURE.md` §"Where the self-correction credit is earned"](ARCHITECTURE.md);
-this page is the **evidence** from the `run-rd01` reference run.
+this page is the **evidence** from the `run-rd01` **Claude (Opus 4.8) reference
+run**. The Qwen Cloud runs record the same self-correction machinery in their
+shipped metrics - the `react` token counters and the `disposition_counts`
+recording the 13AA outcome inside every
+[`docs/qwen-runs/*.json`](docs/qwen-runs/), including the flags-off ablation
+that measures Layer 2 directly (confirmations 3 → 1, inconclusive 0 → 11 without it).
 
 ---
 
-## 📊 Scoreboard (all from the `run-rd01` log)
+## ✅ The same machinery on Qwen Cloud - shipped, verifiable numbers
+
+Unlike the local reference log below, these numbers are **committed to this
+repo**: open [`docs/qwen-runs/`](docs/qwen-runs/) and check every cell (the
+exact JSON field is named per row).
+
+| Self-correction evidence (JSON field) | 🪶 Light | ⚡ Heavy | ⚡ Repro Jul 1 | ⚡ Ablation Jul 1 (13AA **OFF**) |
+|---|---|---|---|---|
+| Validator blocked unproven findings (`findings_blocked`) | 0 | **4** | 0 | 0 |
+| Confirmed malicious (`disposition_counts.confirmed_malicious_atomic`) | 0 | **4** | **3** | **1** |
+| Left inconclusive (`disposition_counts.inconclusive_unresolved`) | 1 | **0** | **0** | **11** |
+| Suspicious / needs-review (`…suspicious_needs_review`) | 9 | 21 | 15 | 6 |
+| Benign / false-positive, cleared with reasons (`…benign_or_false_positive`) | 1 | 9 | 4 | 3 |
+| Layer-1 ReAct re-investigation spend (`token_breakdown.react`, in/out) | ≈127.7k / 4.0k | ≈160.8k / 30.6k | ≈163.9k / 23.6k | ≈109.0k / 20.4k |
+
+**The Layer-2 proof in one comparison:** same case, same model, same day - with
+Step-13AA finalize **ON** (repro): **0 inconclusive, 3 confirmed**; with it
+**OFF** (ablation): **11 inconclusive, only 1 confirmed**. The layer *resolves*
+uncertainty and never manufactures confirmations - every promotion still passes
+the deterministic eligibility gate (`final_disposition_bucket_gate = PASS` in
+all four files).
+
+---
+
+## 📊 Scoreboard (all from the `run-rd01` log - the **Claude reference run**, not a Qwen run)
 
 | Layer / gate | What it did | Count | Log line |
 |---|---|---|---|
@@ -117,7 +147,7 @@ to mark its own homework - Layer 1 and Layer 2 both sit on top of this code gate
 ## ✅ Verify it yourself (no API key needed for the second block)
 
 The log itself is **not committed** (case-neutral policy - run outputs carry
-case IOCs). Regenerate a run with `./findevil.sh` on your own evidence, then
+case IOCs). Regenerate a run with `./setup.sh run /path/to/your-case` on your own evidence, then
 run these greps against **your local** execution log (the counts below are from
 the rd01 reference run and will differ on your case; the *line types* are what
 to look for):
@@ -144,7 +174,9 @@ grep -n "VERIFIED: 32 findings confirmed" "$LOG"
 
 And run the self-correction engine on mock evidence (real validator, no key):
 ```bash
-python3 demo_self_correction.py     # 3 strategies, incl. an honest UNRESOLVED failure
+docker run --rm --entrypoint python3 sentinel-qwen:demo demo_self_correction.py
+# ^ 3 strategies, incl. an honest UNRESOLVED failure (image from ./setup.sh docker;
+#   native `python3 demo_self_correction.py` also works in a dev checkout - ONBOARDING.md)
 ```
 
 ---
@@ -179,6 +211,7 @@ gate to confirmed. `🟢` = demoted to benign (false positive caught).
 | F013 | inconclusive | needs-review ⚖️ | confirmed | rundll32 proxy execution corroborated across three tools |
 | F015 | inconclusive | needs-review ⚖️ | confirmed | Event 1102 audit log cleared - deterministic anti-forensic signal |
 | F019 | inconclusive | needs-review ⚖️ | confirmed | admin-share access corroborated by event logs + network IOCs |
+| F020 | inconclusive | needs-review ⚖️ | confirmed | RDP/WinRM/SMB lateral movement corroborated by netscan and logs |
 | F023 | benign | needs-review ⚖️ | confirmed | null-cmdline rundll32 injection corroborated across three tools |
 | F026 | inconclusive | needs-review ⚖️ | confirmed | IFEO sethc Debugger backdoor - registry + event logs |
 | F027 | inconclusive | needs-review ⚖️ | confirmed | Event 1102 audit log cleared - deterministic anti-forensic evidence |
@@ -211,15 +244,16 @@ gate to confirmed. `🟢` = demoted to benign (false positive caught).
 | F002 | needs-review | needs-review *(kept)* | needs_review | duplicate of F001; injection signal needs analyst review |
 
 **Read of the table:** 2 promoted to confirmed (✅), 1 demoted to benign (🟢), and
-**21 ⚖️ rows where the model wanted *confirmed* and code held the line** at
-needs-review - that, plus the 4 kept-as-needs-review-despite-`confirmed` rows
-(F035/F036/F054 + duplicates) outside the "moved" set, is the **27 → 2** gate.
+**22 ⚖️ rows where the model wanted *confirmed* and code held the line** at
+needs-review - that, plus the 3 kept-as-needs-review-despite-`confirmed` rows
+(F035/F036/F054) outside the "moved" set, is the **27 → 2** gate:
+2 promoted + 22 held + 3 kept = 27 model-`confirmed`, **25 refused**.
 
 ## See also - the full judge doc set
 - **[`README.md`](README.md)** - project overview + submission compliance checklist.
 - **[`JUDGE-QUICKSTART.md`](JUDGE-QUICKSTART.md)** - clone → run in five minutes (free `--demo`, no key).
 - **[`ARCHITECTURE.md` §"Where the self-correction credit is earned"](ARCHITECTURE.md)** - the design (two layers + the safety net).
-- **[`docs/DATASET.md`](docs/DATASET.md)** - evidence dataset (public SANS Windows IR images) + what the agent found.
+- **[`docs/DATASET.md`](docs/DATASET.md)** - evidence dataset (SANS Windows IR images; provenance + availability inside) + what the agent found.
 - **[`docs/ACCURACY.md`](docs/ACCURACY.md)** - accuracy report / methodology.
 - **`artifacts/run-rd01/agent_execution_log.txt`** (local Claude reference run, not committed) - the raw, timestamped trace cited throughout.
 - **`artifacts/run-rd01/report.md`** (local) - the analyst-facing report the corrections feed into.
@@ -229,8 +263,10 @@ needs-review - that, plus the 4 kept-as-needs-review-despite-`confirmed` rows
 
 > **Honest caveats.** *needs-review* is **not** *confirmed* - 36 findings went to
 > needs-review, only 2 to confirmed; this page never inflates that. The
-> `run-rd01` evidence is the **public SANS Windows IR image** (see
-> [`docs/DATASET.md`](docs/DATASET.md)); the detectors carry **no hardcoded
+> `run-rd01` evidence is a SANS-published Windows IR image (provenance and
+> availability notes in [`docs/DATASET.md`](docs/DATASET.md); the original
+> SANS-hosted share is no longer public); the detectors carry **no hardcoded
 > IOCs** (enforced by `audit/nocheat.py`). The corrections shown are one run's
-> real output - re-running on the same image reproduces the same gate behaviour,
-> though exact counts depend on the model's per-run reasoning.
+> real output - re-running the pipeline on comparable evidence (e.g. the public
+> cases in the README) reproduces the same gate behaviour, though exact counts
+> depend on the evidence and the model's per-run reasoning.

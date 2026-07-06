@@ -18,14 +18,14 @@ The agent was developed and validated against these Windows incident-response
 images spanning multiple OS versions and evidence shapes (memory-only, disk-only,
 and paired memory+disk). Neither the raw images nor the per-run outputs (which
 contain case-specific IOCs) are committed to this repo, per the **case-neutral
-policy** - reproduce a run with `./findevil.sh`; the demo video shows a live Qwen
-run end to end.
+policy** - reproduce a run with `./setup.sh run /path/to/case`; the demo video
+shows a live Qwen run end to end.
 
 > **Distribution note (2026-07-05):** the public download link that originally
 > accompanied the starter case data (a SANS-hosted share) is no longer
 > available, and the images are not redistributed here (third-party material +
 > case-neutral policy). The docs now point at freely downloadable public
-> practice cases instead (README step 3️⃣ / JUDGE-QUICKSTART §4) - the pipeline
+> practice cases instead (README "Get evidence to investigate" / JUDGE-QUICKSTART §4) - the pipeline
 > is dataset-agnostic, so results reproduce on any Windows evidence.
 
 | Case shape | OS | Evidence | Role |
@@ -38,8 +38,10 @@ run end to end.
 
 > ⚠️ This is the **Claude reference run** (rd01) used to prove the architecture
 > before the Qwen port - kept **local, not committed** (case-neutral policy). It
-> is **not** a Qwen result; the **Qwen Cloud run regenerates** these numbers
-> (shown in the demo). Paths below are local, after you run `./findevil.sh`.
+> is **not** a Qwen result; the **Qwen Cloud runs independently reproduce the
+> same intrusion chain with their own counts** (heavy tier: 34 findings /
+> 4 confirmed - [`docs/qwen-runs/`](qwen-runs/), shown in the demo). Paths
+> below are local, after you run `./setup.sh run /path/to/case`.
 
 Local run: `artifacts/run-rd01/report.md` · execution log:
 `artifacts/run-rd01/agent_execution_log.txt` ·

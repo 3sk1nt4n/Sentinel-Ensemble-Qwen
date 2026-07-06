@@ -40,7 +40,12 @@ pre-parsed, validated JSON - never raw stdout.
 ## Entry Point
 
 ```
-./findevil.sh  ──▶  findevil.py  ──▶  step0_onboard.py  ──▶  run_pipeline.py (the conductor)
+./setup.sh run /path/to/case        ◀── what the user types (ONE line)
+  Docker: builds the image once, forwards the key + SIFT_* env,
+  FUSE caps for .E01, mounts the evidence read-only
+        │
+        ▼  container entrypoint
+findevil.sh  ──▶  findevil.py  ──▶  step0_onboard.py  ──▶  run_pipeline.py (the conductor)
  dependency-checks    ONE question: where    drives all 16 steps below
  + friendly errors    is the evidence? +
                       read-only profiling
@@ -56,7 +61,7 @@ pre-parsed, validated JSON - never raw stdout.
         ║   owns every step - the AI acts only inside the ⟦ AI ✦ ⟧ brackets ║
         ╚═══════════════════════════════════════════════════════════════════╝
 
- Step  0 ─▶ ONBOARDING (./findevil.sh) - human presses start
+ Step  0 ─▶ ONBOARDING (findevil.sh, the entrypoint behind ./setup.sh run) - human presses start
             │      case discovery + per-case health cards · E01 disk mount (ro)
             │      OS/profile probe (vol3 windows.info · fsstat - must agree)
             │      SHA256 precompute · depth select: ⚡HEAVY / 🪶LIGHT
@@ -79,7 +84,7 @@ pre-parsed, validated JSON - never raw stdout.
             │
  Step  5 ─▶ ⟦ AI ✦ INVOCATION 1 - TOOL SELECTION ⟧
             │      195-tool MCP catalog ──⇄── AI picks an investigation set
-            │      31K guardrails (deterministic, post-selection): inject
+            │      slot-31K selection guardrails (deterministic, post-selection): inject
             │      artifact-gated high-value tools, drop lower-value,
             │      YARA opt-in only · fallback: Golden Path defaults
             │
@@ -478,9 +483,11 @@ No majority vote. No "close enough." Fact disagreement = blocked.
 
 ## Proven Run Performance
 
-**Shipped result - two live Qwen Cloud runs.** The pipeline ran end-to-end twice
-on **Qwen models via the Alibaba Cloud DashScope API** on the paired Windows
-reference case (memory + disk), same deterministic trust layer, two model tiers.
+**Shipped result - live Qwen Cloud runs.** The pipeline's two headline runs
+executed end-to-end on **Qwen models via the Alibaba Cloud DashScope API** on
+the paired Windows reference case (memory + disk), same deterministic trust
+layer, two model tiers - plus a **July 1 reproduction** and a **flags-off
+ablation**, all four committed in `docs/qwen-runs/`.
 Sanitized aggregate metrics are committed in
 [`docs/qwen-runs/`](docs/qwen-runs/); full outputs stay uncommitted per the
 case-neutral policy.

@@ -1,11 +1,11 @@
 # Sentinel Ensemble - Qwen edition - container image
 #
 # Three build targets (pick by size / completeness):
-#   demo       ~290 MB  python + 4 deps. `findevil.sh --demo` (NO key, NO
+#   demo       ~290 MB  python + the pinned deps in requirements.txt. `findevil.sh --demo` (NO key, NO
 #                       evidence, NO forensic tools). The fastest "just try it".
-#   full       ~465 MB  demo + the memory/disk core: Volatility 3, Sleuth Kit,
+#   full       ~485 MB  demo + the memory/disk core: Volatility 3, Sleuth Kit,
 #                       EWF tools, YARA. Real memory/disk runs.
-#   full-plus  ~990 MB  full + every high-value tool the pipeline invokes:
+#   full-plus  ~1 GB    full + every high-value tool the pipeline invokes:
 #                       bulk_extractor, EZ Tools (EvtxECmd/RECmd via .NET 9),
 #                       Plaso (log2timeline), RegRipper, pff-tools, photorec.
 #                       This is the DEFAULT target (everything-in-Docker).
@@ -62,6 +62,8 @@ RUN PYTHONPATH="/install/lib/python3.12/site-packages" /install/bin/log2timeline
 # Shared base: code + python deps
 # ======================================================================
 FROM python:3.12-slim-bookworm AS base
+# Image-wide default provider: a bare `docker run` is a Qwen run (env overrides win)
+ENV SIFT_LLM_PROVIDER=qwen
 ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1

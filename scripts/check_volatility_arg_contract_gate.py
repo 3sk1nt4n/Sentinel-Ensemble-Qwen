@@ -76,7 +76,8 @@ def main() -> int:
     if vol_zero_errors:
         failures.append("vol_tools_missing_image_path=" + ",".join(sorted(set(vol_zero_errors))[:20]))
 
-    common = Path("src/sift_sentinel/tools/common.py").read_text(errors="replace")
+    _root = Path(__file__).resolve().parents[1]
+    common = (_root / "src/sift_sentinel/tools/common.py").read_text(errors="replace")
     if "SIFT_VOLATILITY_ARG_CONTRACT_COMMON_INJECTION_V1" not in common:
         failures.append("common_missing_runtime_injection")
     if "resolve_volatility_image_path" not in common:

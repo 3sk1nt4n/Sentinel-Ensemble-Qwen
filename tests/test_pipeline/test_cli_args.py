@@ -12,7 +12,7 @@ import pytest
 @pytest.fixture
 def parser():
     """Build the same argparse parser as run_pipeline.py without side effects."""
-    p = argparse.ArgumentParser(description="SIFT Sentinel Pipeline Runner")
+    p = argparse.ArgumentParser(description="Sentinel Ensemble Pipeline Runner")
     p.add_argument("--live", action="store_true")
     p.add_argument("--ollama", action="store_true")
     p.add_argument("--gemini", action="store_true")

@@ -1,4 +1,4 @@
-# SIFT Sentinel - Invocation Contracts
+# Sentinel Ensemble - Invocation Contracts
 
 coordinator.py calls the model **5 times** per run - the 4 numbered invocations
 below **plus the Step-13AA self-correction finalize**. Odd invocations (1, 3)
@@ -61,7 +61,7 @@ spends longer inside Inv2/ReAct reasoning than the original budget assumed; see
 Each invocation communicates via files, not memory:
 
 ```
-/tmp/sift-sentinel/
+/tmp/sift-sentinel-run-<run-id>/     # one scratch dir per run (illustrative)
 ├── evidence/              # mounted read-only
 ├── tool_outputs/          # JSON per tool (vol_pstree.json, etc.)
 ├── reference_set.json     # built by reference_set.py
@@ -76,7 +76,7 @@ Each invocation communicates via files, not memory:
 ├── inv4_prompt.md
 ├── report.md              # final output
 ├── audit_trail.jsonl      # append-only log
-└── sha256_pre.txt / sha256_post.txt
+└── sha256_pre.json / sha256_post.json
 ```
 
 ## invoke_model() - the stateless call contract
@@ -89,18 +89,17 @@ call is independent, state lives in files:
 
 ```python
 def invoke_model(prompt_path: str, timeout: int, max_turns: int, fallback_fn):
-    # model = claude-opus-4-8 (HEAVY) or claude-haiku-4-5 (LIGHT).
-    # max_turns bounds tool-use rounds for the MCP invocations (1, 3); the
-    # text-only invocations (2, 4) use max_turns = 1.
+    # model = qwen3.7-max (HEAVY) or qwen-plus (LIGHT), resolved by the provider
+    # seam (llm_provider.py) from env - live calls go to Alibaba Cloud DashScope
+    # (OpenAI-compatible). max_turns bounds tool-use rounds for the MCP
+    # invocations (1, 3); the text-only invocations (2, 4) use max_turns = 1.
     try:
-        resp = anthropic_client.messages.create(
-            model=ACTIVE_MODEL,
-            max_tokens=MAX_TOKENS,
-            messages=[{"role": "user", "content": open(prompt_path).read()}],
+        resp = llm_complete(                     # llm_provider.py seam
+            prompt=open(prompt_path).read(),
             timeout=timeout,
         )
-        return parse_and_validate(strip_markdown_fences(resp.content[0].text))
-    except (anthropic.APITimeoutError, anthropic.APIError) as e:
+        return parse_and_validate(strip_markdown_fences(resp.text))
+    except (LLMTimeout, LLMAPIError) as e:
         log("TIMEOUT_OR_API_ERROR", prompt_path, str(e))
         return fallback_fn()
     except (json.JSONDecodeError, ValidationError) as e:
@@ -108,7 +107,10 @@ def invoke_model(prompt_path: str, timeout: int, max_turns: int, fallback_fn):
         return fallback_fn()
 ```
 
-## Key Helpers (Task 1.5)
+*(Illustrative - the Anthropic fallback provider preserves this identical
+contract; only the seam's backend changes.)*
+
+## Key Helpers
 
 - **prepare_prompt()**: Filters tool outputs within token budget before Invocation 2. Prevents context window blowout.
 - **strip_markdown_fences()**: Removes ```json``` wrappers from the model's output. 5 lines of defensive parsing.
