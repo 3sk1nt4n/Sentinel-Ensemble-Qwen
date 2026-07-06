@@ -4,10 +4,12 @@
 
   The Windows twin of ./setup.sh. Same experience:
 
-    .\setup.ps1                        # guided: shows the walkthrough, asks for your evidence
-    .\setup.ps1 docker                 # zero-cost demo - no key, no evidence (~30 s)
-    .\setup.ps1 run C:\path\to\case    # real investigation - one line does everything
-    .\setup.ps1 run -DryRun C:\...     # onboarding + plan only, nothing executed
+    .\setup.cmd                        guided: shows the walkthrough, asks for your evidence
+    .\setup.cmd docker                 zero-cost demo - no key, no evidence (~30 s)
+    .\setup.cmd run C:\path\to\case    real investigation - one line does everything
+    .\setup.cmd run -DryRun C:\...     onboarding + plan only, nothing executed
+
+  (Prefer PowerShell-native? .\setup.ps1 with the same arguments works too.)
 
   'run' builds the toolchain image on first use, reads your DashScope key from
   .env / the environment (or asks once, hidden), applies the verified-run flags,
@@ -15,6 +17,10 @@
   agent, and saves the report to sentinel-results\<case>\ on your machine.
 
   Requires Docker Desktop (https://www.docker.com/products/docker-desktop/).
+
+  NOTE: this file is intentionally pure ASCII so it parses in Windows PowerShell
+  5.1 regardless of file encoding. The fancy Unicode walkthrough (banner, case
+  card, depth menu) comes from the container at run time.
 #>
 [CmdletBinding()]
 param(
@@ -33,7 +39,6 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
 $RepoDir = $PSScriptRoot
 Set-Location $RepoDir
 
@@ -45,14 +50,14 @@ function Sec  ($m) { Write-Host "`n== $m ==" -ForegroundColor White }
 
 function Show-Banner {
     Write-Host ""
-    Write-Host "  ╔══════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-    Write-Host "  ║                                                              ║" -ForegroundColor Cyan
-    Write-Host "  ║              S E N T I N E L   E N S E M B L E               ║" -ForegroundColor White
-    Write-Host "  ║        Autonomous DFIR / SOC · Qwen on Alibaba Cloud         ║" -ForegroundColor Gray
-    Write-Host "  ║                                                              ║" -ForegroundColor Cyan
-    Write-Host "  ║       ""Point me at your evidence. I'll do the rest.""         ║" -ForegroundColor Gray
-    Write-Host "  ║                                                              ║" -ForegroundColor Cyan
-    Write-Host "  ╚══════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+    Write-Host "  +==============================================================+" -ForegroundColor Cyan
+    Write-Host "  |                                                              |" -ForegroundColor Cyan
+    Write-Host "  |              S E N T I N E L   E N S E M B L E               |" -ForegroundColor White
+    Write-Host "  |        Autonomous DFIR / SOC - Qwen on Alibaba Cloud         |" -ForegroundColor Gray
+    Write-Host "  |                                                              |" -ForegroundColor Cyan
+    Write-Host "  |        'Point me at your evidence. I'll do the rest.'        |" -ForegroundColor Gray
+    Write-Host "  |                                                              |" -ForegroundColor Cyan
+    Write-Host "  +==============================================================+" -ForegroundColor Cyan
     Write-Host ""
 }
 
@@ -60,15 +65,15 @@ function Show-EvidenceGuide {
     Write-Host "Point me at ONE case's evidence folder - I take it from there, read-only, start to finish." -ForegroundColor White
     Write-Host ""
     Write-Host "  What to put in the folder"
-    Write-Host "    - Memory image    .raw .img .mem .vmem .dmp      - the live RAM"      -ForegroundColor Gray
-    Write-Host "    - Disk image      .E01 .dd .raw .img             - the drive"        -ForegroundColor Gray
-    Write-Host "    - Notes / PDFs / spreadsheets                    - kept as context"  -ForegroundColor Gray
-    Write-Host "    - Archives (.zip .7z)                            - I unpack them"    -ForegroundColor Gray
+    Write-Host "    - Memory image    .raw .img .mem .vmem .dmp      the live RAM"       -ForegroundColor Gray
+    Write-Host "    - Disk image      .E01 .dd .raw .img             the drive"         -ForegroundColor Gray
+    Write-Host "    - Notes / PDFs / spreadsheets                    kept as context"   -ForegroundColor Gray
+    Write-Host "    - Archives (.zip .7z)                            I unpack them"     -ForegroundColor Gray
     Write-Host ""
     Write-Host "  What I do automatically"
-    Write-Host "    + tell memory / disk / documents apart by PROBING them (not by name)" -ForegroundColor Gray
-    Write-Host "    + mount the disk READ-ONLY, detect the OS, check the memory is healthy" -ForegroundColor Gray
-    Write-Host "    + hand you a verified case card - then you pick the depth and launch"   -ForegroundColor Gray
+    Write-Host "    * tell memory / disk / documents apart by PROBING them (not by name)" -ForegroundColor Gray
+    Write-Host "    * mount the disk READ-ONLY, detect the OS, check the memory is healthy" -ForegroundColor Gray
+    Write-Host "    * hand you a verified case card - then you pick the depth and launch"   -ForegroundColor Gray
     Write-Host ""
     Write-Host "  Need a case? Free public Windows cases (no login) are in docs\DOCKER.md." -ForegroundColor DarkGray
     Write-Host ""
@@ -112,15 +117,15 @@ function Import-DotEnv {
 
 # Ask for the evidence folder the way the original onboarding does.
 function Read-CasePath {
-    Write-Host "   📂  ONBOARDING  ·  where is this case's evidence?" -ForegroundColor Cyan
-    Write-Host "  ────────────────────────────────────────────────────" -ForegroundColor DarkGray
-    Write-Host "   > Paste the FOLDER that holds this case (memory + disk + notes)."
+    Write-Host "   ONBOARDING - where is this case's evidence?" -ForegroundColor Cyan
+    Write-Host "  ----------------------------------------------------" -ForegroundColor DarkGray
+    Write-Host "   Paste the FOLDER that holds this case (memory + disk + notes)."
     Write-Host "     Example:  C:\Users\You\Downloads\my-case" -ForegroundColor Gray
     Write-Host "     Tip: you can drag the folder onto this window to paste its path." -ForegroundColor DarkGray
     while ($true) {
-        $p = (Read-Host "   > path (or Q to quit)").Trim().Trim('"')
-        if ($p -eq '' ) { continue }
-        if ($p -in @('q', 'Q')) { return $null }
+        $p = (Read-Host "   path (or Q to quit)").Trim().Trim('"')
+        if ($p -eq '') { continue }
+        if ($p -eq 'q' -or $p -eq 'Q') { return $null }
         if (Test-Path -LiteralPath $p -PathType Container) { return (Resolve-Path -LiteralPath $p).Path }
         if (Test-Path -LiteralPath $p -PathType Leaf) {
             Warn "that's a file - give me the FOLDER it lives in (it should hold the memory + disk)."
@@ -134,13 +139,11 @@ function Read-CasePath {
 # Normalize the requested mode. Anything unrecognized -> guided menu.
 $Mode = $Mode.ToLower()
 if ($Rest -and $Mode -eq 'run' -and -not $CasePath) {
-    # e.g. ".\setup.ps1 run C:\case pair" lands the path in $CasePath already;
-    # if the path somehow arrived via $Rest, take the first folder-like token.
     foreach ($r in $Rest) { if (Test-Path -LiteralPath $r -PathType Container) { $CasePath = $r; break } }
 }
 
 # ===========================================================================
-#  DEMO  ->  .\setup.ps1 docker
+#  DEMO  ->  .\setup.cmd docker
 # ===========================================================================
 if ($Mode -eq 'docker') {
     Write-Host "Sentinel Ensemble - Docker demo" -ForegroundColor White
@@ -153,7 +156,7 @@ if ($Mode -eq 'docker') {
     docker run --rm -it sentinel-qwen:demo
     Write-Host "`n  OK  Docker demo works." -ForegroundColor Green
     Write-Host "  Real investigation - ONE line:" -ForegroundColor White
-    Write-Host "    .\setup.ps1 run C:\path\to\case      # or just .\setup.ps1  (it asks for the folder)"
+    Write-Host "    .\setup.cmd run C:\path\to\case      (or just .\setup.cmd - it asks for the folder)"
     Write-Host "    (key from .env or a hidden prompt - get one at home.qwencloud.com/api-keys)"
     Write-Host "    Free public cases + full guide: docs\DOCKER.md`n"
     exit 0
@@ -161,17 +164,17 @@ if ($Mode -eq 'docker') {
 
 # ===========================================================================
 #  RUN (and the default guided flow)
-#     .\setup.ps1                       -> banner + guide + ask for the folder
-#     .\setup.ps1 run C:\path\to\case   -> straight to it
+#     .\setup.cmd                       -> banner + guide + ask for the folder
+#     .\setup.cmd run C:\path\to\case   -> straight to it
 # ===========================================================================
-if ($Mode -eq 'run' -or $Mode -eq '' -or $Mode -eq 'help') {
+if ($Mode -eq 'run' -or $Mode -eq '') {
 
-    # Bare ".\setup.ps1" with no args = the guided experience.
     $guided = ($Mode -ne 'run')
     if ($guided) {
         Show-Banner
         Show-EvidenceGuide
-    } else {
+    }
+    else {
         Write-Host "Sentinel Ensemble - one-line Docker run" -ForegroundColor White
     }
 
@@ -199,14 +202,15 @@ if ($Mode -eq 'run' -or $Mode -eq '' -or $Mode -eq 'help') {
 
     # Config: .env first, then verified-run defaults for anything unset.
     $envmap = Import-DotEnv
-    foreach ($kv in @{
+    $defaults = @{
         'SIFT_LLM_PROVIDER'  = 'qwen'
         'SIFT_DEFAULT_MODEL' = 'qwen3.7-max'
         'SIFT_HTTP_TIMEOUT'  = '600'
         'SIFT_ALLOW_YARA'    = '1'
-    }.GetEnumerator()) {
-        if (-not $envmap.ContainsKey($kv.Key) -and -not (Get-Item "env:$($kv.Key)" -ErrorAction SilentlyContinue)) {
-            $envmap[$kv.Key] = $kv.Value
+    }
+    foreach ($k in $defaults.Keys) {
+        if (-not $envmap.ContainsKey($k) -and -not (Get-Item "env:$k" -ErrorAction SilentlyContinue)) {
+            $envmap[$k] = $defaults[$k]
         }
     }
     # Real environment variables win over .env (same precedence as findevil.sh).
@@ -216,13 +220,13 @@ if ($Mode -eq 'run' -or $Mode -eq '' -or $Mode -eq 'help') {
 
     # Key: ask once (hidden) if provider is qwen and none is set (unless dry-run).
     $provider = $envmap['SIFT_LLM_PROVIDER']
-    $haveKey  = $envmap['DASHSCOPE_API_KEY'] -or $envmap['QWEN_API_KEY']
+    $haveKey = $envmap['DASHSCOPE_API_KEY'] -or $envmap['QWEN_API_KEY']
     if ($provider -eq 'qwen' -and -not $haveKey -and -not $DryRun) {
         Write-Host ""
-        Write-Host "  🔑 DashScope API key (hidden - never shown; get one at home.qwencloud.com/api-keys)" -ForegroundColor White
+        Write-Host "  DashScope API key (hidden - never shown; get one at home.qwencloud.com/api-keys)" -ForegroundColor White
         $secure = Read-Host "     paste it here" -AsSecureString
         $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
-        try   { $envmap['DASHSCOPE_API_KEY'] = [Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr) }
+        try { $envmap['DASHSCOPE_API_KEY'] = [Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr) }
         finally { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr) }
     }
 
@@ -234,7 +238,8 @@ if ($Mode -eq 'run' -or $Mode -eq '' -or $Mode -eq 'help') {
     New-Item -ItemType Directory -Force -Path $Out | Out-Null
     Note "results will be saved to: $Out"
 
-    $pass = @(); if ($DryRun) { $pass += '--dry-run' }
+    $pass = @()
+    if ($DryRun) { $pass += '--dry-run' }
 
     Sec "Launching the agent on your case (evidence mounted read-only)"
     # Docker Desktop's Linux backend needs the FUSE capabilities to mount .E01
@@ -248,7 +253,7 @@ if ($Mode -eq 'run' -or $Mode -eq '' -or $Mode -eq 'help') {
     $rc = $LASTEXITCODE
 
     if ((Test-Path (Join-Path $Out 'report.md')) -or (Get-ChildItem $Out -Filter 'incident_report_*.md' -ErrorAction SilentlyContinue)) {
-        Write-Host "`n  ✅  Report saved on your machine: $Out" -ForegroundColor Green
+        Write-Host "`n  OK  Report saved on your machine: $Out" -ForegroundColor Green
         Write-Host "      open report.md (narrative) or summary_report_*.html (one-page view)`n"
     }
     exit $rc
@@ -257,9 +262,9 @@ if ($Mode -eq 'run' -or $Mode -eq '' -or $Mode -eq 'help') {
 # Unknown mode -> guide.
 Show-Banner
 Write-Host "  Usage:" -ForegroundColor White
-Write-Host "    .\setup.ps1                        guided - shows the walkthrough, asks for your evidence"
-Write-Host "    .\setup.ps1 docker                 zero-cost demo (no key, no evidence, ~30 s)"
-Write-Host "    .\setup.ps1 run C:\path\to\case    real investigation - one line does everything"
+Write-Host "    .\setup.cmd                        guided - shows the walkthrough, asks for your evidence"
+Write-Host "    .\setup.cmd docker                 zero-cost demo (no key, no evidence, ~30 s)"
+Write-Host "    .\setup.cmd run C:\path\to\case    real investigation - one line does everything"
 Write-Host ""
 Write-Host "  Needs Docker Desktop: https://www.docker.com/products/docker-desktop/"
 exit 0
