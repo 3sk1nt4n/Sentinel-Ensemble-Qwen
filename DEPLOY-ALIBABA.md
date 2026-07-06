@@ -162,9 +162,11 @@ and is an explicit evaluation plus-point.
   endpoint; switch `DASHSCOPE_BASE_URL` for mainland China. Your API key is
   region-scoped - a Singapore (intl) key will not authenticate against the
   mainland endpoint, and vice versa.
-- **Status:** two full paired investigations have already run end-to-end on Qwen
-  models via the Alibaba Cloud DashScope API (see `QWEN-SUBMISSION.md` for the
-  verified numbers). This runbook is the turnkey path to *also* run the backend
-  on Alibaba Cloud **ECS** and capture the Workbench screenshot the Proof-of-
-  Deployment question requires (step 6). All that is pending is provisioning an
-  ECS instance under your account.
+- **Status: DEPLOYED (2026-07-06).** This runbook was executed end-to-end on an
+  Alibaba Cloud **SAS** instance (Singapore, Ubuntu 24.04): repo cloned,
+  `./setup.sh docker` demo ran clean, and `scripts/qwen_smoke.py` made a live
+  Qwen call from the instance (`SENTINEL-QWEN-OK`). The Workbench screenshot is
+  committed at [`docs/proof/`](docs/proof/) and the instance stays running
+  through the judging period. Separately, two full paired investigations have
+  run end-to-end on Qwen models via the same DashScope API (verified numbers in
+  `QWEN-SUBMISSION.md`).

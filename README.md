@@ -39,7 +39,7 @@ tool execution that proved it.
 | Text description | done | [`QWEN-SUBMISSION.md`](QWEN-SUBMISSION.md) + [What it does](#-what-it-does) |
 | Run instructions for judges | done | [Run it - 3 steps](#-run-it---3-steps-any-computer) + [`JUDGE-QUICKSTART.md`](JUDGE-QUICKSTART.md) |
 | Proof of Deployment - code file + Base URL | done | [`src/sift_sentinel/llm_provider.py`](src/sift_sentinel/llm_provider.py) - live DashScope (Alibaba Cloud) HTTPS calls to `dashscope-intl.aliyuncs.com/compatible-mode/v1`; endpoint also recorded in [`docs/qwen-runs/`](docs/qwen-runs/) |
-| Proof of Deployment - Workbench screenshot | add before submit | capture per [`docs/proof/`](docs/proof/) + [`DEPLOY-ALIBABA.md`](DEPLOY-ALIBABA.md); attach to the Devpost "Proof of Deployment" question |
+| Proof of Deployment - Workbench screenshot | done | [`docs/proof/`](docs/proof/) - SAS instance **Running** in Singapore (deployed per [`DEPLOY-ALIBABA.md`](DEPLOY-ALIBABA.md); live `SENTINEL-QWEN-OK` smoke call from the instance; stays running through judging) |
 | Architecture diagram | done | [`ARCHITECTURE.md`](ARCHITECTURE.md) + `ARCH_VERTICAL.png` (Qwen/DashScope inference box) |
 | Demonstration video (< 3 min) | built - host + link | [`docs/sentinel-qwen-demo.mp4`](docs/sentinel-qwen-demo.mp4) - 2:52, title-card intro + the 0-vs-4 two-tier reveal + real run output from both runs, closing on the spelled-out "Digital Forensics & Incident-Response (DFIR)" card (Built by Adil Eskintan). *(Run footage predates the product's rename - on-screen banners read "SIFT Sentinel", the engine's former name.)* Upload to **YouTube (Public)** and put the link on the Devpost form (open step, along with the Workbench screenshot above) |
 | Track identified | done | Track 4 - Autopilot Agent |
