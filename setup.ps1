@@ -38,7 +38,11 @@ param(
     [string[]]$Rest
 )
 
-$ErrorActionPreference = 'Stop'
+# NOTE: 'Continue', not 'Stop'. Docker writes harmless warnings to stderr (e.g.
+# "daemon is not using the default seccomp profile"); under -Stop, Windows
+# PowerShell 5.1 turns that stderr text into a fake terminating error even though
+# docker succeeded. We drive control flow off $LASTEXITCODE explicitly instead.
+$ErrorActionPreference = 'Continue'
 $RepoDir = $PSScriptRoot
 # Always operate from THIS repo folder, no matter where you launched from, so
 # everything (the image, your results) is in the same place every time.
@@ -92,12 +96,15 @@ function Test-Docker {
         Write-Host "  During install, keep the WSL2 backend enabled. Then reopen PowerShell and re-run this."
         exit 1
     }
-    docker info *> $null
+    # Merge stderr into stdout and swallow it; only the exit code tells us if the
+    # daemon is reachable (docker prints warnings to stderr even on success).
+    $null = docker info 2>&1
     if ($LASTEXITCODE -ne 0) {
         Bad "Docker Desktop is installed but not running."
         Write-Host "  Start Docker Desktop (wait for the whale icon to go steady), then re-run this."
         exit 1
     }
+    Ok "Docker is running"
 }
 
 function Import-DotEnv {
@@ -196,7 +203,7 @@ if ($Mode -eq 'run' -or $Mode -eq '') {
     $Case = (Resolve-Path -LiteralPath $CasePath).Path
     $CaseName = Split-Path -Leaf $Case
 
-    docker image inspect sentinel-qwen *> $null
+    $null = docker image inspect sentinel-qwen 2>&1
     if ($LASTEXITCODE -ne 0) {
         Sec "Building the full toolchain image (one time, ~15 min)"
         docker build -t sentinel-qwen .

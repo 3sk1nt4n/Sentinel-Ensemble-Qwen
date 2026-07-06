@@ -84,16 +84,15 @@ Sleuth Kit, YARA, EZ Tools, Plaso, RegRipper, bulk_extractor, …) comes bundled
 
 ### 2️⃣ Get the code
 
-**🪟 Windows** - open **PowerShell**, run each line by itself:
+**🪟 Windows** - open **PowerShell**, run each line by itself (it clones into
+whatever folder you're currently in):
 ```powershell
-cd $HOME\Desktop
 git clone https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen.git
 cd Sentinel-Ensemble-Qwen
 ```
 
 **🍎 macOS / 🐧 Linux** - open the **Terminal**:
 ```bash
-cd ~
 git clone https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen.git
 cd Sentinel-Ensemble-Qwen
 ```
