@@ -402,8 +402,8 @@ the AI never sees its own previous output; the conductor is the memory.
 ║  - the only memory -         ║              │   EZ Tools · YARA · Plaso       │
 ╚═══════════╤══════════════════╝              └────────────────┬────────────────┘
             │                                                  ┆
-            │                                                  ┆  typed JSON only
-            │                                                  ┆  - never a shell
+            │  ✦ = an AI call. Exactly FIVE per run:           ┆  typed JSON only
+            │  INV 1 · INV 2 · INV 3 · 13AA · INV 4            ┆  - never a shell
             ├─▶ ⟦INV 1 ✦ TOOL SELECTION⟧ ◀┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┤
             │      catalog in ▸ tool list out                  ┆
             │      fallback: Golden Path defaults              ┆
@@ -419,7 +419,12 @@ the AI never sees its own previous output; the conductor is the memory.
             ├─▶ ⟦INV 3 ✦ ReAct THREADS⟧ ◀┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘
             │      reason ▸ act ▸ observe - live typed tool calls
             │
-            ├─▶ R1b CLAIM RESCUE (deterministic) + ⟦13AA ✦ FINALIZE⟧
+            ├─▶ R1b CLAIM RESCUE (deterministic - no AI)
+            │      a finding whose evidence link broke is re-attached,
+            │      not dropped - it goes to 13AA for a final judgment
+            │
+            ├─▶ ⟦13AA ✦ SELF-CORRECTION FINALIZE⟧  (text-only)
+            │      the 4 numbered invocations + this = the 5 AI calls
             │      re-judges every NON-TERMINAL finding:
             │        needs-review · inconclusive · synthesis (any
             │        severity, LOW/INFO included) · validator-BLOCKED/
