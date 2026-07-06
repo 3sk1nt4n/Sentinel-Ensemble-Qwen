@@ -73,8 +73,8 @@ Provider + model are env-driven, so no code change is needed.
 
 ```bash
 cp .env.qwen.example .env      # then set DASHSCOPE_API_KEY in .env
-# `./setup.sh run` forwards it (and every SIFT_* setting) into the container.
-# Or skip this entirely: `./setup.sh run` asks for the key once, hidden.
+# `./setup.sh` forwards it (and every SIFT_* setting) into the container.
+# Or skip this entirely: `./setup.sh` asks for the key once, hidden.
 ```
 
 3. Connectivity check (one call, reuses the demo image from §2):
@@ -150,7 +150,7 @@ What happens next (a couple of prompts, then it runs):
    model per tier is env-driven (see [`.env.qwen.example`](.env.qwen.example)).
    **Choosing the depth launches the run.**
 3. The **`🔑 API key`** step - if you configured it in §3 (`.env` or
-   `DASHSCOPE_API_KEY`), `./setup.sh run` forwards it automatically; otherwise
+   `DASHSCOPE_API_KEY`), the launcher forwards it automatically; otherwise
    it asks once at a **hidden prompt** (never echoed, logged, or stored).
 4. Then touch nothing - minutes, not hours.
 
@@ -165,7 +165,7 @@ python3 run_pipeline.py --live --inv2-ensemble \
 ```
 
 The launcher handles read-only mounting and flag wiring automatically -
-prefer `./setup.sh run` (which invokes `findevil.sh`, the container
+prefer `.\setup.cmd` / `./setup.sh` (which invoke `findevil.sh`, the container
 entrypoint, for you) unless you are developing.
 </details>
 
@@ -173,7 +173,7 @@ entrypoint, for you) unless you are developing.
 
 ## 5️⃣ What you get
 
-`./setup.sh run` saves the results **on your machine** in
+The launcher saves the results **on your machine** in
 `sentinel-results/<case-name>/` (inside the repo folder) - the container is
 ephemeral, but these files persist:
 
@@ -188,7 +188,7 @@ ephemeral, but these files persist:
 
 > Per the **case-neutral repo policy**, run outputs (which contain case-specific
 > IOCs) are **not committed** to the public repo - reproduce them by running
-> `./setup.sh run /path/to/case` on your evidence; the demo video shows a live
+> `./setup.sh /path/to/case` on your evidence; the demo video shows a live
 > Qwen run end to end.
 
 Every finding links to the exact tool execution that proved it - pick any
@@ -287,14 +287,14 @@ After a run, the judge-facing invariants:
 
 | Symptom | What it means |
 |---|---|
-| `.\setup.ps1` / `./setup.sh` "not recognized" or nothing happens | wrong terminal: **Windows** → `.\setup.ps1` in **PowerShell**; **macOS/Linux** → `./setup.sh` in the **Terminal**. Run each line separately (older PowerShell rejects `&&`); if PowerShell blocks scripts: `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned` |
+| `.\setup.cmd` / `./setup.sh` "not recognized" or nothing happens | wrong terminal: **Windows** → **`.\setup.cmd`** in **PowerShell**; **macOS/Linux** → `./setup.sh` in the **Terminal**. Run each line separately (older PowerShell rejects `&&`). `.\setup.cmd` needs no policy change; only if you chose `.\setup.ps1` directly: `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned` |
 | No Docker / daemon not running | install/start **Docker Desktop** (docker.com); on **Linux** `./setup.sh docker` even offers to install Docker for you and falls back to `sudo docker` automatically |
-| `.E01` disk won't mount | run via `./setup.sh run` - it passes the required FUSE capabilities automatically (manual flags: [`docs/DOCKER.md`](docs/DOCKER.md) §3) |
+| `.E01` disk won't mount | launch via `.\setup.cmd C:\path\to\case` / `./setup.sh /path/to/case` - it passes the required FUSE capabilities automatically (manual flags: [`docs/DOCKER.md`](docs/DOCKER.md) §3) |
 | "Vol3 ISF profile not found" | Volatility 3 can't identify the memory image OS - the pipeline falls back to profile-independent scanning. Expected on some evidence sets. |
 | "SSDT trust: degraded" | the kernel-integrity check found hooked/unresolvable entries - memory-based confidence is capped at MEDIUM. A feature, not a bug. |
 | "DashScope HTTP 429" | DashScope rate limit on the parallel 4-model ensemble - the client retries with backoff (429/5xx); if it persists, pace the run or check your Model Studio quota. |
 | "model not found" / 400 | confirm the exact model IDs in your Model Studio list (`qwen3.7-max`, `qwen-plus`); `max_tokens` is auto-clamped to the model's output cap. |
-| The run doesn't start after you pick depth | you ran `step0_onboard.py` directly (staged / dev mode) - use `./setup.sh run` / `findevil.sh`, which are live by default. |
+| The run doesn't start after you pick depth | you ran `step0_onboard.py` directly (staged / dev mode) - use `.\setup.cmd` / `./setup.sh` / `findevil.sh`, which are live by default. |
 
 ---
 

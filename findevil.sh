@@ -42,7 +42,7 @@ if [ -n "${SIFT_PERSIST_DIR:-}" ]; then
             [ -f "$latest$f" ] && cp -f "$latest$f" "$SIFT_PERSIST_DIR/" 2>/dev/null || true
         done
         [ -d "$REPO_DIR/reports" ] && cp -rf "$REPO_DIR/reports/." "$SIFT_PERSIST_DIR/" 2>/dev/null || true
-        echo "  Results saved to your machine: the folder you passed to ./setup.sh run"
+        echo "  Results saved to your machine: sentinel-results/<case>/ inside the folder you launched setup from"
     fi
     exit $rc
 fi

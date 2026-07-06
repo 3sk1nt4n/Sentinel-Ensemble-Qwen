@@ -88,10 +88,12 @@ FROM base AS demo
 FROM base AS full
 RUN apt-get update && apt-get install -y --no-install-recommends \
         sleuthkit ewf-tools libewf-dev yara fuse3 util-linux procps ca-certificates \
-        sudo ntfs-3g dmsetup binutils \
+        sudo ntfs-3g dmsetup binutils p7zip-full \
     && rm -rf /var/lib/apt/lists/*
 # binutils provides `strings`, which get_amcache uses to pull execution-history
 # SHA1s out of Amcache.hve - the atomic-proof source the confirm floor needs.
+# p7zip-full provides `7z`, which onboarding calls to unpack .7z evidence
+# archives (engine.py extract ladder) - the banner promises ".zip .7z".
 RUN pip install volatility3==2.28.0
 
 # ---- full-plus target (DEFAULT): full + every high-value tool ----------

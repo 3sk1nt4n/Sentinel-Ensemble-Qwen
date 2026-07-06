@@ -41,7 +41,7 @@ tool execution that proved it.
 | Proof of Deployment - code file + Base URL | done | [`src/sift_sentinel/llm_provider.py`](src/sift_sentinel/llm_provider.py) - live DashScope (Alibaba Cloud) HTTPS calls to `dashscope-intl.aliyuncs.com/compatible-mode/v1`; endpoint also recorded in [`docs/qwen-runs/`](docs/qwen-runs/) |
 | Proof of Deployment - Workbench screenshot | add before submit | capture per [`docs/proof/`](docs/proof/) + [`DEPLOY-ALIBABA.md`](DEPLOY-ALIBABA.md); attach to the Devpost "Proof of Deployment" question |
 | Architecture diagram | done | [`ARCHITECTURE.md`](ARCHITECTURE.md) + `ARCH_VERTICAL.png` (Qwen/DashScope inference box) |
-| Demonstration video (< 3 min) | built - host + link | [`docs/sentinel-qwen-demo.mp4`](docs/sentinel-qwen-demo.mp4) - 2:52, title-card intro + the 0-vs-4 two-tier reveal + real run output from both runs, closing on the spelled-out "Digital Forensics & Incident-Response (DFIR)" card (Built by Adil Eskintan). *(Run footage predates the product's rename - on-screen banners read "SIFT Sentinel", the engine's former name.)* Upload to **YouTube (Public)** and put the link on the Devpost form (the one open submission step) |
+| Demonstration video (< 3 min) | built - host + link | [`docs/sentinel-qwen-demo.mp4`](docs/sentinel-qwen-demo.mp4) - 2:52, title-card intro + the 0-vs-4 two-tier reveal + real run output from both runs, closing on the spelled-out "Digital Forensics & Incident-Response (DFIR)" card (Built by Adil Eskintan). *(Run footage predates the product's rename - on-screen banners read "SIFT Sentinel", the engine's former name.)* Upload to **YouTube (Public)** and put the link on the Devpost form (open step, along with the Workbench screenshot above) |
 | Track identified | done | Track 4 - Autopilot Agent |
 | Trust layer (code, not the model, decides "confirmed") | done | deterministic validator + disposition gates; every finding traces to tool output (`src/sift_sentinel/validation/`, `src/sift_sentinel/analysis/disposition.py`) |
 | Self-correction | done | [`SELF-CORRECTION-PROOF.md`](SELF-CORRECTION-PROOF.md) - FP-sweep + ReAct cross-check |
@@ -308,16 +308,18 @@ flowchart LR
 | `run_summary.md` | tools · dispositions · cost · tokens at a glance |
 | `agent_execution_log.txt` | append-only execution log - every tool call, timestamps, token usage |
 | `finding_disposition_buckets.json` | confirmed / needs-review / benign / false-positive buckets, each with its reasoning - written to the run directory; `report.md` renders from it |
+| `summary_report_*.html` | the interactive one-page dashboard - open it in any web browser |
+| `incident_report_*.md` | the full forensic report (timestamped copy saved alongside) |
 
 ## 🧯 Troubleshooting
 
 | Symptom | Fix |
 |---|---|
-| `.\setup.ps1` / `./setup.sh` "not recognized" or nothing happens | wrong terminal: **Windows** uses `.\setup.ps1` in **PowerShell**; **macOS/Linux** uses `./setup.sh` in the **Terminal**. Run each line separately (older PowerShell rejects `&&`) |
-| PowerShell "running scripts is disabled" | one-time: `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned`, answer `Y`, re-run |
+| `.\setup.cmd` / `./setup.sh` "not recognized" or nothing happens | wrong terminal: **Windows** uses **`.\setup.cmd`** in **PowerShell**; **macOS/Linux** uses `./setup.sh` in the **Terminal**. Run each line separately (older PowerShell rejects `&&`) |
+| PowerShell "running scripts is disabled" | use **`.\setup.cmd`** (needs no policy change). Only if you chose `.\setup.ps1` directly, one-time: `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned`, answer `Y`, re-run |
 | No Docker / daemon not running | install/start **Docker Desktop** (docker.com); on **Linux** `./setup.sh docker` even offers to install Docker for you and falls back to `sudo docker` automatically |
-| `.E01` disk won't mount in the container | use `./setup.sh run` - it passes the required FUSE flags automatically (manual flags: [`docs/DOCKER.md`](docs/DOCKER.md) §3) |
-| The run doesn't start after you pick depth | you ran `step0_onboard.py` directly (staged / dev mode) - use `./setup.sh run` / `findevil.sh`, which are live by default |
+| `.E01` disk won't mount in the container | launch via `.\setup.cmd C:\path\to\case` / `./setup.sh /path/to/case` - it passes the required FUSE flags automatically (manual flags: [`docs/DOCKER.md`](docs/DOCKER.md) §3) |
+| The run doesn't start after you pick depth | you ran `step0_onboard.py` directly (staged / dev mode) - use `.\setup.cmd` / `./setup.sh` / `findevil.sh`, which are live by default |
 | No prompt appears in CI/scripts | that's by design: headless + no path → usage + exit 2 (no hang) |
 
 ## 🌍 Dataset-agnostic by construction
@@ -347,10 +349,11 @@ Defaults are tuned for zero-regression. For the strongest adjudication layer:
 
 ```bash
 SIFT_INV3A_ENRICH=1 SIFT_MODEL_INV3A=qwen3.7-max \
-SIFT_INV3A_JIT_RWX_GUARD=1 SIFT_USER_8DOT3_CANON=1 ./setup.sh run /path/to/case
+SIFT_INV3A_JIT_RWX_GUARD=1 SIFT_USER_8DOT3_CANON=1 ./setup.sh /path/to/case
 ```
 
-(`./setup.sh run` forwards every `SIFT_*` variable you set into the container.)
+(`./setup.sh` forwards every `SIFT_*` variable you set into the container;
+`./setup.sh run /path/to/case` remains an accepted alias.)
 
 `SIFT_INV3A_ENRICH` gives the final false-positive sweep a deterministic
 cross-reference per finding; `SIFT_MODEL_INV3A` routes that single call to a

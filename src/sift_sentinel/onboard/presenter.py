@@ -171,7 +171,7 @@ def guidance(color: Optional[bool] = None, file=None) -> str:
         dim("    • Disk image      .E01 .dd .raw .img             — the drive"),
         dim("    • Notes · PDFs · spreadsheets                    — kept as context, "
             "never analyzed"),
-        dim("    • Archives (.zip .7z) — I unpack them for you"),
+        dim("    • Archives (.zip .7z) - I unpack them for you"),
         "",
         hdr("  What I do automatically"),
         "    " + ok("✓") + dim(" tell memory / disk / documents apart by PROBING them "

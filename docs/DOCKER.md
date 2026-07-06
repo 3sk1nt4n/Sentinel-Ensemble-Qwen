@@ -18,10 +18,10 @@ works too if scripts are enabled. Run just `.\setup.cmd` to be walked through it
 ./setup.sh /path/to/your/case   # real investigation - just the folder, ONE line
 ```
 
-The **`run`** command builds the image on first use, reads your key from `.env` /
-the environment (or asks once, hidden), applies the verified-run config, adds
-the `.E01`/FUSE capabilities, mounts your evidence **read-only**, and saves the
-report to `sentinel-results\<case>\` on your machine.
+Handing the launcher your **case folder** builds the image on first use, reads
+your key from `.env` / the environment (or asks once, hidden), applies the
+verified-run config, adds the `.E01`/FUSE capabilities, mounts your evidence
+**read-only**, and saves the report to `sentinel-results\<case>\` on your machine.
 
 **Neither command assumes Docker is installed.** On **Linux**, if Docker is
 missing the script offers to install it (official `get.docker.com`), starts a
@@ -62,10 +62,10 @@ docker run --rm -it sentinel-qwen:demo
 ## 2. A real investigation on Qwen Cloud
 
 ```bash
-./setup.sh run /path/to/your/case
+./setup.sh /path/to/your/case
 ```
 
-That's the whole command. It handles the rest:
+That's the whole command (`run` before the path is an accepted alias). It handles the rest:
 
 - **Key**: read from `.env` (`cp .env.qwen.example .env`) or `DASHSCOPE_API_KEY`;
   otherwise it asks once at a hidden prompt (never stored in the image).
@@ -98,10 +98,10 @@ docker run --rm -e SIFT_LLM_PROVIDER=qwen -e DASHSCOPE_API_KEY=sk-... \
 # heavy "all-Max": every stage on the flagship (pricier, deepest)
 SIFT_INV2_ENSEMBLE_FORCE_MODEL=qwen3.7-max \
 SIFT_ENSEMBLE_MODELS=qwen3.7-max,qwen3.7-max,qwen3.7-max,qwen3.7-max \
-SIFT_ENSEMBLE_SIZE=4 ./setup.sh run /path/to/your/case
+SIFT_ENSEMBLE_SIZE=4 ./setup.sh /path/to/your/case
 
 # Anthropic fallback (zero-regression provider seam, identical pipeline)
-SIFT_LLM_PROVIDER=anthropic ANTHROPIC_API_KEY=sk-ant-... ./setup.sh run /path/to/your/case
+SIFT_LLM_PROVIDER=anthropic ANTHROPIC_API_KEY=sk-ant-... ./setup.sh /path/to/your/case
 ```
 
 <details>
@@ -134,7 +134,7 @@ docker run --rm -it \
 
 ## 3. Analyzing an `.E01` disk image (needs FUSE)
 
-**Nothing to do - `./setup.sh run` passes the FUSE capabilities automatically.**
+**Nothing to do - the launcher passes the FUSE capabilities automatically.**
 Raw memory images (`.raw`/`.img`/`.vmem`/`.mem`) need no special handling at all.
 
 <details>
@@ -211,7 +211,7 @@ investigation - `full-plus` just unlocks the artifact/timeline/carving tools too
 ### Notes / honest limits
 
 - `full-plus` is ~1 GB and takes ~15 min to build (two source compiles +
-  the .NET 9 runtime) - one time; `./setup.sh run` reuses it afterwards.
+  the .NET 9 runtime) - one time; later launches reuse the cached layers (instant).
 - **The container runs as root by design** - it mounts forensic images
   (`ewfmount`/FUSE for `.E01`, loop mounts), which require elevated capabilities.
   Blast radius is bounded: the container is ephemeral and single-purpose,

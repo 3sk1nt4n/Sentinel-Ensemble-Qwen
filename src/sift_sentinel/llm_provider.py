@@ -42,8 +42,11 @@ import urllib.error
 import urllib.request
 
 # DashScope OpenAI-compatible Chat Completions endpoint (Alibaba Cloud).
-# International (Singapore) region by default; override via DASHSCOPE_BASE_URL
-# for the mainland-China endpoint
+# Qwen Cloud Base URL: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+# (the /chat/completions path is appended below - this is the official
+# hackathon Proof-of-Deployment Base URL, live on every LLM call this
+# pipeline makes). International (Singapore) region by default; override via
+# DASHSCOPE_BASE_URL for the mainland-China endpoint
 # (https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions).
 _DEFAULT_BASE_URL_INTL = (
     "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions"
