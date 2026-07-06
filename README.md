@@ -68,29 +68,57 @@ model-agnostic; only the provider/tier differs.
 
 ## 🐳 Run it (Docker, any OS)
 
-Works on **Windows, macOS, or Linux** with nothing but **Docker Desktop** - the
-image bundles **every forensic tool the agent calls** (Volatility 3, Sleuth Kit,
-YARA, EWF, bulk_extractor, EZ Tools, Plaso, RegRipper, pff-tools, photorec).
+**You need one thing: [Docker Desktop](https://www.docker.com/products/docker-desktop/)**
+(free). It bundles every forensic tool the agent calls, so there is nothing else
+to install. Pick your computer and copy the commands **one line at a time**.
+
+### 🪟 Windows - use **PowerShell**
+
+> Open **PowerShell** (Start menu → type "PowerShell" → Enter). Run each line separately.
+
+```powershell
+git clone https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen.git
+cd Sentinel-Ensemble-Qwen
+.\setup.ps1 docker                      # 1) zero-cost demo (no key, no evidence, ~30 s)
+.\setup.ps1 run C:\path\to\your\case    # 2) real investigation - ONE line does everything
+```
+
+<details><summary>PowerShell says "running scripts is disabled"? (one-time unblock)</summary>
+
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+```
+Answer `Y`, then re-run the `.\setup.ps1` line. (Or use Git Bash instead - see below.)
+</details>
+
+### 🍎 macOS / 🐧 Linux - use the **Terminal**
+
+> Open **Terminal** (macOS: Cmd+Space → "Terminal"; Linux: your terminal app). Run each line separately.
 
 ```bash
-git clone https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen.git && cd Sentinel-Ensemble-Qwen
-
-./setup.sh docker                   # 1) zero-cost demo - no key, no evidence (~30 s)
+git clone https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen.git
+cd Sentinel-Ensemble-Qwen
+./setup.sh docker                   # 1) zero-cost demo (no key, no evidence, ~30 s)
 ./setup.sh run /path/to/your/case   # 2) real investigation - ONE line does everything
 ```
 
-`./setup.sh run` builds the toolchain image on first use (one time, ~15 min),
-reads your DashScope key from `.env` / the environment (or asks once, hidden),
-applies the verified-run flags, mounts your evidence **read-only**, and launches
-the agent. **No Docker yet? Run the same command** - it offers to install Docker
-for you (Linux, official script), guides you to Docker Desktop on
-Windows/macOS, starts a stopped daemon, and falls back to `sudo docker`
-automatically. *(Windows: run these inside **WSL2** or **Git Bash**.)* Full
-guide (image targets, `.E01`/FUSE, Windows paths, all-Max env):
-[`docs/DOCKER.md`](docs/DOCKER.md).
+### What command **2** does for you (any OS)
+
+`setup` builds the toolchain image on first use (one time, ~15 min), reads your
+DashScope key from `.env` / the environment (or **asks once, hidden**), applies
+the verified-run flags, passes the `.E01`/FUSE capabilities, mounts your evidence
+**read-only**, launches the agent, and **saves the report to
+`sentinel-results\<case>\` on your machine**. On Linux, if Docker is missing it
+even offers to install it for you. Full guide (image targets, `.E01`/FUSE,
+Windows paths, all-Max env): [`docs/DOCKER.md`](docs/DOCKER.md).
 
 <details>
 <summary>What the one line runs under the hood (manual docker commands)</summary>
+
+> These are plain `docker` commands - they work the same in **PowerShell** and
+> the **macOS/Linux Terminal**. Only line-continuation differs: PowerShell uses a
+> backtick `` ` `` where bash uses `\` (or just put the whole `docker run` on one
+> line). On Windows, a case path looks like `-v C:\cases\rd01:/evidence:ro`.
 
 ```bash
 # zero-cost demo - no API key, no evidence, no forensic tools (~290 MB)
@@ -182,6 +210,18 @@ authors; the pipeline is dataset-agnostic, so any Windows evidence works.)
 
 ## 🚀 Quick Start
 
+> **Which command is mine?** 🪟 **Windows** (PowerShell): `.\setup.ps1 …` ·
+> 🍎🐧 **macOS/Linux** (Terminal): `./setup.sh …`. Everything below is identical
+> apart from that prefix.
+
+**🪟 Windows - PowerShell:**
+```powershell
+.\setup.ps1 docker                        # zero-cost demo - no key, no evidence
+.\setup.ps1 run C:\path\to\case           # real investigation - one line
+.\setup.ps1 run -DryRun C:\path\to\case   # onboarding + printed plan only, nothing executed
+```
+
+**🍎🐧 macOS / Linux - Terminal:**
 ```bash
 ./setup.sh docker                        # zero-cost demo - no key, no evidence
 ./setup.sh run /path/to/case             # real investigation - one line
@@ -190,7 +230,7 @@ authors; the pipeline is dataset-agnostic, so any Windows evidence works.)
 
 A real run, start to finish - one line, two prompts:
 
-1. Run `./setup.sh run /path/to/case` (the folder holding your memory/disk images).
+1. Run the **`run`** command above with the folder holding your memory/disk images.
 2. It scans the evidence and shows a **case card** (what it found, sizes, SHA256). Just read it.
 3. It asks the **analysis depth** - `1` (or Enter) = ⚡ HEAVY (the flagship model;
    `qwen3.7-max` on the Qwen config) or `2` = 🪶 LIGHT (`qwen-plus`, cheaper). The
@@ -276,7 +316,9 @@ flowchart LR
 
 | Symptom | Fix |
 |---|---|
-| No Docker / daemon not running | just run `./setup.sh docker` - it offers to **install Docker for you** (Linux), guides you to Docker Desktop (Windows/macOS), starts a stopped daemon, and falls back to `sudo docker` automatically |
+| `.\setup.ps1` / `./setup.sh` "not recognized" or nothing happens | wrong terminal: **Windows** uses `.\setup.ps1` in **PowerShell**; **macOS/Linux** uses `./setup.sh` in the **Terminal**. Run each line separately (older PowerShell rejects `&&`) |
+| PowerShell "running scripts is disabled" | one-time: `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned`, answer `Y`, re-run |
+| No Docker / daemon not running | install/start **Docker Desktop** (docker.com); on **Linux** `./setup.sh docker` even offers to install Docker for you and falls back to `sudo docker` automatically |
 | `.E01` disk won't mount in the container | use `./setup.sh run` - it passes the required FUSE flags automatically (manual flags: [`docs/DOCKER.md`](docs/DOCKER.md) §3) |
 | The run doesn't start after you pick depth | you ran `step0_onboard.py` directly (staged / dev mode) - use `./setup.sh run` / `findevil.sh`, which are live by default |
 | No prompt appears in CI/scripts | that's by design: headless + no path → usage + exit 2 (no hang) |

@@ -1,23 +1,32 @@
 # Run Sentinel Ensemble in Docker (any OS)
 
 Runs on **Windows, macOS, or Linux** with nothing but **Docker Desktop** - no
-VM, no forensic-toolchain install. Two commands cover everything on this page:
+VM, no forensic-toolchain install. Two commands cover everything on this page.
+**Pick your terminal:**
 
+**🪟 Windows - PowerShell** (Start → "PowerShell"):
+```powershell
+.\setup.ps1 docker                   # zero-cost demo - no key, no evidence (~30 s)
+.\setup.ps1 run C:\path\to\your\case # real investigation - ONE line does everything
+```
+
+**🍎🐧 macOS / Linux - Terminal:**
 ```bash
 ./setup.sh docker                   # zero-cost demo - no key, no evidence (~30 s)
 ./setup.sh run /path/to/your/case   # real investigation - ONE line does everything
 ```
 
-`./setup.sh run` builds the image on first use, reads your key from `.env` /
+The **`run`** command builds the image on first use, reads your key from `.env` /
 the environment (or asks once, hidden), applies the verified-run config, adds
-the `.E01`/FUSE capabilities, and mounts your evidence **read-only**.
+the `.E01`/FUSE capabilities, mounts your evidence **read-only**, and saves the
+report to `sentinel-results\<case>\` on your machine.
 
-**Neither command assumes Docker is installed.** If it's missing, `./setup.sh`
-offers to install it for you (Linux, official `get.docker.com` script), guides
-you to Docker Desktop on Windows/macOS, starts a stopped daemon, and falls back
-to `sudo docker` automatically when your user isn't in the docker group.
-*(Windows: run these inside WSL2 or Git Bash.)* Everything below is reference:
-what those two lines run, and the manual equivalents.
+**Neither command assumes Docker is installed.** On **Linux**, if Docker is
+missing the script offers to install it (official `get.docker.com`), starts a
+stopped daemon, and falls back to `sudo docker` automatically. On **Windows/macOS**
+it points you to Docker Desktop. *(The rest of this page uses the macOS/Linux
+`./setup.sh` form; on Windows use `.\setup.ps1` with the same arguments.)*
+Everything below is reference: what those two lines run, and the manual equivalents.
 
 > 🔒 The image **never contains a key**. `.env` and `*_API_KEY*` files are excluded
 > by `.dockerignore`; the key is passed at runtime. Evidence is mounted

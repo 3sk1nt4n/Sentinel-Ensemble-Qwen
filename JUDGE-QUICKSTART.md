@@ -31,6 +31,18 @@ install; the image bundles **every** tool the agent calls (full guide:
 
 ## 2️⃣ Install
 
+> **Which terminal?** 🪟 **Windows** → open **PowerShell** and use `.\setup.ps1`.
+> 🍎🐧 **macOS/Linux** → open the **Terminal** and use `./setup.sh`. Run each line
+> separately (older PowerShell rejects `&&`).
+
+**🪟 Windows - PowerShell:**
+```powershell
+git clone https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen.git
+cd Sentinel-Ensemble-Qwen
+.\setup.ps1 docker          # builds the demo image (~30 s) + runs it - no key, no evidence
+```
+
+**🍎🐧 macOS / Linux - Terminal:**
 ```bash
 git clone https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen.git
 cd Sentinel-Ensemble-Qwen
@@ -90,9 +102,15 @@ time and **never echoed, logged, or written to disk** by the pipeline.
 
 **One line** - builds the toolchain image on first use (~15 min, once), wires
 every flag (FUSE caps for `.E01`, `SIFT_HTTP_TIMEOUT`, `SIFT_ALLOW_YARA`),
-forwards the key from `.env`/env (or asks once, hidden), and mounts the case
-**read-only**:
+forwards the key from `.env`/env (or asks once, hidden), mounts the case
+**read-only**, and saves the report to `sentinel-results\<case>\` on your machine:
 
+**🪟 Windows - PowerShell:**
+```powershell
+.\setup.ps1 run C:\path\to\case-folder
+```
+
+**🍎🐧 macOS / Linux - Terminal:**
 ```bash
 ./setup.sh run /path/to/case-folder
 ```
@@ -259,7 +277,8 @@ After a run, the judge-facing invariants:
 
 | Symptom | What it means |
 |---|---|
-| No Docker / daemon not running | just run `./setup.sh docker` - it offers to **install Docker for you** (Linux), guides you to Docker Desktop (Windows/macOS), starts a stopped daemon, and falls back to `sudo docker` automatically |
+| `.\setup.ps1` / `./setup.sh` "not recognized" or nothing happens | wrong terminal: **Windows** → `.\setup.ps1` in **PowerShell**; **macOS/Linux** → `./setup.sh` in the **Terminal**. Run each line separately (older PowerShell rejects `&&`); if PowerShell blocks scripts: `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned` |
+| No Docker / daemon not running | install/start **Docker Desktop** (docker.com); on **Linux** `./setup.sh docker` even offers to install Docker for you and falls back to `sudo docker` automatically |
 | `.E01` disk won't mount | run via `./setup.sh run` - it passes the required FUSE capabilities automatically (manual flags: [`docs/DOCKER.md`](docs/DOCKER.md) §3) |
 | "Vol3 ISF profile not found" | Volatility 3 can't identify the memory image OS - the pipeline falls back to profile-independent scanning. Expected on some evidence sets. |
 | "SSDT trust: degraded" | the kernel-integrity check found hooked/unresolvable entries - memory-based confidence is capped at MEDIUM. A feature, not a bug. |
