@@ -3,11 +3,12 @@
 # setup.sh - ONE command to install + verify everything Sentinel Ensemble needs.
 #            Global AI Hackathon with Qwen Cloud - Track 4 (Autopilot Agent).
 #
-#   ./setup.sh docker     build + run the zero-cost demo in Docker (any OS, no Python)
-#   ./setup.sh run /case  ONE line, real Docker run: image, key, flags, mount - all handled
-#   ./setup.sh            (contributors) native install: pip/apt deps, verify, run the demo
+#   ./setup.sh            guided - shows the walkthrough, asks for your evidence
+#   ./setup.sh docker     build + run the zero-cost demo in Docker (no key, no evidence)
+#   ./setup.sh /case      ONE line, real Docker run: image, key, flags, mount - all handled
+#                         (the "run" keyword is optional: ./setup.sh run /case also works)
+#   ./setup.sh --native   (contributors) native install: pip/apt deps, verify, run the demo
 #   ./setup.sh --check    check only (doctor mode - no install, no sudo)
-#   ./setup.sh --no-sudo  install pip deps + check; skip apt system packages
 #
 # The DEMO and the judge path need NO API key and NO forensic tools. Forensic
 # tools (Volatility 3, Sleuth Kit, ...) are only needed for REAL evidence runs
@@ -20,17 +21,25 @@ REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$REPO_DIR"
 
 # ── arg parsing ──────────────────────────────────────────────────────────────
-MODE_INSTALL=1; USE_SUDO=1; DOCKER_MODE=0; RUN=0; RUN_ARGS=()
-# Friendly shortcut: "./setup.sh /path/to/case" (a directory as the first arg)
-# means the same as "./setup.sh run /path/to/case" - no "run" keyword needed.
+# Judge-facing subcommands (Docker): bare / a folder / "run" / "docker".
+# Contributor native install stays reachable via the explicit --native flag.
+MODE_INSTALL=0; USE_SUDO=1; DOCKER_MODE=0; RUN=0; GUIDED=0; RUN_ARGS=()
 if [ "${1:-}" = "run" ]; then
   RUN=1; shift; RUN_ARGS=("$@")
+elif [ "${1:-}" = "docker" ]; then
+  DOCKER_MODE=1
 elif [ -n "${1:-}" ] && [ -d "$1" ]; then
+  # "./setup.sh /path/to/case" - a folder as the first arg means run it directly.
   RUN=1; RUN_ARGS=("$@")
+elif [ -z "${1:-}" ]; then
+  # Bare "./setup.sh" = the guided judge experience (banner + ask for evidence).
+  RUN=1; GUIDED=1
 else
+  # Flags: --native (contributor pip/apt install + verify), --check, --no-sudo.
+  MODE_INSTALL=1
   for a in "$@"; do
     case "$a" in
-      docker)    DOCKER_MODE=1 ;;
+      --native)  MODE_INSTALL=1 ;;
       --check)   MODE_INSTALL=0; USE_SUDO=0 ;;
       --no-sudo) USE_SUDO=0 ;;
       -h|--help) sed -n '2,15p' "$0"; exit 0 ;;
@@ -46,6 +55,50 @@ ok()   { printf "  ${G}OK${X}   %s\n" "$1"; }
 warn() { printf "  ${Y}WARN${X} %s\n" "$1"; WARN=$((WARN+1)); }
 bad()  { printf "  ${R}FAIL${X} %s\n" "$1"; FAIL=$((FAIL+1)); }
 note() { printf "  ${B}--${X}   %s\n" "$1"; }
+
+# The guided intro (banner + evidence guide), mirroring the Windows launcher.
+show_banner() {
+  printf "\n${C}  +==============================================================+${X}\n"
+  printf "${C}  |                                                              |${X}\n"
+  printf "${B}  |              S E N T I N E L   E N S E M B L E               |${X}\n"
+  printf "  |        Autonomous DFIR / SOC - Qwen on Alibaba Cloud         |\n"
+  printf "${C}  |                                                              |${X}\n"
+  printf "  |        'Point me at your evidence. I'll do the rest.'        |\n"
+  printf "${C}  |                                                              |${X}\n"
+  printf "${C}  +==============================================================+${X}\n\n"
+}
+show_guide() {
+  printf "Point me at ONE case's evidence folder - I take it from there, read-only, start to finish.\n\n"
+  printf "  What to put in the folder\n"
+  printf "    - Memory image    .raw .img .mem .vmem .dmp      the live RAM\n"
+  printf "    - Disk image      .E01 .dd .raw .img             the drive\n"
+  printf "    - Notes / PDFs / spreadsheets                    kept as context\n"
+  printf "    - Archives (.zip .7z)                            I unpack them\n\n"
+  printf "  What I do automatically\n"
+  printf "    * tell memory / disk / documents apart by PROBING them (not by name)\n"
+  printf "    * mount the disk READ-ONLY, detect the OS, check the memory is healthy\n"
+  printf "    * hand you a verified case card - then you pick the depth and launch\n\n"
+  printf "  Need a case? Free public cases (no login) are in docs/DOCKER.md.\n\n"
+}
+# Ask for the evidence folder (like the original onboarding). Echoes the path.
+read_case_path() {
+  printf "   ${C}ONBOARDING - where is this case's evidence?${X}\n" >&2
+  printf "  ----------------------------------------------------\n" >&2
+  printf "   Paste the FOLDER that holds this case (memory + disk + notes).\n" >&2
+  printf "     Example:  /home/you/cases/my-case\n" >&2
+  printf "     Tip: drag the folder into this window to paste its path.\n" >&2
+  while true; do
+    printf "   ${B}path (or Q to quit):${X} " >&2
+    IFS= read -r _p || { echo ""; return; }
+    _p="${_p%\"}"; _p="${_p#\"}"; _p="${_p%/}"   # strip quotes + trailing slash
+    [ -z "$_p" ] && continue
+    case "$_p" in q|Q) echo ""; return ;; esac
+    if [ -d "$_p" ]; then echo "$_p"; return; fi
+    if [ -f "$_p" ]; then bad "that's a file - give me the FOLDER it lives in." >&2; continue; fi
+    bad "not found: $_p" >&2
+    printf "     Check the path and try again (or Q to quit).\n" >&2
+  done
+}
 
 # =============================================================================
 #  DOCKER DOCTOR - shared by the `docker` and `run` modes.
@@ -125,15 +178,32 @@ ensure_docker() {
 #  key from .env / env (hidden prompt otherwise), mounts evidence read-only.
 # =============================================================================
 if [ "$RUN" = 1 ]; then
-  printf "${B}Sentinel Ensemble - one-line Docker run${X}\n"
+  if [ "$GUIDED" = 1 ]; then
+    show_banner
+    show_guide
+  else
+    printf "${B}Sentinel Ensemble - one-line Docker run${X}\n"
+  fi
+  note "working folder: $REPO_DIR"
+  note "results always land in: $REPO_DIR/sentinel-results/<case>/"
   ensure_docker
 
   CASE=""; PASS=()
-  for a in "${RUN_ARGS[@]}"; do
-    case "$a" in --*) PASS+=("$a") ;; *) CASE="$a" ;; esac
+  for a in "${RUN_ARGS[@]-}"; do
+    case "$a" in --*) PASS+=("$a") ;; ?*) CASE="$a" ;; esac
   done
-  [ -n "$CASE" ] || { printf "  ${R}FAIL${X} usage: ./setup.sh run [--dry-run] /path/to/case-folder\n"; exit 2; }
-  [ -d "$CASE" ] || { printf "  ${R}FAIL${X} case folder not found: %s\n" "$CASE"; exit 2; }
+  # No folder given? Ask for it (banner shown above if guided) - never dead-end.
+  if [ -z "$CASE" ]; then
+    [ "$GUIDED" = 1 ] || { show_banner; show_guide; }
+    CASE="$(read_case_path)"
+    [ -n "$CASE" ] || { printf "  Bye - nothing was run.\n"; exit 0; }
+  fi
+  if [ ! -d "$CASE" ]; then
+    bad "case folder not found: $CASE"
+    printf "  If your download is still a .zip, unzip it first, then use the FOLDER.\n"
+    printf "  ${C}Easiest: run just  ./setup.sh  and drag the folder in when it asks.${X}\n"
+    exit 2
+  fi
   CASE="$(cd "$CASE" && pwd)"
 
   if ! $DOCKER image inspect sentinel-qwen >/dev/null 2>&1; then
