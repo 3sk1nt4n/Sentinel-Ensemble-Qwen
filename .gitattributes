@@ -1,0 +1,24 @@
+# Shell scripts run inside the Linux container - they MUST stay LF even when the
+# repo is cloned on Windows (Git for Windows defaults to autocrlf=true, which
+# would rewrite them to CRLF and break bash: "set: pipefail: invalid option name").
+*.sh            text eol=lf
+findevil.sh     text eol=lf
+setup.sh        text eol=lf
+start.sh        text eol=lf
+stop.sh         text eol=lf
+fresh-start.sh  text eol=lf
+*.pl            text eol=lf
+
+# Windows launchers stay CRLF (native .cmd wants it).
+*.cmd           text eol=crlf
+
+# PowerShell is pure ASCII and encoding-agnostic; keep it LF for consistency.
+*.ps1           text eol=lf
+
+# Never touch binary evidence / images.
+*.png           binary
+*.mp4           binary
+*.E01           binary
+*.raw           binary
+*.img           binary
+*.vmem          binary

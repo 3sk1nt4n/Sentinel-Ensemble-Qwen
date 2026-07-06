@@ -71,6 +71,11 @@ WORKDIR /app
 COPY requirements.txt ./
 RUN pip install -r requirements.txt
 COPY . .
+# Normalize CRLF -> LF on shell scripts so a Windows checkout (Git autocrlf=true
+# rewrites them to CRLF) still runs inside this Linux container. Without this,
+# bash fails on the very first line: "set: pipefail: invalid option name".
+# Belt-and-suspenders alongside .gitattributes (which fixes it at clone time).
+RUN find . -type f -name '*.sh' -exec sed -i 's/\r$//' {} + 2>/dev/null || true
 RUN chmod +x findevil.sh 2>/dev/null || true
 VOLUME ["/evidence"]
 ENTRYPOINT ["bash", "findevil.sh"]
