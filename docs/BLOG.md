@@ -153,4 +153,4 @@ trust layer made that reasoning *safe to act on.*
 - **Zero-cost demo (no key, no evidence, any OS):** `./setup.sh docker`
 - **Proof-of-Alibaba-Cloud code:** `src/sift_sentinel/llm_provider.py`
 - **Shipped run metrics (both tiers + the ablation):** `docs/qwen-runs/`
-- **Demo video:** <ADD-YOUTUBE-URL> (2:56, the overrule happens on camera)
+- **Demo video:** https://youtu.be/NV6Zn0YrD1w (2:56, the overrule happens on camera)
