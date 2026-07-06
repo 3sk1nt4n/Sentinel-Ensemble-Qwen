@@ -206,10 +206,15 @@ if [ "$RUN" = 1 ]; then
   fi
   CASE="$(cd "$CASE" && pwd)"
 
-  if ! $DOCKER image inspect sentinel-qwen >/dev/null 2>&1; then
-    sec "Building the full toolchain image (one time, ~15 min)"
-    $DOCKER build -t sentinel-qwen . || { printf "  ${R}FAIL${X} build failed (see above)\n"; exit 1; }
+  # Always build (never just reuse): Docker's layer cache makes this a ~2s no-op
+  # when nothing changed, but a plain reuse would silently run a STALE image
+  # (e.g. an older build from before a fix). First build ~15 min; later ones instant.
+  if $DOCKER image inspect sentinel-qwen >/dev/null 2>&1; then
+    sec "Checking the toolchain image is up to date (instant if unchanged)"
+  else
+    sec "Building the full toolchain image (first time, ~15 min - later runs are instant)"
   fi
+  $DOCKER build -t sentinel-qwen . || { printf "  ${R}FAIL${X} build failed (see above)\n"; exit 1; }
   ok "image ready: sentinel-qwen"
 
   # config: .env first (like findevil.sh), then verified-run defaults for the rest

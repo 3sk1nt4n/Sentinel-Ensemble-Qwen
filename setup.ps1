@@ -175,7 +175,7 @@ if ($Mode -eq 'docker') {
     docker run --rm -it sentinel-qwen:demo
     Write-Host "`n  OK  Docker demo works." -ForegroundColor Green
     Write-Host "  Real investigation - ONE line:" -ForegroundColor White
-    Write-Host "    .\setup.cmd run C:\path\to\case      (or just .\setup.cmd - it asks for the folder)"
+    Write-Host "    .\setup.cmd C:\path\to\case      (or just .\setup.cmd - it asks for the folder)"
     Write-Host "    (key from .env or a hidden prompt - get one at home.qwencloud.com/api-keys)"
     Write-Host "    Free public cases + full guide: docs\DOCKER.md`n"
     exit 0
@@ -216,12 +216,18 @@ if ($Mode -eq 'run' -or $Mode -eq '') {
     $Case = (Resolve-Path -LiteralPath $CasePath).Path
     $CaseName = Split-Path -Leaf $Case
 
+    # Always build (never just reuse): Docker's layer cache makes this a ~2s
+    # no-op when nothing changed, but a plain reuse would silently run a STALE
+    # image (e.g. an older build from before a fix). First build ~15 min.
     $null = docker image inspect sentinel-qwen 2>&1
-    if ($LASTEXITCODE -ne 0) {
-        Sec "Building the full toolchain image (one time, ~15 min)"
-        docker build -t sentinel-qwen .
-        if ($LASTEXITCODE -ne 0) { Bad "build failed (see above)"; exit 1 }
+    if ($LASTEXITCODE -eq 0) {
+        Sec "Checking the toolchain image is up to date (instant if unchanged)"
     }
+    else {
+        Sec "Building the full toolchain image (first time, ~15 min - later runs are instant)"
+    }
+    docker build -t sentinel-qwen .
+    if ($LASTEXITCODE -ne 0) { Bad "build failed (see above)"; exit 1 }
     Ok "image ready: sentinel-qwen"
 
     # Config: .env first, then verified-run defaults for anything unset.
