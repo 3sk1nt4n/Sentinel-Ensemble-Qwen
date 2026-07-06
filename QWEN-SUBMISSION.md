@@ -221,7 +221,7 @@ Python.
 | Proof-of-Alibaba-Cloud code file | done (`llm_provider.py`) |
 | Architecture diagram (Qwen box) | done (`ARCH_VERTICAL.png`) |
 | **Live Qwen runs + artifacts** | **done** - see "Verified Qwen Cloud runs" below |
-| Demo video (<3 min, YouTube) | **done - hosted** (`docs/sentinel-qwen-demo.mp4`, 2:56, title-card intro + the 0-vs-4 two-tier reveal + real run output from both runs + the on-camera Proof-of-Alibaba-Cloud beat (Workbench screenshot, SAS instance Running, live SENTINEL-QWEN-OK), closing on the spelled-out DFIR card credited "Built by Adil Eskintan"; run footage predates the rename - on-screen banners read "SIFT Sentinel", the engine's former name). **Hosted link:** https://youtu.be/NV6Zn0YrD1w (YouTube, Public) - paste the same link on the Devpost form |
+| Demo video (<3 min, YouTube) | **done** - https://youtu.be/NV6Zn0YrD1w (2:56, Public); in-repo copy: `docs/sentinel-qwen-demo.mp4`. Run footage shows the engine's former name, "SIFT Sentinel" |
 | Proof of Deployment on Alibaba Cloud | **done** - code-file + Base URL (`llm_provider.py`; endpoint also in `docs/qwen-runs/`) **and** the Workbench screenshot in `docs/proof/` (SAS instance Running, Singapore; deployed per `DEPLOY-ALIBABA.md`, live `SENTINEL-QWEN-OK` smoke call; instance stays up through judging) |
 | Legacy-doc reframe to Track 4 | done |
 
