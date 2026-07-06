@@ -588,6 +588,101 @@ def _parse_xp_evt_logs(disk_mount):  # SIFT_XP_EVT_V1
     return {"output": records, "record_count": len(records)}
 
 
+def _evtxecmd_message(payload: str) -> str:
+    """Build the pipe-delimited EventData Message from an EvtxECmd JSON Payload,
+    IDENTICAL to the python-evtx path's `" | ".join(<Data> text)[:200]`.
+
+    EvtxECmd stores the raw event as ``{"EventData":{"Data":[{"@Name":..,
+    "#text":..}, ...]}}`` with the Data array in document order, so joining the
+    ``#text`` values in order reproduces the exact field positions downstream
+    (logon_actor) parses. Data may also be a single dict, a list of bare
+    strings, or absent - all handled. Never raises."""
+    try:
+        obj = json.loads(payload) if isinstance(payload, str) else payload
+    except (ValueError, TypeError):
+        return ""
+    if not isinstance(obj, dict):
+        return ""
+    data = (obj.get("EventData") or {}).get("Data")
+    if data is None:
+        return ""
+    if isinstance(data, dict):
+        data = [data]
+    parts: list[str] = []
+    for d in data:
+        if isinstance(d, dict):
+            t = d.get("#text")
+            if t is not None:
+                parts.append(str(t))
+        elif d is not None:
+            parts.append(str(d))
+    return " | ".join(parts)[:200]
+
+
+def _parse_evtx_with_evtxecmd(evtx_dir, max_records: int):
+    """Fast event-log engine via EvtxECmd (EZ Tools, compiled C#).
+
+    Parses the whole ``winevt/Logs`` directory in seconds and returns the SAME
+    ``{"output":[...6-field records...], "record_count":N}`` envelope the
+    python-evtx path emits. Returns ``None`` (fall through to python-evtx) when
+    EvtxECmd is absent, errors, times out, or yields no output. Universal:
+    dataset-agnostic, no per-EventID logic; kill-switch handled by the caller."""
+    import shutil as _shutil
+    import subprocess as _sub
+    import tempfile as _tmp
+
+    if _shutil.which("EvtxECmd") is None:
+        return None
+    budget = _sift_env_int("SIFT_EVTX_EZT_TIMEOUT_S", 300)
+    try:
+        with _tmp.TemporaryDirectory(prefix="sift-evtxecmd-") as _out:
+            _fname = "evtxecmd.json"
+            r = _sub.run(
+                ["EvtxECmd", "-d", str(evtx_dir), "--json", _out,
+                 "--jsonf", _fname],
+                capture_output=True, text=True, timeout=budget,
+            )
+            _jpath = os.path.join(_out, _fname)
+            if not os.path.isfile(_jpath):
+                logger.info("EvtxECmd produced no JSON (rc=%s); "
+                            "falling back to python-evtx", r.returncode)
+                return None
+            records: list[dict] = []
+            with open(_jpath, "r", errors="replace") as _fh:
+                for _line in _fh:
+                    _line = _line.strip()
+                    if not _line:
+                        continue
+                    try:
+                        rec = json.loads(_line)
+                    except ValueError:
+                        continue
+                    if not isinstance(rec, dict):
+                        continue
+                    try:
+                        eid = int(rec.get("EventId", 0) or 0) & 0xFFFF
+                    except (ValueError, TypeError):
+                        eid = 0
+                    records.append({
+                        "EventID": eid,
+                        "TimeCreated": str(rec.get("TimeCreated", "") or ""),
+                        "Provider": str(rec.get("Provider", "") or ""),
+                        "Channel": str(rec.get("Channel", "") or ""),
+                        "Computer": str(rec.get("Computer", "") or ""),
+                        "Message": _evtxecmd_message(rec.get("Payload", "")),
+                    })
+                    if len(records) >= max_records:
+                        break
+    except (_sub.TimeoutExpired, OSError) as exc:
+        logger.info("EvtxECmd failed (%s); falling back to python-evtx", exc)
+        return None
+    if not records:
+        return None
+    logger.info("EvtxECmd (fast engine): %d event-log records", len(records))
+    return {"output": records, "record_count": len(records),
+            "engine": "EvtxECmd"}
+
+
 def parse_event_logs(
     disk_mount: str = "",
     max_records: int | None = None,
@@ -664,6 +759,23 @@ def parse_event_logs(
         max_records = _sift_env_int("SIFT_EVENT_LOG_MAX_RECORDS", 50000)
     else:
         max_records = max(0, int(max_records))
+
+    # ── FAST ENGINE: EvtxECmd (EZ Tools, compiled) ──────────────────────────
+    # Pure-Python EVTX parsing (below) is CPU-bound and, in a CPU-constrained
+    # container, a single large Security.evtx can exceed the isolated-parser
+    # timeout and return ZERO records - silently zeroing the whole event-log
+    # evidence class (the 4624/4648/7045 lateral-movement + service-install
+    # corroboration the confirm floor needs). When EvtxECmd is on PATH it parses
+    # the entire log directory in seconds and emits the IDENTICAL pipe-delimited
+    # EventData Message this module's python-evtx path produces (verified
+    # field-position compatible: TargetUserName=field[5], LogonType=field[8]),
+    # so downstream (logon_actor, evidence_db) is byte-compatible. Falls through
+    # to python-evtx on any failure or when EvtxECmd is absent (native non-EZ
+    # boxes). Universal: no case data, no per-EventID logic. Kill: SIFT_EVTX_EZT=0.
+    if str(os.environ.get("SIFT_EVTX_EZT", "1")).strip() != "0":
+        _ezt = _parse_evtx_with_evtxecmd(evtx_dir, max_records)
+        if _ezt is not None:
+            return _ezt
     # 31Q: adaptive per-file timeout — scales with file size so small EVTX
     # files don't wait the full cap while large files still get headroom.
     #   timeout = base + (size_mb / rate_mb_per_s), clamped to [base, cap]
