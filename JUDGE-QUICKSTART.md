@@ -25,6 +25,12 @@ install; the image bundles **every** tool the agent calls (full guide:
 > once (Windows: keep WSL2; macOS: pick Apple-chip or Intel, then open it once),
 > plus **Git**. That's the only setup - the image brings every forensic tool.
 > On **Linux**, `./setup.sh docker` even installs Docker for you.
+>
+> **☁️ Judging from an Alibaba Cloud instance?** Same two commands on a fresh
+> SAS/ECS Ubuntu box (`apt-get install -y git`, clone, `./setup.sh docker`) -
+> **verified end-to-end on a SAS instance in Singapore** (screenshot + live
+> `SENTINEL-QWEN-OK` call in [`docs/proof/`](docs/proof/); runbook:
+> [`DEPLOY-ALIBABA.md`](DEPLOY-ALIBABA.md)).
 
 | Requirement | Version | Notes |
 |---|---|---|

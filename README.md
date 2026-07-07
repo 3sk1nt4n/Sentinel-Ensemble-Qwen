@@ -79,8 +79,10 @@ Sleuth Kit, YARA, EZ Tools, Plaso, RegRipper, bulk_extractor, …) comes bundled
 | 🪟 **Windows** | Install **[Docker Desktop](https://www.docker.com/products/docker-desktop/)** (keep the WSL2 backend) + **[Git](https://git-scm.com/download/win)**. Open Docker Desktop once. | **PowerShell** |
 | 🍎 **macOS** | Install **[Docker Desktop](https://www.docker.com/products/docker-desktop/)** (pick **Apple-chip** or **Intel** to match your Mac). **Open Docker.app once.** Git installs in one click the first time you run it. | **Terminal** |
 | 🐧 **Linux** | Nothing - if Docker is missing, `./setup.sh docker` **installs it for you**. | **Terminal** |
+| ☁️ **Alibaba Cloud** (SAS/ECS Ubuntu) | Nothing - same as Linux; `./setup.sh docker` installs Docker itself. **Verified end-to-end on a SAS instance** (see [`docs/proof/`](docs/proof/)); full cloud runbook: [`DEPLOY-ALIBABA.md`](DEPLOY-ALIBABA.md) | **Workbench terminal** |
 
 > ✅ You know Docker is ready when its **whale icon sits steady** (not animating).
+> On a cloud box there's no icon - the launcher checks the daemon for you.
 
 ### 2️⃣ Get the code
 
