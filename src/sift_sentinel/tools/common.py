@@ -631,6 +631,15 @@ def _run_volatility_impl(tool_name: str, image_path: str) -> list[dict]:
                       tool_name, result.returncode, result.stderr.strip())
         raise RuntimeError(_clean_vol3_error(tool_name, result.stderr))
 
+    # rc=0 with EMPTY stdout = the plugin ran and found nothing = 0 records,
+    # NOT a failure. Some vol3 plugins (e.g. windows.mftscan) emit empty stdout
+    # instead of "[]" on an empty result set; json.loads("") then raised a
+    # JSONDecodeError and the tool was wrongly marked failed. rc!=0 is already
+    # handled above, so here rc==0 -> a genuinely empty scan. Universal across
+    # every vol_* tool (they all run through this path); dataset-agnostic.
+    if not (result.stdout or "").strip():
+        logger.info("LIVE VOL: %s returned 0 records (empty result set)", tool_name)
+        return []
     try:
         data = json.loads(result.stdout)
     except json.JSONDecodeError as exc:
