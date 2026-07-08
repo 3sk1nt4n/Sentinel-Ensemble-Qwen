@@ -147,7 +147,7 @@ recording of the same view was captured for the Devpost form (covers the older
 
 The screenshot is attached to the Devpost "Proof of Deployment" question with
 `llm_provider.py` as the code file, and **the instance stays running through
-the judging period (Jul 10-31)** - the FAQ says an Alibaba-hosted backend
+the judging period** - the FAQ says an Alibaba-hosted backend
 "enables live verification and direct execution testing during the validation
 period" and is an explicit evaluation plus-point.
 

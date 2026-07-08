@@ -3,8 +3,7 @@
 > **Status: CAPTURED (2026-07-06).** The backend is deployed and running on an
 > Alibaba Cloud **Simple Application Server** (SAS) instance in **Singapore**,
 > and the screenshot below shows it in the **Running** state. The instance
-> stays running through the judging period (Jul 10-31; it is paid through
-> **Aug 6, 2026**), so judges can live-verify.
+> stays running through the judging period, so judges can live-verify.
 
 ![Alibaba Cloud console - Simple Application Server "Ubuntu-ivhq" in the Running state (Singapore, Ubuntu 24.04, 2 vCPU / 4 GiB / 50 GiB ESSD)](alibaba-workbench.png)
 
@@ -17,7 +16,7 @@ ECS or SAS container setup"*):
   Singapore / `ap-southeast-1`),
 - instance **Ubuntu-ivhq** in the green **Running** state
   (Ubuntu 24.04, 2 vCPU / 4 GiB, 50 GiB ESSD, public IP assigned),
-- paid through **Aug 6, 2026** - beyond the end of judging.
+- kept paid and **Running through the entire judging period**.
 
 **What ran on that instance** (per [`../../DEPLOY-ALIBABA.md`](../../DEPLOY-ALIBABA.md)):
 the repo was cloned onto the instance, `./setup.sh docker` built and ran the
