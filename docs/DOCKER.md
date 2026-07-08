@@ -67,8 +67,11 @@ docker run --rm -it sentinel-qwen:demo
 
 That's the whole command (`run` before the path is an accepted alias). It handles the rest:
 
-- **Key**: read from `.env` (`cp .env.qwen.example .env`) or `DASHSCOPE_API_KEY`;
-  otherwise it asks once at a hidden prompt (never stored in the image).
+- **Key**: checked in order **env var → `.env` → `API_KEY.txt`** (visible file,
+  created on first run, gitignored); otherwise it **asks once at a hidden prompt**
+  (verified live with the API; never echoed, logged, or stored in the image). A
+  real key always beats a placeholder, and a rejected env key self-heals to a
+  valid key in your file.
 - **Evidence**: put one case's files (memory image, disk image, logs) in one
   folder and pass that folder - it is mounted read-only.
 - **Config**: the verified-run settings (`SIFT_HTTP_TIMEOUT=600`,

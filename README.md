@@ -170,32 +170,45 @@ This project runs on **Qwen models hosted on Alibaba Cloud (DashScope / Model
 Studio)**. Provider + model are chosen entirely by environment, so flipping the
 whole 16-step pipeline onto Qwen needs **no code change**.
 
-1. Sign up at **https://qwencloud.com** (Alibaba Cloud International) and request
-   the hackathon **$40 Qwen Cloud voucher**.
+1. Go to **https://qwencloud.com** (Alibaba Cloud International) → sign up / log
+   in → request the hackathon **$40 Qwen Cloud voucher**.
 2. Open **Model Studio** (Singapore / International region) → **API Keys** →
    **Create API Key** → copy the `sk-…` string.
    (Direct portal: **home.qwencloud.com/api-keys**.)
-3. Give it to Sentinel Ensemble:
+3. Give it to Sentinel Ensemble in any one of three ways - pick whatever's
+   easiest. **You genuinely cannot get stuck**: a real key always wins, and a
+   bad one falls through to the next option:
+
+| | Option | How | Notes |
+|---|---|---|---|
+| ① | 🚀 **Just run it & paste** *(recommended)* | Launch it (`.\setup.cmd` / `./setup.sh`) - at the **🔑 API key** step it asks at a **hidden prompt**. Paste, press Enter. | **Verified live with the API before launch** · this session only · never echoed, logged, or written to disk · even shell history is scrubbed. Nothing to find or edit. |
+| ② | 📄 **A visible file** *(set once)* | Open **`API_KEY.txt`** in the repo root, replace the placeholder on the last line with your key, save. | Created for you on first run · **gitignored**, so your key is never committed · no prompt next time. |
+| ③ | 🌐 **Environment variable** | `export DASHSCOPE_API_KEY=sk-…` (`QWEN_API_KEY` works too; a hidden `.env` via `cp .env.qwen.example .env` also works). | For CI / power users - the launchers forward it into the container. |
+
+> 🔓 **Order & self-healing.** The launcher checks **env var → `.env` →
+> `API_KEY.txt`**. A **real key always beats a leftover placeholder**, and if the
+> environment key is **rejected** (e.g. a stale `export` left in your shell, HTTP
+> 401) it **automatically falls back to a valid key in your file** before asking -
+> so the file you just edited always works.
+
+> 💰 **Budget, not tiers.** The demo needs **no key at all**. Verified full
+> investigations cost **🪶 ~$0.28 (light)** to **⚡ ~$1.53 (heavy)** - the **$40
+> voucher covers ~12-16 full runs** even worst-case. The 4-model ensemble makes 4
+> concurrent calls; a standard pay-as-you-go DashScope key handled every verified
+> run (long calls auto-retry with backoff; `SIFT_HTTP_TIMEOUT=600` is preset).
+> Model tiering (flagship `qwen3.7-max` for keystone analysis, `qwen-plus` for
+> high-volume stages) is in [`.env.qwen.example`](.env.qwen.example).
+
+**Connectivity check** (optional, one cheap call - uses the demo image from
+`./setup.sh docker`):
 
 ```bash
-cp .env.qwen.example .env              # then set DASHSCOPE_API_KEY in .env
-# or export directly:
-export SIFT_LLM_PROVIDER=qwen
-export DASHSCOPE_API_KEY=sk-...        # QWEN_API_KEY is also accepted
-export SIFT_DEFAULT_MODEL=qwen3.7-max
-export SIFT_HTTP_TIMEOUT=600           # heavy-tier calls can run >120 s (see .env.qwen.example)
-export SIFT_ALLOW_YARA=1               # match the verified-run tool selection
-# confirm connectivity before any full run (uses the demo image from ./setup.sh docker):
 docker run --rm -e SIFT_LLM_PROVIDER=qwen -e DASHSCOPE_API_KEY=sk-... \
   --entrypoint python3 sentinel-qwen:demo scripts/qwen_smoke.py
 ```
 
 The international (Singapore) DashScope endpoint is the default; set
 `DASHSCOPE_BASE_URL` for the mainland-China endpoint.
-
-> **Models & budget.** Keystone analysis runs on a flagship (`qwen3.7-max`); the
-> high-call-volume stages run on `qwen-plus` so the **$40** credit lasts (~12-16
-> full runs even worst-case). Tiering is in [`.env.qwen.example`](.env.qwen.example).
 
 > **Anthropic fallback (optional).** The provider seam keeps `anthropic` as the
 > zero-regression fallback - unset `SIFT_LLM_PROVIDER` and set `ANTHROPIC_API_KEY`

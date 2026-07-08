@@ -75,12 +75,16 @@ Provider + model are env-driven, so no code change is needed.
 1. Request the **$40 Qwen Cloud voucher**, then in **Model Studio** (Singapore /
    International region) → **API Keys** → **Create API Key** → copy the `sk-…`
    (direct portal: **home.qwencloud.com/api-keys**).
-2. Point Sentinel Ensemble at it:
+2. Give it to Sentinel Ensemble - three ways, pick the easiest
+   (**① recommended: just launch and paste at the hidden prompt** - verified
+   live with the API, never echoed or stored; ② `API_KEY.txt` in the repo root,
+   created on first run, gitignored; ③ env / `.env`):
 
 ```bash
-cp .env.qwen.example .env      # then set DASHSCOPE_API_KEY in .env
+cp .env.qwen.example .env      # option ③: then set DASHSCOPE_API_KEY in .env
 # `./setup.sh` forwards it (and every SIFT_* setting) into the container.
-# Or skip this entirely: `./setup.sh` asks for the key once, hidden.
+# Or skip this entirely (option ①): `./setup.sh` asks once, hidden - a real key
+# always beats a placeholder, and a rejected env key self-heals to your file.
 ```
 
 3. Connectivity check (one call, reuses the demo image from §2):
