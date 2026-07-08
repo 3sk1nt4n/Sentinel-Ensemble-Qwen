@@ -303,7 +303,25 @@ class RealProbes(Probes):
         target = self._fsstat_target(path)
         r = subprocess.run(["sudo", "fsstat", target],
                            capture_output=True, text=True, timeout=60)
-        return "File System Type" in (r.stdout + r.stderr)
+        if "File System Type" in (r.stdout + r.stderr):
+            return True
+        # fsstat at offset 0 MISSES a full-disk image: a partition table puts the
+        # filesystem at a non-zero offset (e.g. NTFS at sector 2048), so fsstat
+        # reports "Cannot determine file system type". Escalate to mmls -- a
+        # partition table naming an NTFS/FAT/exFAT volume IS a disk; the
+        # ntfs_offsets mount ladder then mounts at the real partition offset.
+        # (A bare single-partition image has its FS at offset 0 and already
+        # passed above; this rescues the common full-disk .E01/.dd shape.)
+        # Dataset-agnostic: partition-table structure only, no case specifics.
+        try:
+            m = subprocess.run(["sudo", "mmls", target],
+                               capture_output=True, text=True, timeout=60)
+            out = m.stdout + m.stderr
+            if any(fs in out for fs in ("NTFS", "exFAT", "FAT", "Linux (0x83)", "Basic data")):
+                return True
+        except (OSError, subprocess.SubprocessError):
+            pass
+        return False
 
     def fs_facts(self, path: str) -> dict:
         target = self._fsstat_target(path)
