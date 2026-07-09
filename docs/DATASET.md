@@ -10,8 +10,9 @@ of the data, and what it found.)*
 
 ## Datasets used
 
-**Source:** all evidence is drawn from **public SANS Windows incident-response
-images** (third-party DFIR image sets used to develop and validate the engine).
+**Source:** evidence is public and reproducible - the featured case is the **DFIR Madness
+"Stolen Szechuan Sauce" DC01** pair (public download), with SANS-style Windows
+incident-response images used for internal benchmarking (third-party DFIR image sets used to develop and validate the engine).
 Nothing in this submission was tested against private or self-generated evidence.
 
 The agent was developed and validated against these Windows incident-response
@@ -30,7 +31,7 @@ shows a live Qwen run end to end.
 
 | Case shape | OS | Evidence | Role |
 |---|---|---|---|
-| Paired (featured) | Windows Server 2012 R2 | memory (2 GB) + disk (2.4 GB) | **featured public case - DFIR Madness DC01, run live on Qwen Cloud (reproducible)** |
+| Paired (featured) | Windows Server 2012 R2 | memory (2 GB) + disk (~4.9 GB, 2-segment E01) | **featured public case - DFIR Madness DC01, run live on Qwen Cloud (reproducible)** |
 | Paired | Windows 10 / Server 2016+ | memory (3 GB) + disk (11.9 GB E01) | Claude reference run rd01 (secondary - atomic-confirmation proof, kept local) |
 | Memory-only | Windows 7 / XP baselines | memory image | memory-only path + floor validation |
 | Disk-only | Server 2012 R2 / Win7 / XP | disk (E01) | disk-only source-filter validation |
@@ -110,7 +111,7 @@ identified the binary as a legitimate signed forensic tool - no human
 intervention.
 
 > 📄 **Full self-correction proof** - every ReAct + Step-13AA correction from the
-> rd01 run (46 ambiguous findings re-judged, ~40 self-corrected), before → after,
+> rd01 run (46 ambiguous findings re-judged, 39 reclassified by Step-13AA), before → after,
 > with `agent_execution_log.txt` line refs:
 > **[`SELF-CORRECTION-PROOF.md`](../SELF-CORRECTION-PROOF.md)**.
 

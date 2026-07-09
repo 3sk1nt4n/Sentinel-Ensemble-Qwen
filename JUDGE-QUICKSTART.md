@@ -242,7 +242,7 @@ not a gap). Step-13AA resolved every ambiguous finding (**0 inconclusive**) and
 (1 → 44 findings); the confirmation bar does not.**
 
 **And when atomic proof _is_ present, the same engine confirms.** On a second
-paired case (DFIR Madness rd01) the heavy tier cleared **4 findings** through every
+secondary reference case (rd01, held-back, not public) the heavy tier cleared **4 findings** through every
 confirmation gate - PsExec lateral movement, PWDumpX credential dumping, an IFEO
 `sethc.exe` sticky-keys backdoor, and `p.exe` from a temp dir - while light
 confirmed **0**; a **flags-off ablation** on that case measured the trust layer

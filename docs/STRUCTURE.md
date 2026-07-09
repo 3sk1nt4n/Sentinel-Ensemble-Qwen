@@ -57,7 +57,7 @@ Sentinel-Ensemble-Qwen/
 │
 ├── docs/                        # ACCURACY.md, this file, DATASET.md, DOCKER.md, INVOCATIONS.md,
 │   │                            #   VALIDATOR.md + design/
-│   ├── qwen-runs/               # shipped sanitized metrics of the live Qwen Cloud runs (2 headline + Jul 1 repro + ablation)
+│   ├── qwen-runs/               # shipped sanitized metrics of the live Qwen Cloud runs (DC01 light+heavy featured + rd01 light+heavy + Jul 1 repro + ablation)
 │   └── proof/                   # Proof-of-Deployment: Alibaba Cloud Workbench screenshot (alibaba-workbench.png)
 ├── yara_rules/                  # behavioural YARA signatures
 ├── scripts/ · bin/              # operational helpers (qwen_smoke.py, gates, legacy console + dev tools)

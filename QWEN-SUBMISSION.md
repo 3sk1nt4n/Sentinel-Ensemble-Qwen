@@ -22,7 +22,7 @@ credibility. Sentinel Qwen Ensemble runs that entire triage autonomously in **4-
 minutes for $0.22-$1.67 per full paired investigation** (measured on the public
 DC01 case; metrics shipped in [`docs/qwen-runs/`](docs/qwen-runs/)), refuses to confirm anything it
 cannot prove from tool output, and gives the analyst an approve/override
-checkpoint before the report. **Incident-response agents fix outages; Sentinel
+checkpoint before the report. **Incident-response agents fix outages; Sentinel Qwen
 Ensemble investigates compromises.** The analyst's hours move from evidence
 grinding to decision-making.
 
@@ -113,7 +113,7 @@ fresh repository:
 3. **Qwen cost model + config** - `pricing.py` Qwen rate rows and a one-file
    `.env.qwen.example` (recommended model tiering for the $40 credit).
 4. **Alibaba Cloud inference (satisfied)** - the reasoning backend runs on the
-   Alibaba Cloud DashScope API (`llm_provider.py`); both shipped runs record the
+   Alibaba Cloud DashScope API (`llm_provider.py`); the shipped runs each record the
    live DashScope endpoint. Optional ECS hosting + OSS evidence is a turnkey
    runbook in [`DEPLOY-ALIBABA.md`](DEPLOY-ALIBABA.md) (see "Proof of Deployment"
    below).
@@ -232,7 +232,7 @@ Python.
 ### Verified Qwen Cloud runs (proof)
 
 The **featured case is DFIR Madness's "Stolen Szechuan Sauce" DC01** - a **public,
-reproducible** intrusion (2 GB memory + 2.4 GB disk) any judge can download and
+reproducible** intrusion (2 GB memory + ~4.9 GB two-segment E01 disk) any judge can download and
 rerun. Two full **paired (memory + disk)** investigations ran end-to-end on **Qwen
 models on Alibaba Cloud DashScope** (both images read-only), through the **full
 trust-layer pipeline** (Step-13AA consolidated finalize + review-all with

@@ -207,7 +207,7 @@ whole 16-step pipeline onto Qwen needs **no code change**.
 
 > 💰 **Budget, not tiers.** The demo needs **no key at all**. Verified full
 > investigations cost **🪶 ~$0.22 (light)** to **⚡ ~$1.67 (heavy)** - the **$40
-> voucher covers ~12-16 full runs** even worst-case. The 4-model ensemble makes 4
+> voucher covers ~20+ full runs** even worst-case. The 4-model ensemble makes 4
 > concurrent calls; a standard pay-as-you-go DashScope key handled every verified
 > run (long calls auto-retry with backoff; `SIFT_HTTP_TIMEOUT=600` is preset).
 > Model tiering (flagship `qwen3.7-max` for keystone analysis, `qwen-plus` for

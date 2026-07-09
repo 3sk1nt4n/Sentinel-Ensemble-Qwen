@@ -9,7 +9,7 @@ Alibaba Cloud DashScope API**. They are the source of the numbers quoted in
 ### Featured run: DC01 (public, reproducible) - the trust layer holding honestly
 
 DC01 is the **primary, featured case**: the PUBLIC DFIR Madness "Stolen Szechuan
-Sauce" domain controller (memory 2 GB + disk 2.4 GB) that any judge can download
+Sauce" domain controller (memory 2 GB + disk ~4.9 GB, two-segment E01) that any judge can download
 and rerun end to end. Both tiers ran with the Step-13AA consolidated
 finalization (`SIFT_INV3A_FINALIZE=1` + `SIFT_INV3A_REVIEW_ALL=1`).
 

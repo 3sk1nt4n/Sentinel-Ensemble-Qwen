@@ -7,7 +7,7 @@ tool-signature refactors: keyword arguments were renamed or removed
 were widened (e.g. MFT timeline defaults from `2015-01-01..2025-12-31` to
 `0001-01-01..9999-12-31`), and status strings were consolidated
 (`no_transcripts_found` -> `not_applicable`) - while the shipped pipeline kept
-working (both live Qwen Cloud runs completed end-to-end after these changes;
+working (the shipped live Qwen Cloud runs completed end-to-end after these changes;
 see `docs/qwen-runs/`).
 
 **They are stale tests, not hidden product bugs.** The failures are assertions

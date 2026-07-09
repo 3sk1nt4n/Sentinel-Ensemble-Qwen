@@ -69,7 +69,8 @@ export SIFT_DEFAULT_MODEL=qwen3.7-max
 Model tiering keeps it cheap: `qwen-plus` for the high-volume work (ensemble,
 ReAct, tool selection, report), `qwen3.7-max` reserved for keystone adjudication.
 There is real DashScope-specific engineering under that seam, too: implicit
-prompt-cache accounting (one heavy run reused **381,696 cached tokens**, ~36% off),
+prompt-cache accounting (the rd01 heavy run reused **381,696 cached tokens**, ~36% off;
+the featured DC01 heavy run reused **371,072**),
 a `reasoning_content` fallback for Qwen thinking mode, per-model output-cap
 clamps, and bounded read-timeout retries that fixed a live-run failure.
 
@@ -78,7 +79,7 @@ clamps, and bounded read-timeout retries that fixed a live-run failure.
 I ran the **same** real Windows intrusion case through the **identical trust
 layer** at two Qwen model tiers. Nothing changed but the model. And the case is
 **public and reproducible**: DFIR Madness "Stolen Szechuan Sauce" **DC01** (2 GB
-memory + 2.4 GB disk), which any judge can download and rerun end to end. Both
+memory + ~4.9 GB two-segment E01 disk), which any judge can download and rerun end to end. Both
 images were mounted read-only and SHA-256 verified; the runs record their own
 provenance, so this is not a claim:
 

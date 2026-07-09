@@ -33,7 +33,7 @@ exact JSON field is named per row).
 ### 🌟 Featured: DC01 (public, reproducible) - the trust layer holding honestly
 
 DC01 is the **primary, featured case**: the PUBLIC DFIR Madness "Stolen Szechuan
-Sauce" domain controller (memory 2 GB + disk 2.4 GB) any judge can download and
+Sauce" domain controller (memory 2 GB + disk ~4.9 GB, two-segment E01) any judge can download and
 rerun end to end. Both tiers ran the Step-13AA consolidated finalization
 (`SIFT_INV3A_FINALIZE=1` + `SIFT_INV3A_REVIEW_ALL=1`), which resolved **every**
 ambiguous finding to a final verdict (**0 inconclusive**) with **0 tool failures**.
@@ -310,7 +310,7 @@ needs-review - that, plus the 3 kept-as-needs-review-despite-`confirmed` rows
 - **[`README.md`](README.md)** - project overview + submission compliance checklist.
 - **[`JUDGE-QUICKSTART.md`](JUDGE-QUICKSTART.md)** - clone → run in five minutes (free `--demo`, no key).
 - **[`ARCHITECTURE.md` §"Where the self-correction credit is earned"](ARCHITECTURE.md)** - the design (two layers + the safety net).
-- **[`docs/DATASET.md`](docs/DATASET.md)** - evidence dataset (SANS Windows IR images; provenance + availability inside) + what the agent found.
+- **[`docs/DATASET.md`](docs/DATASET.md)** - evidence dataset (featured public DFIR Madness DC01 + SANS-style IR images; provenance + availability inside) + what the agent found.
 - **[`docs/ACCURACY.md`](docs/ACCURACY.md)** - accuracy report / methodology.
 - **`artifacts/run-rd01/agent_execution_log.txt`** (local Claude reference run, not committed) - the raw, timestamped trace cited throughout.
 - **`artifacts/run-rd01/report.md`** (local) - the analyst-facing report the corrections feed into.

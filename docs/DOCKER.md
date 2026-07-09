@@ -165,7 +165,7 @@ and pure-memory runs do not need them.
 |---|---|---|---|
 | `demo` | ~290 MB | Python + the pinned deps only | The zero-cost demo (synthetic case, **no key, no evidence, no tools**) |
 | `full` | ~485 MB | + **Volatility 3, Sleuth Kit, EWF tools, YARA** | Real **memory/disk** investigations, lean image |
-| `full-plus` **(default)** | ~1 GB | + **bulk_extractor, EZ Tools (EvtxECmd/RECmd, .NET 9), Plaso (log2timeline), RegRipper, pff-tools, photorec** | **Everything** the pipeline can call |
+| `full-plus` **(default)** | ~1 GB | + **bulk_extractor, foremost, EZ Tools (EvtxECmd/RECmd/AmcacheParser/AppCompatCacheParser/SrumECmd/LECmd/JLECmd/MFTECmd/SBECmd/RBCmd, .NET 9), Plaso (log2timeline), RegRipper, pff-tools, photorec** | **Everything** the pipeline can call |
 
 <details>
 <summary>Manual build commands + base-image note</summary>

@@ -10,7 +10,7 @@ hallucinations the validator blocked before they reached the report.)*
 > reference run** (the architecture proven before the Qwen port), kept **local /
 > not committed** (case-neutral policy). They are **not** a Qwen result; the
 > **Qwen Cloud runs independently re-derive the same intrusion chain with their
-> own counts** (heavy tier: 34 findings / 4 confirmed - `docs/qwen-runs/`); no
+> own counts** (rd01 reference heavy tier: 34 findings / 4 confirmed; featured DC01 heavy: 44 findings / 0 confirmed - `docs/qwen-runs/`); no
 > Qwen-specific number is claimed here.
 
 - Primary case: a paired Windows memory+disk image (see [`DATASET.md`](DATASET.md)).

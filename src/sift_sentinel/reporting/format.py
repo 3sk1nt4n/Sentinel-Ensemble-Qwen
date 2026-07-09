@@ -32,10 +32,10 @@ def display_finding_id(finding_id: str, total: int | None = None) -> str:
 
     Examples
     --------
-    >>> display_finding_id("FNNN")
+    >>> display_finding_id("F001")
     'Finding 1'
-    >>> display_finding_id("FNNN", total=7)
-    'Finding 3'
+    >>> display_finding_id("F010", total=7)
+    'Finding 10'
     >>> display_finding_id("X999")
     'X999'
     """

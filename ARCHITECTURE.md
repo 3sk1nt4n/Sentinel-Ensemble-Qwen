@@ -90,7 +90,7 @@ findevil.sh  ──▶  findevil.py  ──▶  step0_onboard.py  ──▶  run
             │      195-tool MCP catalog ──⇄── AI picks an investigation set
             │      slot-31K selection guardrails (deterministic, post-selection): inject
             │      artifact-gated high-value tools, drop lower-value,
-            │      YARA opt-in only · fallback: Golden Path defaults
+            │      YARA opt-in only · Inv1 retry-then-halt (no silent fallback)
             │
  Step  6 ─▶ MCP SERVER ⇄⇄ forensic tools (typed JSON in/out - never a shell)
             │      Volatility 3 · Sleuth Kit · EZ Tools · Plaso ...
@@ -191,7 +191,7 @@ findevil.sh  ──▶  findevil.py  ──▶  step0_onboard.py  ──▶  run
 > 2. **Test →** it fires the chosen tool (`vol_cmdline` on PID 8260), then pulls
 >    `get_amcache` on the same chain to corroborate SHA1 / first-run.
 > 3. **Recognize the mismatch →** the 4-model ensemble disagrees and the
->    deterministic validator **blocks 22 unsupported claims** - the agent never
+>    deterministic validator **blocks 22 unsupported findings** - the agent never
 >    accepts its own assertion as proof.
 > 4. **Re-sequence →** Step 11 ReAct re-investigates the flagged findings with
 >    fresh tool calls (F001/F002/F004/F005/F006/F007…), clearing a false-positive
@@ -292,9 +292,10 @@ memory-based confidence at MEDIUM.
 The AI proposes an investigation set, but deterministic code has the last
 word: artifact-gated high-value tools are **injected after selection** (the
 AI cannot drop them), lower-value picks are pruned, heavyweight scans (e.g.
-YARA) are opt-in only, and a Golden Path default list replaces the selection
-entirely if Invocation 1 fails. Coverage is guaranteed by code, not by the
-model's choices.
+YARA) are opt-in only. If Invocation 1's selection fails, live mode retries the
+AI once and then halts (`Inv1RetryExhausted`) - it never silently substitutes a
+Golden Path default (that list is used only in dry-run / unit tests). Coverage is
+guaranteed by code, not by the model's choices.
 
 ### Layer 5: Typed MCP Functions
 195 typed tools, zero bash. All parameters validated by Pydantic. All
@@ -406,7 +407,7 @@ the AI never sees its own previous output; the conductor is the memory.
             │  INV 1 · INV 2 · INV 3 · 13AA · INV 4            ┆  - never a shell
             ├─▶ ⟦INV 1 ✦ TOOL SELECTION⟧ ◀┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┤
             │      catalog in ▸ tool list out                  ┆
-            │      fallback: Golden Path defaults              ┆
+            │      Inv1: retry-then-halt (no silent fallback)  ┆
             │                                                  ┆
             ├─▶ ⟦INV 2 ✦ ANALYSIS⟧  (text-only)                ┆
             │      4-model ensemble · 1 turn                   ┆   no tool
@@ -493,7 +494,7 @@ No majority vote. No "close enough." Fact disagreement = blocked.
 ## Proven Run Performance
 
 **Featured case - DC01, public and reproducible.** The headline run is the
-DFIR Madness "Stolen Szechuan Sauce" **DC01** case (memory 2 GB + disk 2.4 GB) -
+DFIR Madness "Stolen Szechuan Sauce" **DC01** case (memory 2 GB + disk ~4.9 GB, two-segment E01) -
 a **public dataset any judge can download and rerun**. Both tiers executed
 end-to-end on **Qwen models via the Alibaba Cloud DashScope API**, same
 deterministic trust layer, with the Step-13AA consolidated finalization

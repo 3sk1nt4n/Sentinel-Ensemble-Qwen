@@ -134,7 +134,7 @@ def _provider_label() -> str:
 
 if _qwen_mode():
     # Menu names + costs reflect the QWEN tiering (env-overridable), and the
-    # measured live-run costs (~$1.53 heavy / ~$0.28 light on the reference case).
+    # measured live-run costs (~$1.67 heavy / ~$0.22 light on the featured DC01 case).
     _HEAVY_MODEL = (os.environ.get("SIFT_HEAVY_MODEL")
                     or os.environ.get("SIFT_MODEL_ANALYSIS")
                     or os.environ.get("SIFT_DEFAULT_MODEL")
@@ -638,7 +638,7 @@ _VISIBLE_KEY_FILE_TEMPLATE_QWEN = (
     "#  gitignored). Or skip this file: ./setup.sh run asks once at a hidden prompt.\n"
     "#\n"
     "#  Cost expectations (measured on the reference paired case): a full LIGHT\n"
-    "#  run ~$0.28 (qwen-plus), a full HEAVY run ~$1.53 (qwen3.7-max) - the $40\n"
+    "#  run ~$0.22 (qwen-plus), a full HEAVY run ~$1.67 (qwen3.7-max) - the $40\n"
     "#  hackathon voucher covers many runs. `--demo` is free (no key needed).\n"
     "# ─────────────────────────────────────────────────────────────────────────────\n"
     "\n"

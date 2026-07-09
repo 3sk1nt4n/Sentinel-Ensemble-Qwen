@@ -7347,7 +7347,7 @@ try:
   {B}Inconclusive / unresolved:{X} {Y}{_disposition_counts.get(BUCKET_INCONCLUSIVE, 0)}{X}
   {B}Suspicious needing review:{X} {_disposition_counts.get(BUCKET_SUSPICIOUS, 0)}
   {B}Synthesis / narrative items:{X} {_disposition_counts.get(BUCKET_SYNTHESIS, 0)}
-  {B}Evidence integrity:{X} {G}SHA256 verified -- nothing was modified{X}
+  {B}Evidence integrity:{X} {G + 'SHA256 MATCH - nothing was modified' + X if summary.get('integrity_match') else R + 'SHA256 MISMATCH - evidence may have been modified' + X}
 
 {BAR}
 {B}  API COST BREAKDOWN{X}
