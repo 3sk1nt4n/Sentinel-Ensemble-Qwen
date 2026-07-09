@@ -81,7 +81,7 @@ def test_customer_table_print_function_prints_and_returns(capsys):
     )
     printed = capsys.readouterr().out
     assert returned == printed
-    assert "Sentinel Ensemble Customer Findings" in printed
+    assert "Sentinel Qwen Ensemble Customer Findings" in printed
     assert "Severity" not in printed
     assert "Confidence" not in printed
 
@@ -90,6 +90,6 @@ def test_customer_table_safe_on_unexpected_input(capsys):
     returned = print_customer_findings_table(object())
     printed = capsys.readouterr().out
     assert returned == printed
-    assert "Sentinel Ensemble Customer Findings" in printed
+    assert "Sentinel Qwen Ensemble Customer Findings" in printed
     assert "Severity" not in printed
     assert "Confidence" not in printed

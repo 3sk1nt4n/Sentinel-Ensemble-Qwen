@@ -1,6 +1,6 @@
 # ARCHITECTURE.md
 
-**Sentinel Ensemble** - System Architecture
+**Sentinel Qwen Ensemble** - System Architecture
 Autonomous Digital Forensics & Incident Response / Security Operations Center
 (DFIR/SOC) triage agent on Qwen Cloud (Alibaba DashScope) - Track 4 Autopilot
 Agent. Deterministic trust layer: **code, not the LLM model, decides what is
@@ -8,13 +8,13 @@ confirmed.**
 Global AI Hackathon with Qwen Cloud, Track 4 (Autopilot Agent) | Adil Eskintan
 *(internal Python package: `sift_sentinel`)*
 
-![Sentinel Ensemble - System Architecture (Custom MCP Server pattern)](ARCH_VERTICAL.png)
+![Sentinel Qwen Ensemble - System Architecture (Custom MCP Server pattern)](ARCH_VERTICAL.png)
 
 ---
 
 ## Design Philosophy
 
-Sentinel Ensemble treats the AI - **Qwen models hosted on Alibaba Cloud
+Sentinel Qwen Ensemble treats the AI - **Qwen models hosted on Alibaba Cloud
 (DashScope) by default; Anthropic supported via the same provider seam** - as a
 brilliant but **untrusted soloist**. Deterministic Python (the conductor)
 controls the entire pipeline. The model reasons only when summoned, and every
@@ -27,7 +27,7 @@ finalize - not an off-the-shelf agent CLI.
 
 > ### Architectural pattern - **Custom MCP Server**
 > Of the hackathon's four patterns (Direct Agent Extension · **Custom MCP
-> Server** · Multi-Agent Framework · Alternative Agentic IDE), Sentinel Ensemble
+> Server** · Multi-Agent Framework · Alternative Agentic IDE), Sentinel Qwen Ensemble
 > is a **Custom MCP Server**: every one of the 195 forensic tools is a typed
 > function on our own Model-Context-Protocol server, and the agent has **zero
 > shell access**. Guardrails are classified as **architectural** (a guarantee
@@ -250,7 +250,7 @@ not change.)*
 
 ### Why MCP Over Bash
 
-| Approach | Risk | Sentinel Ensemble |
+| Approach | Risk | Sentinel Qwen Ensemble |
 |---|---|---|
 | Raw bash execution | Prompt injection, command injection, evidence modification | Not possible - no shell access |
 | Catalog-gated bash | AI selects from allowed commands, still runs via shell | Not used - architectural constraint |
@@ -530,4 +530,4 @@ intrusion chain.
 
 ---
 
-*Sentinel Ensemble - Adil Eskintan - Global AI Hackathon with Qwen Cloud, Track 4 (Autopilot Agent)*
+*Sentinel Qwen Ensemble - Adil Eskintan - Global AI Hackathon with Qwen Cloud, Track 4 (Autopilot Agent)*

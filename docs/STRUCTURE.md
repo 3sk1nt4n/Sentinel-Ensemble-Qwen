@@ -1,7 +1,7 @@
 # Project Structure
 
 A map of the repository, so a new contributor knows where everything lives.
-Package name is `sift_sentinel`; the product/repo is **Sentinel Ensemble**.
+Package name is `sift_sentinel`; the product/repo is **Sentinel Qwen Ensemble**.
 
 ```
 Sentinel-Ensemble-Qwen/

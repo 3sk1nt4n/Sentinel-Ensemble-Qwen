@@ -126,7 +126,7 @@ def _print_dashboard(summary, findings_final=None, blocked_list=None,
   Evidence integrity: SHA256 verified pre and post
   Confirmed: {G}{summary['findings_passed']}{X}  |  Unresolved: {Y}{summary['findings_blocked']}{X}  |  Hallucinated: {G}0{X}
 {_BAR}
-{D}  Sentinel Ensemble | Adil Eskintan | SolventAi CyberSecurity
+{D}  Sentinel Qwen Ensemble | Adil Eskintan | SolventAi CyberSecurity
   Find Evil! AI Hackathon 2026 | solventcyber.com{X}
 """, file=mock_out)
 
@@ -453,7 +453,7 @@ def _print_detailed_report(summary, findings_final=None, blocked_list=None,
 
         print(f"""
 {BAR}
-{D}  Sentinel Ensemble | {summary['findings_passed']} findings | {sum(1 for v in tool_record_counts.values() if v > 0)} tools | {int(summary['elapsed_s']//60)}m {int(summary['elapsed_s']%60)}s
+{D}  Sentinel Qwen Ensemble | {summary['findings_passed']} findings | {sum(1 for v in tool_record_counts.values() if v > 0)} tools | {int(summary['elapsed_s']//60)}m {int(summary['elapsed_s']%60)}s
   Adil Eskintan | SolventAi CyberSecurity | Find Evil! 2026{X}
 {BAR}
 """, file=mock_out)

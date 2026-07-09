@@ -1,4 +1,4 @@
-"""Sentinel Ensemble -- Agentic DFIR Terminal (legacy console).
+"""Sentinel Qwen Ensemble -- Agentic DFIR Terminal (legacy console).
 
 Interactive console for forensic investigation with optional AI assistance.
 Modes: --offline (default), --ollama (local LLM), --live (Anthropic API).
@@ -224,7 +224,7 @@ def _trim_context(data: Any, max_chars: int = MAX_CONTEXT_CHARS) -> str:
 def _build_ai_prompt(question: str, context: str, history: list[dict]) -> str:
     """Build prompt with reasoning tag, context, and conversation memory."""
     parts = [
-        "You are a DFIR analyst assistant for the Sentinel Ensemble forensic platform.",
+        "You are a DFIR analyst assistant for the Sentinel Qwen Ensemble forensic platform.",
         "Analyze the evidence loaded in the current pipeline state. Do not assume any specific case or threat actor.",
         "Before answering, output your reasoning in a <thinking> tag.",
         "Be concise and forensically precise. Reference PIDs, timestamps, IPs when relevant.",
@@ -649,7 +649,7 @@ class SIFTConsole:
 
     def cmd_help(self) -> None:
         """Show command help."""
-        table = Table(title="Sentinel Ensemble Commands", show_header=False)
+        table = Table(title="Sentinel Qwen Ensemble Commands", show_header=False)
         table.add_column("Command", style="bold cyan", min_width=24)
         table.add_column("Description")
         cmds = [
@@ -792,7 +792,7 @@ def render_welcome(mode: str) -> None:
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Sentinel Ensemble - interactive DFIR terminal (LEGACY/experimental; "
+        description="Sentinel Qwen Ensemble - interactive DFIR terminal (LEGACY/experimental; "
                     "the shipped pipeline runs via ./findevil.sh -> run_pipeline.py)",
     )
     group = parser.add_mutually_exclusive_group()

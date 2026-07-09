@@ -23,7 +23,7 @@ But you cannot ship a forensic conclusion you cannot audit. If an AI says "this
 host is compromised," a court, an auditor, or an incident commander asks one
 question: **prove it.** "The model was confident" is not proof.
 
-So for this hackathon I built **Sentinel Ensemble**, an autonomous DFIR agent
+So for this hackathon I built **Sentinel Qwen Ensemble**, an autonomous DFIR agent
 that runs end-to-end on **Qwen models hosted on Alibaba Cloud (DashScope)**, and
 whose entire design is organized around a single rule:
 
@@ -138,7 +138,7 @@ That, to me, is the whole point: you can measure the trust, not just assert it.
 
 Most "AI agent" demos optimize for the happy path: look how much it found. The
 harder and more valuable thing in high-stakes domains is the opposite: **look how
-disciplined it is about what it refuses to claim.** Sentinel Ensemble is built so
+disciplined it is about what it refuses to claim.** Sentinel Qwen Ensemble is built so
 the trust is *provable*: every confirmed finding traces to the exact tool output
 that proves it, evidence is hashed before and after, and the code, not the model,
 owns the verdict.

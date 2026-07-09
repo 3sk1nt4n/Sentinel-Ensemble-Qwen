@@ -1,4 +1,4 @@
-# Sentinel Ensemble - Invocation Contracts
+# Sentinel Qwen Ensemble - Invocation Contracts
 
 coordinator.py calls the model **5 times** per run - the 4 numbered invocations
 below **plus the Step-13AA self-correction finalize**. Odd invocations (1, 3)

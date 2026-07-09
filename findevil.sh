@@ -1,5 +1,5 @@
 #!/bin/bash
-# findevil - one-command starter for Sentinel Ensemble (see README "Quick Start").
+# findevil - one-command starter for Sentinel Qwen Ensemble (see README "Quick Start").
 # Checks the basics a fresh clone trips on, then hands off to findevil.py.
 set -euo pipefail
 
@@ -46,7 +46,7 @@ if [ -n "${SIFT_PERSIST_DIR:-}" ]; then
             [ -f "$latest$f" ] && cp -f "$latest$f" "$SIFT_PERSIST_DIR/" 2>/dev/null || true
         done
         [ -d "$REPO_DIR/reports" ] && cp -rf "$REPO_DIR/reports/." "$SIFT_PERSIST_DIR/" 2>/dev/null || true
-        echo "  Results saved to your machine: sentinel-results/<case>/ inside the Sentinel Ensemble repo folder"
+        echo "  Results saved to your machine: sentinel-results/<case>/ inside the Sentinel Qwen Ensemble repo folder"
     fi
     exit $rc
 fi

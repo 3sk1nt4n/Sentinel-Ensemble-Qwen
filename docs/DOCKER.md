@@ -1,4 +1,4 @@
-# Run Sentinel Ensemble in Docker (any OS)
+# Run Sentinel Qwen Ensemble in Docker (any OS)
 
 Runs on **Windows, macOS, or Linux** with nothing but **Docker Desktop** - no
 VM, no forensic-toolchain install. Two commands cover everything on this page.

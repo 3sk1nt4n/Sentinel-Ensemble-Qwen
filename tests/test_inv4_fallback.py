@@ -14,7 +14,7 @@ from sift_sentinel.reporting.fallback import render_fallback_report
 class TestEmptyFindings:
     def test_empty_list_produces_valid_report(self):
         report = render_fallback_report([])
-        assert "# Sentinel Ensemble Incident Report" in report
+        assert "# Sentinel Qwen Ensemble Incident Report" in report
         assert "**Validated findings:** 0" in report
         assert "## Findings" in report
         assert "## Limitations" in report
@@ -146,7 +146,7 @@ class TestRawExcerptFormatting:
 class TestStructuralInvariants:
     def test_report_starts_with_h1_heading(self):
         report = render_fallback_report([])
-        assert report.startswith("# Sentinel Ensemble Incident Report")
+        assert report.startswith("# Sentinel Qwen Ensemble Incident Report")
 
     def test_report_contains_limitations_section(self):
         report = render_fallback_report([{"finding_id": "F001"}])

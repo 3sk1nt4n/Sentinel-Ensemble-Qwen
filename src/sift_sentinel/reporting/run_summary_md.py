@@ -123,7 +123,7 @@ def render_run_summary_md(
     total_obs = sum(counts.values()) + n_holdout
 
     L: list[str] = []
-    L.append("# 🛡️ Sentinel Ensemble - Run Summary")
+    L.append("# 🛡️ Sentinel Qwen Ensemble - Run Summary")
     L.append("")
     L.append("> **Fully Autonomous Agentic-AI DFIR Platform**")
     L.append("")

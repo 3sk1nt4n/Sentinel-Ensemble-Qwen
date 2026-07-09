@@ -1313,7 +1313,7 @@ def build_bucket_faithful_customer_findings_table(
     _plain_benign = [f for f in _benign_all if not _is_ai_self_corrected(f)]
     _n_findings = counts['confirmed_malicious_atomic'] + counts['suspicious_needs_review'] + counts['inconclusive_unresolved']
     lines: list[str] = [
-        "Sentinel Ensemble Customer Findings",
+        "Sentinel Qwen Ensemble Customer Findings",
         "",
         "Customer view: findings first, the false positives the AI caught next, other benign / false-positive last.",
         f"Findings (confirmed + suspicious + inconclusive): {_n_findings}  (confirmed malicious: {counts['confirmed_malicious_atomic']})",

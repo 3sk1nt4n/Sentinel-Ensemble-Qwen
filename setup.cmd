@@ -1,5 +1,5 @@
 @echo off
-REM Sentinel Ensemble - Windows launcher (no PowerShell execution-policy change needed).
+REM Sentinel Qwen Ensemble - Windows launcher (no PowerShell execution-policy change needed).
 REM
 REM   .\setup.cmd                       guided: shows the walkthrough, asks for your evidence
 REM   .\setup.cmd docker                zero-cost demo (no key, no evidence, ~30 s)

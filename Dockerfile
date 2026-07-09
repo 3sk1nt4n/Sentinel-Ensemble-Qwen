@@ -1,4 +1,4 @@
-# Sentinel Ensemble - Qwen edition - container image
+# Sentinel Qwen Ensemble - container image
 #
 # Three build targets (pick by size / completeness):
 #   demo       ~290 MB  python + the pinned deps in requirements.txt. `findevil.sh --demo` (NO key, NO

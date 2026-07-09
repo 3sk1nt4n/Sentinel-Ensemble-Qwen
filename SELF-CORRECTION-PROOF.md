@@ -9,7 +9,7 @@
 > [`docs/qwen-runs/`](docs/qwen-runs/). Nothing here is narration - it's grep-able
 > once you regenerate the run.
 
-Sentinel Ensemble corrects itself **twice**: once while it's *thinking* (Layer 1,
+Sentinel Qwen Ensemble corrects itself **twice**: once while it's *thinking* (Layer 1,
 ReAct - the AI re-investigates its own findings and changes its mind), and once
 while the system is *deciding* (Layer 2, Step 13AA - a final AI re-judgment
 whose every promotion deterministic **code** re-gates, refusing the ones it

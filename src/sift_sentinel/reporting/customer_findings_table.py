@@ -663,7 +663,7 @@ def _sift_ct_print_section_v1(label, rows, idx, disposition):
 def print_customer_findings_table(*args, **kwargs):
     state_dir = _sift_ct_find_state_dir_v1(*args, **kwargs)
     if not state_dir:
-        print("Sentinel Ensemble Customer Findings")
+        print("Sentinel Qwen Ensemble Customer Findings")
         print("No final state directory found for customer table rendering.")
         return None
 
@@ -700,7 +700,7 @@ def print_customer_findings_table(*args, **kwargs):
         synthesis = []
 
     print("")
-    print("Sentinel Ensemble Customer Findings")
+    print("Sentinel Qwen Ensemble Customer Findings")
     print("=" * 31)
     print(f"State: {state_dir}")
     print("Layout: confirmed/review first, self-correction/inconclusive next, benign/false-positive last.")
@@ -1070,7 +1070,7 @@ def render_customer_findings_table(*args, **kwargs):
     try:
         buckets = _run17_cft_as_buckets(*args, **kwargs)
         lines = []
-        lines.append("Sentinel Ensemble Customer Findings")
+        lines.append("Sentinel Qwen Ensemble Customer Findings")
         lines.append("")
         lines.append("Customer view: actionable findings first, self-correction/inconclusive next, benign/FP last.")
         lines.append("")
@@ -1108,7 +1108,7 @@ def render_customer_findings_table(*args, **kwargs):
     except Exception as exc:
         # Safe degraded renderer. Do not raise; raising re-enables legacy fallback.
         return (
-            "Sentinel Ensemble Customer Findings\n\n"
+            "Sentinel Qwen Ensemble Customer Findings\n\n"
             "Customer table rendering degraded safely; legacy severity/confidence table suppressed.\n"
             f"Renderer error: {_run17_cft_short(exc, 120)}\n"
         )
@@ -1635,7 +1635,7 @@ def render_customer_findings_table(*args, **kwargs):
         routed = _run17_v2_truth_routed_rows(raw_buckets)
 
         lines = [
-            "Sentinel Ensemble Customer Findings",
+            "Sentinel Qwen Ensemble Customer Findings",
             "",
             "Customer view: actionable findings first, self-correction/inconclusive next, benign/false-positive findings last.",
             "",
@@ -1680,7 +1680,7 @@ def render_customer_findings_table(*args, **kwargs):
         return rendered
     except Exception as exc:
         return (
-            "Sentinel Ensemble Customer Findings\n\n"
+            "Sentinel Qwen Ensemble Customer Findings\n\n"
             "Customer table rendering degraded safely; legacy severity/confidence table suppressed.\n"
             f"Renderer error: {_run17_v2_short(exc, 120)}\n"
         )
@@ -2001,7 +2001,7 @@ def _sift_ct2_section(title, rows, start_idx, disposition, stats):
 def render_customer_findings_table(*args, **kwargs):
     state = _sift_ct2_state_dir(*args, **kwargs)
     if not state:
-        return "Sentinel Ensemble Customer Findings\n\nNo final state directory found.\n"
+        return "Sentinel Qwen Ensemble Customer Findings\n\nNo final state directory found.\n"
 
     statep = _SiftCt2Path(state)
     buckets = _sift_ct2_load_json(statep / "finding_disposition_buckets.json", {})
@@ -2053,7 +2053,7 @@ def render_customer_findings_table(*args, **kwargs):
     fp = _sift_ct2_dedupe(fp)
 
     lines = [
-        "Sentinel Ensemble Customer Findings",
+        "Sentinel Qwen Ensemble Customer Findings",
         "",
         "Customer view: actionable findings first, self-correction/inconclusive next, benign/FP last.",
         f"State: {state}",
@@ -2518,7 +2518,7 @@ def render_customer_findings_table(*args, **kwargs):
     action, sc, narrative, fp = _sift_customer_route_v4(buckets, state_mode=state_mode)
 
     lines = [
-        "Sentinel Ensemble Customer Findings",
+        "Sentinel Qwen Ensemble Customer Findings",
         "",
         "Customer view: actionable findings first, self-correction/inconclusive next, narrative/context, benign/FP last.",
         "",
@@ -2949,7 +2949,7 @@ def render_customer_findings_table(source=None, *args, state_dir=None, **kwargs)
         add(fp, item)
 
     lines = [
-        "Sentinel Ensemble Customer Findings",
+        "Sentinel Qwen Ensemble Customer Findings",
         "",
         "Customer view: actionable findings first, self-correction/inconclusive next, benign/FP last.",
         "",
@@ -3101,7 +3101,7 @@ def render_customer_findings_table(source=None, *args, state_dir=None, **kwargs)
         add_main(fp, item)
 
     lines = [
-        "Sentinel Ensemble Customer Findings",
+        "Sentinel Qwen Ensemble Customer Findings",
         "",
         "Customer view: actionable findings first, self-correction/inconclusive next, benign/FP last.",
         "",

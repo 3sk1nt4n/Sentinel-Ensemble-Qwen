@@ -1,12 +1,12 @@
 # 🧑‍⚖️ Judge Quickstart
 
-**Sentinel Ensemble** - Autonomous Digital Forensics & Incident Response /
+**Sentinel Qwen Ensemble** - Autonomous Digital Forensics & Incident Response /
 Security Operations Center (DFIR/SOC) triage agent on Qwen Cloud (Alibaba
 DashScope) · Track 4 Autopilot Agent · deterministic trust layer: **code, not
 the LLM model, decides what is confirmed**
 Author: Adil Eskintan · Repo: github.com/3sk1nt4n/Sentinel-Ensemble-Qwen
 *(the engine's internal Python package keeps its historical name `sift_sentinel`;
-the product is Sentinel Ensemble)*
+the product is Sentinel Qwen Ensemble)*
 
 Five minutes from clone to a verified end-to-end demo (**no evidence, no API
 key** - `./setup.sh docker`, §2). A real investigation **on Qwen models hosted
@@ -75,7 +75,7 @@ Provider + model are env-driven, so no code change is needed.
 1. Request the **$40 Qwen Cloud voucher**, then in **Model Studio** (Singapore /
    International region) → **API Keys** → **Create API Key** → copy the `sk-…`
    (direct portal: **home.qwencloud.com/api-keys**).
-2. Give it to Sentinel Ensemble - three ways, pick the easiest
+2. Give it to Sentinel Qwen Ensemble - three ways, pick the easiest
    (**① recommended: just launch and paste at the hidden prompt** - verified
    live with the API, never echoed or stored; ② `API_KEY.txt` in the repo root,
    created on first run, gitignored; ③ env / `.env`):
@@ -308,4 +308,4 @@ After a run, the judge-facing invariants:
 
 ---
 
-*Sentinel Ensemble - Adil Eskintan - Global AI Hackathon with Qwen Cloud, Track 4 (Autopilot Agent)*
+*Sentinel Qwen Ensemble - Adil Eskintan - Global AI Hackathon with Qwen Cloud, Track 4 (Autopilot Agent)*

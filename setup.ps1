@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-  Sentinel Ensemble - one-command launcher for Windows (PowerShell).
+  Sentinel Qwen Ensemble - one-command launcher for Windows (PowerShell).
 
   The Windows twin of ./setup.sh. Same experience:
 
@@ -171,7 +171,7 @@ if ($Rest -and $Mode -eq 'run' -and -not $CasePath) {
 #  DEMO  ->  .\setup.cmd docker
 # ===========================================================================
 if ($Mode -eq 'docker') {
-    Write-Host "Sentinel Ensemble - Docker demo" -ForegroundColor White
+    Write-Host "Sentinel Qwen Ensemble - Docker demo" -ForegroundColor White
     Test-Docker
     Sec "Building the zero-cost demo image (~290 MB, one time)"
     docker build --target demo -t sentinel-qwen:demo .
@@ -201,7 +201,7 @@ if ($Mode -eq 'run' -or $Mode -eq '') {
         Show-EvidenceGuide
     }
     else {
-        Write-Host "Sentinel Ensemble - one-line Docker run" -ForegroundColor White
+        Write-Host "Sentinel Qwen Ensemble - one-line Docker run" -ForegroundColor White
     }
     Note "working folder: $RepoDir"
     Note "results always land in: $RepoDir\sentinel-results\<case>\"

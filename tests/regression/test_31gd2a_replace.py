@@ -38,7 +38,7 @@ def test_fallback_insert_when_no_confirmed_header():
     assert n>0 and "Confirmed Malicious Atomic Findings (5 total)" in new
     assert new.index("## Key Findings")<new.index("Confirmed Malicious")<new.index("## Requiring")
 def test_does_not_duplicate_bucket_fallback_confirmed_section():
-    report="# Sentinel Ensemble Incident Report\n## Status\nok\n## Confirmed Malicious (atomic)\n- **F001**: old row\n## Requiring Further Investigation\n- x\n"
+    report="# Sentinel Qwen Ensemble Incident Report\n## Status\nok\n## Confirmed Malicious (atomic)\n- **F001**: old row\n## Requiring Further Investigation\n- x\n"
     g=_five(); new,n=replace_confirmed_findings_section(report,g)
     assert new.count("Confirmed Malicious")==1
     assert "## Confirmed Malicious Atomic Findings" in new

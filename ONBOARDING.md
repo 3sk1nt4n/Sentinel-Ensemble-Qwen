@@ -1,4 +1,4 @@
-# 🤝 Contributor Onboarding - Sentinel Ensemble
+# 🤝 Contributor Onboarding - Sentinel Qwen Ensemble
 
 New to the codebase? This page gets you from clone to confident change in
 one sitting. *(Internal Python package name: `sift_sentinel`.)*

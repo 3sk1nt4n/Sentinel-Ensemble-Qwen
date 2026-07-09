@@ -5463,7 +5463,7 @@ def run_pipeline(
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Sentinel Ensemble -- Pipeline Coordinator",
+        description="Sentinel Qwen Ensemble -- Pipeline Coordinator",
     )
     parser.add_argument("--image", default="", help="Memory image path")
     parser.add_argument("--disk", default="", help="Disk image mount path")

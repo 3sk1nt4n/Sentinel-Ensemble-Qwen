@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# setup.sh - ONE command to install + verify everything Sentinel Ensemble needs.
+# setup.sh - ONE command to install + verify everything Sentinel Qwen Ensemble needs.
 #            Global AI Hackathon with Qwen Cloud - Track 4 (Autopilot Agent).
 #
 #   ./setup.sh            guided - shows the walkthrough, asks for your evidence
@@ -182,7 +182,7 @@ if [ "$RUN" = 1 ]; then
     show_banner
     show_guide
   else
-    printf "${B}Sentinel Ensemble - one-line Docker run${X}\n"
+    printf "${B}Sentinel Qwen Ensemble - one-line Docker run${X}\n"
   fi
   note "working folder: $REPO_DIR"
   note "results always land in: $REPO_DIR/sentinel-results/<case>/"
@@ -284,7 +284,7 @@ fi
 #  DOCKER PATH - works on any OS, no Python/forensic install needed
 # =============================================================================
 if [ "$DOCKER_MODE" = 1 ]; then
-  printf "${B}Sentinel Ensemble - Docker demo${X}\n"
+  printf "${B}Sentinel Qwen Ensemble - Docker demo${X}\n"
   ensure_docker
   sec "Building the zero-cost demo image (~290 MB, one time)"
   $DOCKER build --target demo -t sentinel-qwen:demo . || { printf "  ${R}FAIL${X} build failed (see above)\n"; exit 1; }
@@ -302,7 +302,7 @@ fi
 # =============================================================================
 #  LOCAL / NATIVE PATH (contributors + development)
 # =============================================================================
-printf "${B}Sentinel Ensemble - setup & health check${X}  (Track 4, Qwen Cloud)\n(%s)\n" \
+printf "${B}Sentinel Qwen Ensemble - setup & health check${X}  (Track 4, Qwen Cloud)\n(%s)\n" \
   "$([ $MODE_INSTALL = 1 ] && echo 'install + verify + run demo' || echo 'verify only')"
 
 # ── 1. Python interpreter + venv ────────────────────────────────────────────

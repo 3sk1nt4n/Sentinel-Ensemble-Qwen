@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Sentinel Ensemble -- Self-Correction Demo (Pipeline Step 12)
+Sentinel Qwen Ensemble -- Self-Correction Demo (Pipeline Step 12)
 Proves the bounded retry (self-correction) loop works with 3 distinct strategies:
   Attempt 1: EXPLAIN_AND_RETRY   -- explain the failure, fix the exact claim
   Attempt 2: SIMPLIFY_TO_PID     -- drop the failing claim, pivot to different validator-typed evidence
@@ -88,7 +88,7 @@ TOOL_OUTPUTS = {
 
 def main() -> int:
     print(f"\n{BOLD}{CYAN}{'=' * 64}{RESET}")
-    print(f"{BOLD}{CYAN}  Sentinel Ensemble -- Self-Correction Demo (Step 12){RESET}")
+    print(f"{BOLD}{CYAN}  Sentinel Qwen Ensemble -- Self-Correction Demo (Step 12){RESET}")
     print(f"{BOLD}{CYAN}  3 Strategies: EXPLAIN_AND_RETRY / SIMPLIFY_TO_PID / LAST_CHANCE_OR_DROP{RESET}")
     print(f"{BOLD}{CYAN}  No API calls. Real validator. Mock correctors.{RESET}")
     print(f"{BOLD}{CYAN}{'=' * 64}{RESET}\n")

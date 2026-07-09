@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="docs/assets/sentinel-ensemble-logo.png" alt="Sentinel Ensemble - Autonomous DFIR/SOC agent on Qwen Cloud (Alibaba DashScope), Track 4 Autopilot Agent. The AI never gets the final word." width="880">
+  <img src="docs/assets/sentinel-ensemble-logo.png" alt="Sentinel Qwen Ensemble - Autonomous DFIR/SOC agent on Qwen Cloud (Alibaba DashScope), Track 4 Autopilot Agent. The AI never gets the final word." width="880">
 </p>
 
-# 🛡️ Sentinel Ensemble
+# 🛡️ Sentinel Qwen Ensemble
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 ![Platform](https://img.shields.io/badge/Platform-Docker%20(any%20OS)-blue)
@@ -21,14 +21,14 @@ image, event logs) and it investigates end-to-end -
 investigative report where **every single claim is validated against real tool
 output before you ever see it**.
 
-Incident-response agents fix outages; **Sentinel Ensemble investigates
+Incident-response agents fix outages; **Sentinel Qwen Ensemble investigates
 compromises**: **195 typed forensic tools** on a custom MCP server, **two real
 Qwen Cloud runs** on the same intrusion case (**0 vs 4 confirmed** across model
 tiers - the trust layer is the constant), and every finding traced to the exact
 tool execution that proved it.
 
 > Global AI Hackathon with Qwen Cloud · Track 4 (Autopilot Agent) · Adil Eskintan · MIT License
-> *Internal Python package name: `sift_sentinel` (stable import path; the product/repo name is Sentinel Ensemble).*
+> *Internal Python package name: `sift_sentinel` (stable import path; the product/repo name is Sentinel Qwen Ensemble).*
 
 ---
 
@@ -179,7 +179,7 @@ whole 16-step pipeline onto Qwen needs **no code change**.
 2. Open **Model Studio** (Singapore / International region) → **API Keys** →
    **Create API Key** → copy the `sk-…` string.
    (Direct portal: **home.qwencloud.com/api-keys**.)
-3. Give it to Sentinel Ensemble in any one of three ways - pick whatever's
+3. Give it to Sentinel Qwen Ensemble in any one of three ways - pick whatever's
    easiest. **You genuinely cannot get stuck**: a real key always wins, and a
    bad one falls through to the next option:
 
@@ -265,7 +265,7 @@ contributors hacking on the code natively: see [`ONBOARDING.md`](ONBOARDING.md).
 
 ## 🔍 What it does
 
-Sentinel Ensemble investigates Windows evidence (memory images, disk images,
+Sentinel Qwen Ensemble investigates Windows evidence (memory images, disk images,
 event logs) end-to-end with **zero human steering and zero model shell access**:
 
 - A deterministic 16-step conductor (`run_pipeline.py`) drives everything; the

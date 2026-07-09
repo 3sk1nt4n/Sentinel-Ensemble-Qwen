@@ -1,4 +1,4 @@
-# Sentinel Ensemble - Qwen Cloud edition (Track 4: Autopilot Agent)
+# Sentinel Qwen Ensemble (Track 4: Autopilot Agent)
 
 > **Autonomous Digital Forensics & Incident Response / Security Operations
 > Center (DFIR/SOC) triage agent on Qwen Cloud (Alibaba DashScope) - Track 4
@@ -18,7 +18,7 @@ An alert fires. Evidence gets captured (memory, disk). Then the expensive part
 begins: a trained analyst spends hours - often a full shift - reconstructing
 what actually happened, and a hallucinated AI "finding" is worse than no answer,
 because a false attribution in an incident report burns response hours and
-credibility. Sentinel Ensemble runs that entire triage autonomously in **5-20
+credibility. Sentinel Qwen Ensemble runs that entire triage autonomously in **5-20
 minutes for $0.28-$1.53 per full paired investigation** (measured; both runs
 shipped in [`docs/qwen-runs/`](docs/qwen-runs/)), refuses to confirm anything it
 cannot prove from tool output, and gives the analyst an approve/override
@@ -71,7 +71,7 @@ end-to-end ... from system alerts to automated remediation," handling ambiguous
 inputs, invoking external tools, with human-in-the-loop checkpoints, and
 production-readiness over toy demos. SOC/DFIR triage is exactly that:
 
-| Track-4 requirement | How Sentinel Ensemble meets it | Where (code / artifact) |
+| Track-4 requirement | How Sentinel Qwen Ensemble meets it | Where (code / artifact) |
 |---|---|---|
 | Ambiguous inputs | Raw memory/disk evidence, exactly as captured behind an alert - the onboarding engine auto-detects memory-only / disk-only / paired, mounts read-only, profiles the OS, and decides what to investigate | `src/sift_sentinel/onboard/`, Inv1 tool selection |
 | Invoke external tools | **195 typed forensic tools** (Volatility 3, Sleuth Kit, EZ Tools, Plaso, bulk_extractor, RegRipper, YARA) on a custom **MCP server - zero shell access** | `src/server.py`, `src/sift_sentinel/tools/` |
@@ -81,7 +81,7 @@ production-readiness over toy demos. SOC/DFIR triage is exactly that:
 
 **Read-only by design is a feature, not a gap.** Track-4's examples mention
 "automated remediation," but in high-stakes incident response, auto-acting on a
-live host is exactly the failure mode to avoid. Sentinel Ensemble keeps a
+live host is exactly the failure mode to avoid. Sentinel Qwen Ensemble keeps a
 **SHA-256 chain of custody** and **gates remediation behind the human**: it runs
 the full triage autonomously, then hands the analyst a proof-linked report and -
 with the checkpoint enabled - an explicit approve/override gate. **The agent

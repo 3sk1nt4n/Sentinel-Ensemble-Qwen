@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Sentinel Ensemble Tool Verification. Tests every layer without API calls.
+"""Sentinel Qwen Ensemble Tool Verification. Tests every layer without API calls.
 Run: python3 verify_tools.py         (free, cached only)
 Run: python3 verify_tools.py --live  (runs real Volatility, ~5 min)"""
 
@@ -188,7 +188,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--live", action="store_true")
     args = parser.parse_args()
-    print("Sentinel Ensemble Tool Verification")
+    print("Sentinel Qwen Ensemble Tool Verification")
     print(f"Memory: {MEMORY}")
     print(f"Disk:   {DISK}")
     level_1_imports()

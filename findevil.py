@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""findevil — the Sentinel Ensemble pipeline starter.
+"""findevil — the Sentinel Qwen Ensemble pipeline starter.
 
 The one front door for users. It delegates 1:1 to the conversational
 onboarding (step0_onboard.py) so there is exactly one launch flow to

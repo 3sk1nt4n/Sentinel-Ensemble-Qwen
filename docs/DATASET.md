@@ -3,7 +3,7 @@
 *(Required submission deliverable: what the agent was tested against, the source
 of the data, and what it found.)*
 
-> The Sentinel Ensemble **pipeline is dataset-agnostic** - it embeds no case
+> The Sentinel Qwen Ensemble **pipeline is dataset-agnostic** - it embeds no case
 > names, IOCs, or answer keys (enforced by `audit/nocheat.py` + guard tests).
 > This document records the *results* of running that neutral pipeline against
 > evidence - the dataset documentation for this Qwen Cloud Track-4 submission.

@@ -1,4 +1,4 @@
-# 🧩 Extending Sentinel Ensemble - add a forensic tool
+# 🧩 Extending Sentinel Qwen Ensemble - add a forensic tool
 
 The point of this hackathon is that good tooling goes back into the community. This
 guide is the **as-built** contract for adding a forensic tool, grounded in the real
