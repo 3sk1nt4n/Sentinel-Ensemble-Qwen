@@ -288,10 +288,10 @@ case-neutral policy) the heavy `qwen3.7-max` run cleared the confirmation bar on
 Each traces to its proof tools (`extract_mft_timeline`, `get_amcache`,
 `parse_event_logs`, `run_appcompatcacheparser`, `vol_pstree`). **The trust layer
 is the constant; the model tier and the evidence just change how much clears the
-bar.** Dashboards for the rd01 run: `docs/qwen_paired_dashboard.png` (light),
-`docs/qwen_allmax_dashboard.png` (heavy) - their headers read "SIFT Sentinel", the
-engine's pre-rebrand report title (the current demo video
-`docs/sentinel-qwen-demo.mp4` is rebranded to Sentinel Qwen Ensemble).
+bar.** The featured, correctly-branded evidence is the DC01 HTML dashboard shown
+in the demo video (`docs/sentinel-qwen-demo.mp4`) plus the shipped run metrics in
+[`docs/qwen-runs/`](docs/qwen-runs/) (DC01 heavy/light + the rd01 confirm + the
+ablation), every number reproducible from the JSON.
 
 **Reproduced, and ablated (2026-07-01).** An independent rerun of the rd01 case
 re-confirmed the intrusion chain (0 inconclusive, integrity MATCH, gate PASS;
