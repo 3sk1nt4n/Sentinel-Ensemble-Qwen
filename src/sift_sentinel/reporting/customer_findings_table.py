@@ -125,7 +125,7 @@ def _section(label: str) -> str:
 def _banner(evidence_label: str, run_date: str) -> list[str]:
     table_len = len(_rule("top"))
     inner = table_len - 2
-    title = "SENTINEL ENSEMBLE - INVESTIGATION FINDINGS"
+    title = "SENTINEL QWEN ENSEMBLE - INVESTIGATION FINDINGS"
     suffix = ""
     if evidence_label:
         suffix += f"  Evidence: {evidence_label}"

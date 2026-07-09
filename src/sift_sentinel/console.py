@@ -868,7 +868,7 @@ def render_welcome(mode: str) -> None:
 
     panel = Panel(
         "\n".join(lines),
-        title="[bold cyan]SENTINEL ENSEMBLE[/bold cyan] - Agentic DFIR Terminal (legacy console)",
+        title="[bold cyan]SENTINEL QWEN ENSEMBLE[/bold cyan] - Agentic DFIR Terminal (legacy console)",
         subtitle="Autonomous DFIR Analysis",
         border_style="cyan",
         padding=(1, 2),

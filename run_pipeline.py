@@ -6832,7 +6832,7 @@ try:
 
     print(f"""
 {_BAR}
-{B}{C}  SENTINEL ENSEMBLE -- Autonomous DFIR Agent{X}
+{B}{C}  SENTINEL QWEN ENSEMBLE -- Autonomous DFIR Agent{X}
 {B}{C}  Pipeline Execution Report{X}
 {_BAR}
 

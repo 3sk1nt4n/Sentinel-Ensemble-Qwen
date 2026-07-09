@@ -1240,7 +1240,7 @@ def render_findings_terminal(buckets, width=None, summary=None, image_path=None,
         )
 
         lines += [_bar("t"),
-                  _bln_c("SENTINEL ENSEMBLE  \u00b7  Fully Autonomous Agentic-AI DFIR Platform"),
+                  _bln_c("SENTINEL QWEN ENSEMBLE  \u00b7  Fully Autonomous Agentic-AI DFIR Platform"),
                   _bar("m"),
                   _lv("Sample", sample),
                   _lv("Runtime", "%s     Status: %s" % (_hms(sm.get("elapsed_s", 0)), status)),

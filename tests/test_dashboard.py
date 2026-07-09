@@ -39,7 +39,7 @@ def _print_dashboard(summary, findings_final=None, blocked_list=None,
 
         print(f"""
 {_BAR}
-{B}{C}  SENTINEL ENSEMBLE -- Autonomous DFIR Agent{X}
+{B}{C}  SENTINEL QWEN ENSEMBLE -- Autonomous DFIR Agent{X}
 {B}{C}  Pipeline Execution Report{X}
 {_BAR}
 
