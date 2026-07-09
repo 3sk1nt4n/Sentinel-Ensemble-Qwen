@@ -93,7 +93,7 @@ Sleuth Kit, YARA, EZ Tools, Plaso, RegRipper, bulk_extractor, …) comes bundled
 | 🪟 **Windows** | Install **[Docker Desktop](https://www.docker.com/products/docker-desktop/)** (keep the WSL2 backend) + **[Git](https://git-scm.com/download/win)**. Open Docker Desktop once. | **PowerShell** |
 | 🍎 **macOS** | Install **[Docker Desktop](https://www.docker.com/products/docker-desktop/)** (pick **Apple-chip** or **Intel** to match your Mac). **Open Docker.app once.** Git installs in one click the first time you run it. | **Terminal** |
 | 🐧 **Linux** | Nothing - if Docker is missing, `./setup.sh docker` **installs it for you**. | **Terminal** |
-| ☁️ **Alibaba Cloud** (SAS/ECS Ubuntu) | Nothing - same as Linux; `./setup.sh docker` installs Docker itself. **Verified end-to-end on a SAS instance** (see [`docs/proof/`](docs/proof/)); full cloud runbook: [`DEPLOY-ALIBABA.md`](DEPLOY-ALIBABA.md) | **Workbench terminal** |
+| ☁️ **Alibaba Cloud** (SAS/ECS Ubuntu) | Nothing - same as Linux; `./setup.sh docker` installs Docker itself. **📖 Full click-by-click walkthrough: [Run it on Alibaba Cloud](#-run-it-on-alibaba-cloud-from-a-brand-new-ubuntu-box)** (from a brand-new box). **Verified end-to-end on a SAS instance** ([`docs/proof/`](docs/proof/)); engineer runbook: [`DEPLOY-ALIBABA.md`](DEPLOY-ALIBABA.md) | **Workbench terminal** |
 
 > ✅ You know Docker is ready when its **whale icon sits steady** (not animating).
 > On a cloud box there's no icon - the launcher checks the daemon for you.
@@ -227,6 +227,116 @@ The international (Singapore) DashScope endpoint is the default; set
 > **Anthropic fallback (optional).** The provider seam keeps `anthropic` as the
 > zero-regression fallback - unset `SIFT_LLM_PROVIDER` and set `ANTHROPIC_API_KEY`
 > to run the identical pipeline on Claude. Not needed for the Qwen Cloud submission.
+
+## ☁️ Run it on Alibaba Cloud (from a brand-new Ubuntu box)
+
+**Never used a cloud server? No problem.** This is the complete path from an
+empty Alibaba Cloud account to a finished investigation, every click and command
+spelled out. It is exactly how our **Proof of Deployment** was captured.
+(Engineer's condensed runbook: [`DEPLOY-ALIBABA.md`](DEPLOY-ALIBABA.md).)
+
+> 💡 **Why a cloud box?** The hackathon's "Proof of Deployment" wants the agent's
+> backend *running live on Alibaba Cloud*. A fresh Ubuntu server does exactly
+> that, and it is the **same Linux path as your laptop**, just in a browser
+> terminal. No SSH keys, no PuTTY, nothing to install locally.
+
+### 1️⃣ Create the server (~5 minutes)
+
+We use **Simple Application Server (SAS)**, the fixed-price, "up in five minutes"
+option Alibaba recommends for AI-API agents.
+
+| Do this | What to pick / know |
+|---|---|
+| Open the **[SAS console](https://swas.console.aliyun.com/)** → **Create Server** | Sign in first; request the **$40 hackathon voucher** if you have not |
+| **Region** | **Singapore** (matches the international DashScope endpoint, lowest latency) |
+| **Image** | **Ubuntu 22.04** (or 24.04), pick the plain **OS image**, not an app image |
+| **Plan** | the **cheapest** tier is fine for the demo + proof; size up only for big evidence |
+| **Buy**, then wait ~60 seconds | the server gets a **public IP** automatically |
+
+> ✅ **You did it when:** the server card shows **Running** with a green dot.
+
+### 2️⃣ Open the terminal (browser, no SSH)
+
+1. On the server card, click **Reset Password** once (SAS ships with no password).
+2. Click **Connect → Workbench**. A **browser terminal** opens, logged in as
+   `root`. *(This is the exact console view our proof screenshot comes from.)*
+
+### 3️⃣ Install + build (one paste, ~15 min the first time)
+
+Paste this whole block into the Workbench terminal:
+
+```bash
+sudo apt-get update && sudo apt-get install -y git
+git clone https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen.git
+cd Sentinel-Ensemble-Qwen
+./setup.sh docker
+```
+
+`./setup.sh docker` **installs Docker for you** (if it is missing), builds the
+image with the *entire* forensic toolchain baked in (Volatility 3, Sleuth Kit,
+EZ Tools, Plaso, YARA, …), and runs a **free, no-key demo** to prove the flow.
+
+> ✅ **You did it when:** the demo prints a `PIPELINE SUMMARY` box headed
+> `SENTINEL QWEN ENSEMBLE`. The first build takes ~15 min (it downloads the
+> toolchain once); every run after that is instant.
+
+### 4️⃣ Add your Qwen key (the AI brain)
+
+```bash
+cp .env.qwen.example .env
+nano .env     # find the DASHSCOPE_API_KEY= line, paste your sk-... key, then Ctrl-O, Enter, Ctrl-X
+```
+
+You only add the **key**, the provider and model tiering are already preset. Get
+the key from [🔑 Get a Qwen Cloud API key](#-get-a-qwen-cloud-api-key-the-ai-brain)
+above.
+
+> 🔒 The key lives in `.env`, which is **git-ignored**, so it never leaves the box.
+
+### 5️⃣ Prove the Qwen connection (10 seconds)
+
+```bash
+sudo docker run --rm -e SIFT_LLM_PROVIDER=qwen --env-file .env \
+  --entrypoint python3 sentinel-qwen:demo scripts/qwen_smoke.py
+```
+
+> ✅ **You did it when:** it prints **`SENTINEL-QWEN-OK`**, a live Qwen call to
+> `dashscope-intl.aliyuncs.com`, made **from your Alibaba Cloud box**.
+
+### 6️⃣ Run a real investigation
+
+Grab a free public case (see [🧪 Get evidence](#-get-evidence-to-investigate)
+below), then one line:
+
+```bash
+sudo ./setup.sh /cases/evidence/<your-case>
+```
+
+Evidence is mounted **read-only** and **SHA256-fingerprinted before and after**
+(chain of custody); the verified, proof-linked report lands in the run folder.
+
+> 💡 **Reproduce our featured run:** download the public **DFIR Madness "Stolen
+> Szechuan Sauce" DC01** pair (memory + disk), point `./setup.sh` at it, and you
+> get the exact investigation shown in the demo video.
+
+### 7️⃣ Capture the Proof of Deployment (for judges)
+
+With the instance showing **Running** in the console, screenshot the **Servers /
+Workbench view** (compute in the Running state, this backend deployed on it).
+That screenshot **plus** the Base URL in
+[`llm_provider.py`](src/sift_sentinel/llm_provider.py) is the complete Proof of
+Deployment. Full details: [`DEPLOY-ALIBABA.md`](DEPLOY-ALIBABA.md) §6.
+
+---
+
+**✅ Cloud checkpoint, you are done when each of these is true:**
+
+| Step | Success signal |
+|---|---|
+| Server up | Console shows **Running** (green dot) |
+| Toolchain built | Demo prints the `PIPELINE SUMMARY` box |
+| Qwen wired | Smoke test prints **`SENTINEL-QWEN-OK`** |
+| Investigation | A report appears in the run folder with **SHA256 MATCH** |
 
 ## 🧪 Get evidence to investigate
 
