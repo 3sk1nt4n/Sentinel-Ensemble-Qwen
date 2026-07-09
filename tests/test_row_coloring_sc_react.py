@@ -39,8 +39,20 @@ def test_box_rows_stay_aligned_with_color():
 
 
 def test_no_color_when_not_tty():
-    # with empty palette (non-TTY default) the table carries no ANSI codes
-    R._C = R._G = R._B = R._X = R._M = ""
-    sc = _f("F010", 1, self_corrected=True)
-    out = R.render_findings_terminal({"benign_or_false_positive": [sc]}, summary={})
-    assert "\033[" not in out
+    # with empty palette (non-TTY default) the table carries no ANSI codes.
+    # Blank EVERY ANSI-bearing module global, not a hand-kept list: the host
+    # env may export SIFT_FORCE_COLOR=1 (import-time palette on), and any
+    # palette var this test misses would leak ANSI and fail spuriously.
+    saved = {}
+    for name in dir(R):
+        val = getattr(R, name)
+        if isinstance(val, str) and "\033[" in val:
+            saved[name] = val
+            setattr(R, name, "")
+    try:
+        sc = _f("F010", 1, self_corrected=True)
+        out = R.render_findings_terminal({"benign_or_false_positive": [sc]}, summary={})
+        assert "\033[" not in out
+    finally:
+        for name, val in saved.items():   # restore for other tests in the session
+            setattr(R, name, val)
