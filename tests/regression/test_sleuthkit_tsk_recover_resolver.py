@@ -141,7 +141,8 @@ def test_run_sleuthkit_tsk_recover_orders_image_before_output_dir(
     )
 
     assert captured
-    assert captured[0][:3] == [
+    _tsk = [c for c in captured if c and c[0] == "tsk_recover"]
+    assert _tsk and _tsk[0][:3] == [
         "tsk_recover",
         "/tmp/sift-sentinel-image.E01",
         "/tmp/sift-sentinel-output-dir",
@@ -174,7 +175,8 @@ def test_run_sleuthkit_generic_tools_keep_args_before_image(
     )
 
     assert captured
-    assert captured[0][:3] == [
+    _fls = [c for c in captured if c and c[0] == "fls"]
+    assert _fls and _fls[0][:3] == [
         "fls",
         "-r",
         "/tmp/sift-sentinel-image.E01",

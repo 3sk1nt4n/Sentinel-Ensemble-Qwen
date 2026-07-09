@@ -150,4 +150,5 @@ def test_run_sleuthkit_tsk_recover_order_still_image_before_output_dir(
 
     gen.run_sleuthkit("tsk_recover", "/tmp/sift-image.E01", ["/tmp/sift-output"])
 
-    assert captured[0][:3] == ["tsk_recover", "/tmp/sift-image.E01", "/tmp/sift-output"]
+    _tsk = [c for c in captured if c and c[0] == "tsk_recover"]
+    assert _tsk and _tsk[0][:3] == ["tsk_recover", "/tmp/sift-image.E01", "/tmp/sift-output"]

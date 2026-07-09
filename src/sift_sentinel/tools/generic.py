@@ -93,15 +93,31 @@ def run_volatility_plugin(image_path: str, plugin: str, extra_args: list = None)
                 "output": [], "record_count": 0}
 
 # Slot 31J-beta: build SleuthKit CLI args with tsk_recover image-before-output_dir.
-def _build_sleuthkit_command(command: str, image_path: str, args: list | None = None) -> list[str]:
+# offset (sectors) is passed as `-o` right after the command for partitioned disks.
+def _build_sleuthkit_command(command: str, image_path: str, args: list | None = None,
+                             offset: int | None = None) -> list[str]:
     cli_args = [str(arg) for arg in (args or [])]
+    off = ["-o", str(offset)] if offset else []
     if command == "tsk_recover" and cli_args:
-        return [command, str(image_path), *cli_args]
-    return [command, *cli_args, str(image_path)]
+        return [command, *off, str(image_path), *cli_args]
+    return [command, *off, *cli_args, str(image_path)]
+
+
+# Filesystem-level SleuthKit tools operate on ONE filesystem. On a full-disk
+# image, offset 0 is the partition table (not a filesystem), so these abort with
+# "Cannot determine file system type". Try the whole image first (raw single-fs
+# images), then each mmls-discovered partition offset, aggregating what works.
+_FS_LEVEL_SLEUTHKIT = {"fls", "tsk_recover", "icat", "mactime", "istat", "ffind", "fcat"}
 
 
 def run_sleuthkit(command: str, image_path: str, args: list = None) -> dict:
-    """Run Sleuthkit tools (fls, icat, mmls, etc) on disk evidence."""
+    """Run Sleuthkit tools (fls, icat, mmls, etc) on disk evidence.
+
+    For filesystem-level tools on a partitioned full-disk image, sweep the
+    whole image first and, failing that, each mmls partition offset and
+    aggregate. Universal / dataset-agnostic: offsets come from the partition
+    table, no case tokens. Kill with SIFT_SLEUTHKIT_OFFSET=0.
+    """
     ms = start_timer()
     from sift_sentinel.coordinator import _SLEUTHKIT_COMMANDS
     ALLOWED = set(_SLEUTHKIT_COMMANDS)
@@ -112,16 +128,51 @@ def run_sleuthkit(command: str, image_path: str, args: list = None) -> dict:
             "output": [],
             "record_count": 0,
         }
-    cmd = _build_sleuthkit_command(command, image_path, args)
+    _pinned = any(str(a) == "-o" for a in (args or []))
+    _auto = str(os.environ.get("SIFT_SLEUTHKIT_OFFSET", "1")).strip() != "0"
+    offsets: list = [None]
+    if _auto and command in _FS_LEVEL_SLEUTHKIT and not _pinned:
+        try:
+            from sift_sentinel.tools.disk import _mmls_partition_offsets
+            _parts = _mmls_partition_offsets(str(image_path))
+            if _parts:
+                offsets = [None, *_parts]
+        except Exception:
+            pass
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+        _agg: list[str] = []
+        _used_offsets: list = []
+        _last = None
+        for _off in offsets:
+            cmd = _build_sleuthkit_command(command, image_path, args, offset=_off)
+            _last = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+            _usable = _last.returncode == 0 and (_last.stdout.strip() or command == "tsk_recover")
+            if _usable:
+                if _last.stdout:
+                    _agg.append(_last.stdout)
+                if _off is not None:
+                    _used_offsets.append(_off)
+                if _off is None:
+                    break  # raw single-filesystem image; no partitions to sweep
+        # Synthesize the effective result: success across any offset, else the
+        # last real error (preserves the original failure envelope semantics).
+        _ok = bool(_agg) or (command == "tsk_recover" and (_used_offsets or (
+            _last is not None and _last.returncode == 0)))
+
+        class _R:  # minimal CompletedProcess stand-in
+            pass
+        result = _R()
+        result.returncode = 0 if _ok else (_last.returncode if _last else 1)
+        result.stdout = "\n".join(s for s in _agg if s) if _agg else (
+            _last.stdout if _last else "")
+        result.stderr = "" if _ok else (_last.stderr if _last else "")
+        _partition_offsets = _used_offsets  # for envelope observability
         # 31G-TSK-RECOVER-TYPED-FLOW:
         # tsk_recover writes recovered files into output_dir; stdout is often
         # empty even on success. Inventory the output directory so recovered
         # artifacts can flow into EvidenceDB as typed facts.
         if command == "tsk_recover":
             import hashlib
-            import os
 
             output_dir = str(args[0]) if args else ""
             max_records = int(os.environ.get("SIFT_TSK_RECOVER_MAX_RECORDS", "2000") or "2000")
@@ -175,6 +226,8 @@ def run_sleuthkit(command: str, image_path: str, args: list = None) -> dict:
 
             envelope = make_envelope(f"sleuthkit_{command}", image_path, records, ms)
             envelope["returncode"] = result.returncode
+            if _partition_offsets:
+                envelope["partition_offsets"] = _partition_offsets
             envelope["output_dir"] = output_dir
             if truncated:
                 envelope["truncated"] = True
@@ -189,6 +242,8 @@ def run_sleuthkit(command: str, image_path: str, args: list = None) -> dict:
         lines = [l for l in result.stdout.strip().split("\n") if l.strip()]
         envelope = make_envelope(f"sleuthkit_{command}", image_path, lines, ms)
         envelope["returncode"] = result.returncode
+        if _partition_offsets:
+            envelope["partition_offsets"] = _partition_offsets
         if result.stderr:
             envelope["stderr_excerpt"] = result.stderr[:500]
         if result.returncode != 0:

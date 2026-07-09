@@ -38,7 +38,11 @@ def test_tsk_recover_wrapper_inventories_output_dir(monkeypatch, tmp_path):
     result = gen.run_sleuthkit("tsk_recover", "/tmp/synthetic-disk.E01", [str(out_dir)])
 
     assert captured
-    assert captured[0][:3] == ["tsk_recover", "/tmp/synthetic-disk.E01", str(out_dir)]
+    # run_sleuthkit now probes `mmls` for partition offsets first (full-disk
+    # offset fix), so the tsk_recover invocation may not be captured[0]. Find it.
+    tsk_cmds = [c for c in captured if c and c[0] == "tsk_recover"]
+    assert tsk_cmds, "a tsk_recover command must be issued"
+    assert tsk_cmds[0][:3] == ["tsk_recover", "/tmp/synthetic-disk.E01", str(out_dir)]
     assert result["tool_name"] == "sleuthkit_tsk_recover"
     assert result["record_count"] == 1
     assert len(result["output"]) == 1
