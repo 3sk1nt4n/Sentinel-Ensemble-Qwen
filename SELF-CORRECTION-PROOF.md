@@ -3,12 +3,12 @@
 > **Maps to Technical Depth & Engineering + Innovation & AI Creativity.** This
 > page is the receipt. The headline scoreboard and tables are the **featured
 > DC01 run on Qwen Cloud** (`qwen3.7-max`), shipped and verifiable in
-> [`docs/qwen-runs/`](docs/qwen-runs/). The deepest per-line, grep-able detail
-> (Appendices + the per-finding tables) comes from an earlier **Claude Opus
-> reference run** (`run-rd01`) - a local run not committed to the repo
-> (case-neutral policy; reproduce with `./setup.sh /path/to/case`). The
-> self-correction machinery is **model-agnostic** (same code, same gates), so
-> both prove the same thing. Nothing here is narration.
+> [`docs/qwen-runs/`](docs/qwen-runs/). The DC01 self-correction is broken out in
+> the scoreboard and appendix below. An earlier **Claude Opus reference run**
+> (`run-rd01`, a local run not committed per the case-neutral policy; reproduce
+> with `./setup.sh /path/to/case`) supplies additional per-line verbatim detail
+> in its own clearly-labeled section. The machinery is **model-agnostic** (same
+> code, same gates), so both prove the same thing. Nothing here is narration.
 
 Sentinel Qwen Ensemble corrects itself **twice**: once while it's *thinking* (Layer 1,
 ReAct - the AI re-investigates its own findings and changes its mind), and once
@@ -243,20 +243,16 @@ to look for):
 cd Sentinel-Ensemble-Qwen
 LOG=/path/to/your-run/agent_execution_log.txt
 
-# Layer 1: ReAct re-investigated its own findings, and caught 4 false positives
-grep -n "15 investigations, 49 total turns" "$LOG"
-grep -c "flagged FALSE POSITIVE" "$LOG"          # -> 4
+# Layer 1: ReAct re-investigated its own findings and caught false positives
+grep -c "flagged FALSE POSITIVE" "$LOG"           # DC01 heavy -> 7
 
-# Layer 1: the typed-tool guardrail blocked a malformed tool call
-grep -n "guardrail working correctly" "$LOG"
+# Layer 2: the model proposed confirmations; the gate promoted none
+grep -c "verdict: confirmed" "$LOG"               # DC01 heavy -> 4 proposed
+grep -n "INV3A_FINALIZE moved="  "$LOG"           # -> moved=37/44 (18 benign, 19 needs-review)
+grep -n "INV3A_PROMOTION_DENIALS" "$LOG"          # the refusals, with reasons
 
-# Layer 2: the AI asked to confirm 27, code allowed 2
-grep -c "verdict: confirmed" "$LOG"               # -> 27
-grep -n "INV3A_FINALIZE moved="  "$LOG"           # -> confirmed_malicious_atomic=2
-grep -n "INV3A_PROMOTION_DENIALS" "$LOG"          # the 25 refusals, with reasons
-
-# the validator underneath: 32 verified, 22 blocked
-grep -n "VERIFIED: 32 findings confirmed" "$LOG"
+# the validator underneath: 42 verified, 2 rejected of 44
+grep -n "VERIFIED: 42 findings" "$LOG"
 ```
 
 And run the self-correction engine on mock evidence (real validator, no key):
@@ -268,92 +264,31 @@ docker run --rm --entrypoint python3 sentinel-qwen:demo demo_self_correction.py
 
 ---
 
-## 📋 Appendix A - Layer 1 Self-Correction (ReAct) corrections, in full
+## 📋 Appendix - self-correction on the featured DC01 heavy run (Qwen)
 
-The 4 findings the AI overturned on its own (verbatim conclusions, log lines
-`1096 / 1553 / 1484 / 1416`):
+**Layer 1 (ReAct) caught 7 false positives.** ReAct re-investigated the ensemble's
+suspicious findings and flagged **7** as false positives (severity forced LOW) -
+every one an RWX-memory-region alarm inside a *legitimate* Windows / VMware
+process with no corroborating shellcode or execution evidence:
 
-| Finding | Was flagged | ReAct turned it into | Why (AI's logged conclusion) |
+| Finding | Process (legitimate) | Flagged | ReAct verdict |
 |---|---|---|---|
-| F004 `OUTLOOK.EXE` | 🔴 RWX memory injection | 🟢 **benign** | RWX regions zero-filled, no MZ header / shellcode / reflective-loader pattern |
-| F011 `subject_srv.exe` | 🔴 C2 / remote-access listener | 🟢 **benign** | legitimate F-Response IR agent (PE v7), running as Local System |
-| F024 `subject_srv.exe` | 🔴 remote-access service | 🟢 **benign** | authorized F-Response acquisition agent, not attacker activity |
-| F033 `Dashlane.exe` | 🔴 high-port / loopback staging | 🟢 **benign** | loopback 127.0.0.1 password-manager IPC component |
+| F001 | `Microsoft.Activ...` (PID 1292) | 🔴 RWX memory injection | 🟢 benign (forced LOW) |
+| F003 | `ServerManager` (PID 400) | 🔴 RWX memory injection | 🟢 benign (forced LOW) |
+| F018 | `WmiPrvSE.exe` (PID 2764) | 🔴 RWX / suspicious | 🟢 benign (forced LOW) |
+| F019 | `vmtoolsd.exe` (PID 2608) | 🔴 RWX / suspicious | 🟢 benign (forced LOW) |
+| F027 | `WmiPrvSE.exe` (PID 2056) | 🔴 RWX / suspicious | 🟢 benign (forced LOW) |
+| F028 | `vmtoolsd.exe` (PID 1600) | 🔴 RWX / suspicious | 🟢 benign (forced LOW) |
+| F030 | `dfsrs.exe` (PID 1332) | 🔴 RWX / suspicious | 🟢 benign (forced LOW) |
 
-## 📋 Appendix B - Layer 2 Self-Correction (Step 13AA) corrections, in full (39 moves)
+**Layer 2 (Step 13AA) re-judged 37 of the 44 findings** (`INV3A_FINALIZE
+moved=37/44`): **18 to benign, 19 to needs-review**, leaving **0 inconclusive**.
+The model proposed **4** confirmations (`verdict: confirmed` x4); the deterministic
+promotion gate **held all 4** (`INV3A_PROMOTION_DENIALS: no_malicious_semantic_signal`,
+`react_verdict_benign_or_fp`) - no single artifact carried atomic proof, so **0
+were promoted**. The model proposed; the code disposed.
 
-Every reclassification from the `run-rd01` log, lines **1778-1871**
-(`INV3A_FINALIZE` summary at **1777**). `⚖️` = the model said *confirmed* but
-**code held it at needs-review** (the gate overruling the AI). `✅` = cleared the
-gate to confirmed. `🟢` = demoted to benign (false positive caught).
-
-| Finding | Was | → Turned into | Model verdict | Why (logged reason) |
-|---|---|---|---|---|
-| F005 | synthesis | **confirmed** ✅ | confirmed | p.exe staged payload corroborated across many independent tools |
-| F006 | synthesis | **confirmed** ✅ | confirmed | p.exe staging corroborated across multiple tools |
-| F010 | inconclusive | **benign** 🟢 | false_positive | single RWX in McAfee agent likely benign noise |
-| F007 | inconclusive | needs-review ⚖️ | confirmed | cmd.exe spawning staged p.exe corroborated by cmdline, pstree, amcache |
-| F009 | synthesis | needs-review ⚖️ | confirmed | PSEXESVC service + binary corroborated across registry, amcache, MFT |
-| F012 | inconclusive | needs-review ⚖️ | confirmed | null-cmdline rundll32 LOLBin proxy corroborated across three tools |
-| F013 | inconclusive | needs-review ⚖️ | confirmed | rundll32 proxy execution corroborated across three tools |
-| F015 | inconclusive | needs-review ⚖️ | confirmed | Event 1102 audit log cleared - deterministic anti-forensic signal |
-| F019 | inconclusive | needs-review ⚖️ | confirmed | admin-share access corroborated by event logs + network IOCs |
-| F020 | inconclusive | needs-review ⚖️ | confirmed | RDP/WinRM/SMB lateral movement corroborated by netscan and logs |
-| F023 | benign | needs-review ⚖️ | confirmed | null-cmdline rundll32 injection corroborated across three tools |
-| F026 | inconclusive | needs-review ⚖️ | confirmed | IFEO sethc Debugger backdoor - registry + event logs |
-| F027 | inconclusive | needs-review ⚖️ | confirmed | Event 1102 audit log cleared - deterministic anti-forensic evidence |
-| F028 | inconclusive | needs-review ⚖️ | confirmed | multiple 4648 logons corroborated by event logs + amcache |
-| F029 | inconclusive | needs-review ⚖️ | confirmed | admin-share access corroborated across event logs + network IOCs |
-| F038 | inconclusive | needs-review ⚖️ | confirmed | Event 1102 log clearing - deterministic anti-forensic signal |
-| F039 | inconclusive | needs-review ⚖️ | confirmed | admin-share access corroborated across logs, network IOCs, amcache |
-| F040 | inconclusive | needs-review ⚖️ | confirmed | SMB/RDP lateral movement corroborates PsExec staging via netscan |
-| F041 | inconclusive | needs-review ⚖️ | confirmed | sethc IFEO Debugger backdoor - registry + event logs |
-| F043 | inconclusive | needs-review ⚖️ | confirmed | reflective loader cradle corroborated by event logs + malfind |
-| F044 | inconclusive | needs-review ⚖️ | confirmed | beaconing to 8080 corroborated by netscan + network IOCs |
-| F045 | inconclusive | needs-review ⚖️ | confirmed | admin-share access corroborated across logs, IOCs, amcache |
-| F048 | inconclusive | needs-review ⚖️ | confirmed | sethc IFEO Debugger persistence - registry + logs |
-| F050 | inconclusive | needs-review ⚖️ | confirmed | Event 1102 audit log cleared - deterministic anti-forensic signal |
-| F051 | inconclusive | needs-review ⚖️ | confirmed | repeated 4648 credential reuse corroborated by logs + amcache |
-| F003 | inconclusive | needs-review | needs_review | reflection TTP from single event-log source - needs review |
-| F016 | inconclusive | needs-review | needs_review | multiple 4648 explicit-credential events - single source |
-| F017 | inconclusive | needs-review | needs_review | sethc IFEO Debugger from single registry source - needs review |
-| F018 | inconclusive | needs-review | needs_review | SafeBoot AlternateShell may be baseline - needs review |
-| F022 | inconclusive | needs-review | needs_review | reflection TTP single event-log source - needs review |
-| F025 | inconclusive | needs-review | needs_review | internal beaconing to 8080 - single netscan source |
-| F030 | benign | needs-review | needs_review | DismHost temp executions may be benign Dism - needs review |
-| F032 | benign | needs-review | needs_review | SafeBoot AlternateShell potential persistence - needs review |
-| F034 | inconclusive | needs-review | needs_review | reflection pattern single source - needs review |
-| F037 | inconclusive | needs-review | needs_review | internal beaconing to 8080 - needs corroboration, single source |
-| F042 | inconclusive | needs-review | needs_review | multiple 4648 credential reuse - single source |
-| F046 | inconclusive | needs-review | needs_review | WinRM connection single netscan source - needs review |
-| F047 | inconclusive | needs-review | needs_review | closed RDP attempts suggest lateral movement - needs review |
-| F049 | benign | needs-review | needs_review | SafeBoot AlternateShell single registry source - needs review |
-| F002 | needs-review | needs-review *(kept)* | needs_review | duplicate of F001; injection signal needs analyst review |
-
-**Read of the table:** 2 promoted to confirmed (✅), 1 demoted to benign (🟢), and
-**22 ⚖️ rows where the model wanted *confirmed* and code held the line** at
-needs-review - that, plus the 3 kept-as-needs-review-despite-`confirmed` rows
-(F035/F036/F054) outside the "moved" set, is the **27 → 2** gate:
-2 promoted + 22 held + 3 kept = 27 model-`confirmed`, **25 refused**.
-
-## See also - the full judge doc set
-- **[`README.md`](README.md)** - project overview + submission compliance checklist.
-- **[`JUDGE-QUICKSTART.md`](JUDGE-QUICKSTART.md)** - clone → run in five minutes (free `--demo`, no key).
-- **[`ARCHITECTURE.md` §"Where the self-correction credit is earned"](ARCHITECTURE.md)** - the design (two layers + the safety net).
-- **[`docs/DATASET.md`](docs/DATASET.md)** - evidence dataset (featured public DFIR Madness DC01 + SANS-style IR images; provenance + availability inside) + what the agent found.
-- **[`docs/ACCURACY.md`](docs/ACCURACY.md)** - accuracy report / methodology.
-- **`artifacts/run-rd01/agent_execution_log.txt`** (local Claude reference run, not committed) - the raw, timestamped trace cited throughout.
-- **`artifacts/run-rd01/report.md`** (local) - the analyst-facing report the corrections feed into.
-- **`demo_self_correction.py`** - run the self-correction engine on mock evidence (real validator, no API key).
-
----
-
-> **Honest caveats.** *needs-review* is **not** *confirmed* - 36 findings went to
-> needs-review, only 2 to confirmed; this page never inflates that. The
-> `run-rd01` evidence is a SANS-published Windows IR image (provenance and
-> availability notes in [`docs/DATASET.md`](docs/DATASET.md); the original
-> SANS-hosted share is no longer public); the detectors carry **no hardcoded
-> IOCs** (enforced by `audit/nocheat.py`). The corrections shown are one run's
-> real output - re-running the pipeline on comparable evidence (e.g. the public
-> cases in the README) reproduces the same gate behaviour, though exact counts
-> depend on the evidence and the model's per-run reasoning.
+> The per-line verbatim receipt of the *earlier Claude reference run* (its own
+> F004/F011/F024/F033 ReAct flips and 39 Step-13AA moves) is the deepest example
+> of the same model-agnostic machinery; it lives in the run log, not shipped here
+> per the case-neutral policy.
