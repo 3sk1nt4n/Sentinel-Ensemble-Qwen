@@ -185,7 +185,7 @@ Studio)**. Provider + model are chosen entirely by environment, so flipping the
 whole 16-step pipeline onto Qwen needs **no code change**.
 
 1. Go to **https://qwencloud.com** (Alibaba Cloud International) → sign up / log
-   in → request the hackathon **$40 Qwen Cloud voucher**.
+   in → request the hackathon **$40 Qwen Cloud voucher** (track your credit at the **[billing console](https://billing-cost.console.alibabacloud.com/home)**, English / international).
 2. Open **Model Studio** (Singapore / International region) → **API Keys** →
    **Create API Key** → copy the `sk-…` string.
    (Direct portal: **home.qwencloud.com/api-keys**.)
@@ -247,7 +247,7 @@ option Alibaba recommends for AI-API agents.
 
 | Do this | What to pick / know |
 |---|---|
-| Open the **[SAS console](https://swas.console.aliyun.com/)** → **Create Server** | Sign in first; request the **$40 hackathon voucher** if you have not |
+| Open the **[SAS console](https://swas.console.alibabacloud.com/)** (English / international) → **Create Server** | Sign in first; request the **$40 hackathon voucher** if you have not, and check your credit at the **[billing console](https://billing-cost.console.alibabacloud.com/home)** |
 | **Region** | **Singapore** (matches the international DashScope endpoint, lowest latency) |
 | **Image** | **Ubuntu 22.04** (or 24.04), pick the plain **OS image**, not an app image |
 | **Plan** | the **cheapest** tier is fine for the demo + proof; size up only for big evidence |

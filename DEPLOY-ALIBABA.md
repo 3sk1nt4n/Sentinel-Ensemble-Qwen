@@ -42,7 +42,7 @@ The official hackathon guide recommends SAS for LLM-API agents ("deploy in
 under 5 minutes", predictable monthly billing). Ideal for the demo +
 proof-of-deployment run; pick ECS (Option B) for full-evidence investigations.
 
-1. **SAS Console** → **Create Server** → Region (Singapore matches the
+1. **[SAS Console](https://swas.console.alibabacloud.com/)** (English / international) → **Create Server** → Region (Singapore matches the
    DashScope intl endpoint) → Image: an **OS image (Ubuntu 22.04)** or the
    **Docker application image** → cheapest plan → pay. The instance provisions
    immediately with a public IP.
