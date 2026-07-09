@@ -1,5 +1,5 @@
 """
-SIFT Sentinel - Pydantic schema models.
+Sentinel Qwen Ensemble - Pydantic schema models.
 Finding, AuditEntry, ConfidenceLevel, TokenUsage, SSdtTrust.
 """
 

@@ -1,4 +1,4 @@
-"""SIFT Sentinel - Typed EvidenceDB claim validator (Slot 31E-DB.2).
+"""Sentinel Qwen Ensemble - Typed EvidenceDB claim validator (Slot 31E-DB.2).
 
 Step 10 prefers first-class typed forensic facts (compiled at Step 7 by
 ``analysis.evidence_db.build_typed_evidence_db``) for claim validation,

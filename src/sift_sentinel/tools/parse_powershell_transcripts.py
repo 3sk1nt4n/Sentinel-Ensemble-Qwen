@@ -1,5 +1,5 @@
 """
-SIFT Sentinel - PowerShell transcript locator/parser (disk tool).
+Sentinel Qwen Ensemble - PowerShell transcript locator/parser (disk tool).
 
 Walks likely transcript directories under a mounted Windows disk, parses
 transcript headers + commands, decodes -EncodedCommand args, and extracts

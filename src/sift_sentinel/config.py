@@ -1,5 +1,5 @@
 """
-SIFT Sentinel - Configuration constants.
+Sentinel Qwen Ensemble - Configuration constants.
 """
 
 from pathlib import Path

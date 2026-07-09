@@ -1,5 +1,5 @@
 """
-SIFT Sentinel -- MCP Client.
+Sentinel Qwen Ensemble -- MCP Client.
 Thin client that starts server.py as a subprocess and calls tools
 through the MCP protocol via stdio transport.
 """

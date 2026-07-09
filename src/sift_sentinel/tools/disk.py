@@ -1,5 +1,5 @@
 """
-SIFT Sentinel - Disk forensic tools (Phase 2).
+Sentinel Qwen Ensemble - Disk forensic tools (Phase 2).
 get_amcache, extract_mft_timeline.
 
 Reads from mounted disk artifacts.

@@ -1,5 +1,5 @@
 """
-SIFT Sentinel - RDP artifact locator/parser (disk tool, F7-A).
+Sentinel Qwen Ensemble - RDP artifact locator/parser (disk tool, F7-A).
 
 Dataset-agnostic extractor of Remote Desktop Protocol evidence. Emits
 *raw evidence records only* -- no findings, no confidence, no attacker

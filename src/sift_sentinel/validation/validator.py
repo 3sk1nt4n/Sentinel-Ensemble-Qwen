@@ -1,5 +1,5 @@
 """
-SIFT Sentinel - Deterministic finding validator.
+Sentinel Qwen Ensemble - Deterministic finding validator.
 Checks every factual claim in a finding against the paired reference set.
 Code checks AI, not AI checks AI.
 """

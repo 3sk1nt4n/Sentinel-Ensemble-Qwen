@@ -1,5 +1,5 @@
 """
-SIFT Sentinel - Paired reference set builder.
+Sentinel Qwen Ensemble - Paired reference set builder.
 Extracts value-to-artifact linkages from tool outputs.
 NOT a flat set -- every value is paired with its source artifact.
 """

@@ -60,7 +60,7 @@ note() { printf "  ${B}--${X}   %s\n" "$1"; }
 show_banner() {
   printf "\n${C}  +==============================================================+${X}\n"
   printf "${C}  |                                                              |${X}\n"
-  printf "${B}  |              S E N T I N E L   E N S E M B L E               |${X}\n"
+  printf "${B}  |         S E N T I N E L   Q W E N   E N S E M B L E          |${X}\n"
   printf "  |        Autonomous DFIR / SOC - Qwen on Alibaba Cloud         |\n"
   printf "${C}  |                                                              |${X}\n"
   printf "  |        'Point me at your evidence. I'll do the rest.'        |\n"

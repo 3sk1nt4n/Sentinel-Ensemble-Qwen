@@ -1,4 +1,4 @@
-"""SIFT Sentinel -- Malicious semantic signal registry (Slot 31E-DB.5.4).
+"""Sentinel Qwen Ensemble -- Malicious semantic signal registry (Slot 31E-DB.5.4).
 
 A verified event is NOT automatically malicious. A process can *exist*,
 a port can be *listening*, an MSI installer event can be *logged* -- and

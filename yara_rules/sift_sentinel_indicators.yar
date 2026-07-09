@@ -1,5 +1,5 @@
 /*
- * SIFT Sentinel — dataset-agnostic starter ruleset.
+ * Sentinel Qwen Ensemble - dataset-agnostic starter ruleset.
  *
  * These rules cover well-known generic forensic indicators ONLY. They
  * contain no environment-specific PIDs, paths, IPs, hashes, filenames,
@@ -14,7 +14,7 @@
 rule UPX_Packed_Binary
 {
     meta:
-        author      = "SIFT Sentinel"
+        author      = "Sentinel Qwen Ensemble"
         category    = "packer"
         description = "PE binary packed with UPX (well-known compressor)"
         confidence  = "high"
@@ -30,7 +30,7 @@ rule UPX_Packed_Binary
 rule Suspicious_Encoded_PowerShell
 {
     meta:
-        author      = "SIFT Sentinel"
+        author      = "Sentinel Qwen Ensemble"
         category    = "powershell"
         description = "PowerShell invocation with EncodedCommand + bypass markers"
         confidence  = "medium"
@@ -49,7 +49,7 @@ rule Suspicious_Encoded_PowerShell
 rule Reflective_DLL_Loader_Signature
 {
     meta:
-        author      = "SIFT Sentinel"
+        author      = "Sentinel Qwen Ensemble"
         category    = "process_injection"
         description = "Reflective DLL loader symbol (Cobalt Strike, MSF, custom)"
         confidence  = "high"

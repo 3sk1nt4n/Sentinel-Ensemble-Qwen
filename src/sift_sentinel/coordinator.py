@@ -1,5 +1,5 @@
 """
-SIFT Sentinel -- Pipeline Coordinator (Steps 1-16).
+Sentinel Qwen Ensemble -- Pipeline Coordinator (Steps 1-16).
 The conductor: deterministic Python drives the AI model exactly 4 times.
 Every method accepts explicit inputs and returns explicit outputs.
 coordinator.py is the memory -- each invocation is stateless.

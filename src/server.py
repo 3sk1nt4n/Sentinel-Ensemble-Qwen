@@ -1,5 +1,5 @@
 """
-SIFT Sentinel - MCP Server.
+Sentinel Qwen Ensemble - MCP Server.
 Exposes forensic tools as typed MCP functions via dynamic registration
 from _TOOL_REGISTRY plus 9 hardcoded meta/orphan tools.
 
@@ -83,7 +83,7 @@ logger = logging.getLogger(__name__)
 mcp = FastMCP(
     "sift-sentinel",
     instructions=(
-        "SIFT Sentinel forensic MCP server. "
+        "Sentinel Qwen Ensemble forensic MCP server. "
         "All tools return typed JSON with standard envelope: "
         "tool_name, execution_time_ms, evidence_path, record_count, output. "
         "No shell access. No raw command construction. "

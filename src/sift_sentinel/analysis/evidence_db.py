@@ -1,4 +1,4 @@
-"""SIFT Sentinel - Typed EvidenceDB compiler layer (Slot 31E-DB.1).
+"""Sentinel Qwen Ensemble - Typed EvidenceDB compiler layer (Slot 31E-DB.1).
 
 Converts rich tool_outputs into first-class, typed forensic facts.
 

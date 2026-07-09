@@ -1,4 +1,4 @@
-"""SIFT Sentinel -- HTML Report Generator.
+"""Sentinel Qwen Ensemble -- HTML Report Generator.
 
 Reads pipeline state (findings, summary) and produces a styled HTML
 incident report with confidence-level legend and finding cards.

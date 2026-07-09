@@ -1,5 +1,5 @@
 """
-SIFT Sentinel - Memory forensic tools (Phase 3).
+Sentinel Qwen Ensemble - Memory forensic tools (Phase 3).
 vol_svcscan, vol_sessions, vol_ssdt, vol_filescan, vol_reg_hivelist.
 
 Always runs Volatility 3 live against the evidence image.

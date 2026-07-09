@@ -1,4 +1,4 @@
-"""SIFT Sentinel - Slot 31X-lite drift + coverage fail-fast gate.
+"""Sentinel Qwen Ensemble - Slot 31X-lite drift + coverage fail-fast gate.
 
 Lightweight, deterministic guard run *before* expensive Inv2/ReAct/SC
 work. Two independent checks:

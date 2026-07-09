@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-SIFT Sentinel -- Full Pipeline Runner.
+Sentinel Qwen Ensemble -- Full Pipeline Runner.
 Drives all 16 pipeline steps.
 The configured LLM (Qwen Cloud by default) IS the execution engine -- this script orchestrates.
 """

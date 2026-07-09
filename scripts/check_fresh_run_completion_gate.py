@@ -41,7 +41,7 @@ REQUIRED_BUCKET_KEYS = [
 ]
 
 REQUIRED_TABLE_SNIPPETS = [
-    "SIFT Sentinel Customer Findings",
+    "Sentinel Qwen Ensemble Customer Findings",
     "Confirmed malicious findings",
     "Suspicious findings needing analyst review",
     "Self-correction / inconclusive / withheld",

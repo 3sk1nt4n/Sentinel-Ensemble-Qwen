@@ -1,7 +1,7 @@
 """
 RETIRED design-phase scratchpad - kept for provenance, not part of the test suite.
 
-SIFT Sentinel - Advanced Scenario Tests
+Sentinel Qwen Ensemble - Advanced Scenario Tests
 Covers: DKOM, Process Hollowing, DLL Hijack, SSDT Hook, Timestomping
 
 ZEROFAKE STATUS PER TEST:

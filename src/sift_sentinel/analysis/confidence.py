@@ -1,5 +1,5 @@
 """
-SIFT Sentinel -- Confidence calibration (Pipeline Step 13).
+Sentinel Qwen Ensemble -- Confidence calibration (Pipeline Step 13).
 Deterministic Python. Evidence-based, not feeling-based.
 
 Rules (deterministic, model-agnostic confidence calibration; see ARCHITECTURE.md):

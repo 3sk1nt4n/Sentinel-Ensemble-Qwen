@@ -1,5 +1,5 @@
 """
-SIFT Sentinel - WMI subscription parser (disk + memory tool, F8-A).
+Sentinel Qwen Ensemble - WMI subscription parser (disk + memory tool, F8-A).
 
 Dataset-agnostic extractor of Windows Management Instrumentation (WMI)
 event-subscription artifacts from the CIMv2 repository ``OBJECTS.DATA``

@@ -1,4 +1,4 @@
-"""Dataset-agnostic investigation-answers resolver (SIFT Sentinel, report).
+"""Dataset-agnostic investigation-answers resolver (Sentinel Qwen Ensemble, report).
 
 Anchors on the malicious findings' own entities and pivots through the
 typed-fact indexes to answer the canonical DFIR questions:

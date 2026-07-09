@@ -1,6 +1,6 @@
 """Slot 31H-alpha -- durable, redacted entity-level truth package.
 
-This module turns an *existing* SIFT Sentinel run JSON into a small,
+This module turns an *existing* Sentinel Qwen Ensemble run JSON into a small,
 submission-safe package that states truth at the *entity* level (one
 header per file/process/network/chain entity) rather than repeating the
 same confirmed binary once per finding that happened to notice it.

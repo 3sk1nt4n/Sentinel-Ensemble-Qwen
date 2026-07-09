@@ -59,7 +59,7 @@ function Show-Banner {
     Write-Host ""
     Write-Host "  +==============================================================+" -ForegroundColor Cyan
     Write-Host "  |                                                              |" -ForegroundColor Cyan
-    Write-Host "  |              S E N T I N E L   E N S E M B L E               |" -ForegroundColor White
+    Write-Host "  |         S E N T I N E L   Q W E N   E N S E M B L E          |" -ForegroundColor White
     Write-Host "  |        Autonomous DFIR / SOC - Qwen on Alibaba Cloud         |" -ForegroundColor Gray
     Write-Host "  |                                                              |" -ForegroundColor Cyan
     Write-Host "  |        'Point me at your evidence. I'll do the rest.'        |" -ForegroundColor Gray

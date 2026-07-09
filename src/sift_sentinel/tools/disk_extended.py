@@ -1,5 +1,5 @@
 """
-SIFT Sentinel - Disk forensic tools (Phase 2 extended).
+Sentinel Qwen Ensemble - Disk forensic tools (Phase 2 extended).
 parse_event_logs, parse_shellbags, parse_prefetch.
 
 Parses from mounted disk.

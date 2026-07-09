@@ -1,5 +1,5 @@
 """
-SIFT Sentinel - Memory forensic tools (Phase 1).
+Sentinel Qwen Ensemble - Memory forensic tools (Phase 1).
 vol_pstree, vol_netscan, vol_malfind, vol_cmdline, vol_dlllist.
 
 Always runs Volatility 3 live against the evidence image.

@@ -1,5 +1,5 @@
 """
-SIFT Sentinel - Shared helpers for tool modules.
+Sentinel Qwen Ensemble - Shared helpers for tool modules.
 Includes Task 1.5 invocation helpers: prepare_prompt, strip_markdown_fences,
 run_tools_parallel.
 """

@@ -1,5 +1,5 @@
 """
-SIFT Sentinel -- B2 identity-preservation tests.
+Sentinel Qwen Ensemble -- B2 identity-preservation tests.
 
 Unit-tests _preserve_identity helper directly. No SC invocation, no
 ref_set construction, no corrector_fn mocking. Tests only the logic

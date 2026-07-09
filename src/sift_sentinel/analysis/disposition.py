@@ -1,4 +1,4 @@
-"""SIFT Sentinel - Final disposition truth buckets (Slot 31E-DB.3).
+"""Sentinel Qwen Ensemble - Final disposition truth buckets (Slot 31E-DB.3).
 
 A deterministic, dataset-agnostic truth layer that runs *after* Step 13
 
