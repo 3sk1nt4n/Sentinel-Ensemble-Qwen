@@ -310,6 +310,13 @@ if ($Mode -eq 'run' -or $Mode -eq '') {
             Write-Host "     ii `"$($md.FullName)`"" -ForegroundColor Cyan
         }
         Write-Host "`n   (or just open the folder:  ii `"$Out`" )`n"
+        # Super-friendly: auto-open the interactive report in the default browser
+        # the moment the run finishes. Windows is always a desktop session, so
+        # this is safe. Kill with $env:SIFT_NO_OPEN=1.
+        if ($html -and $env:SIFT_NO_OPEN -ne '1') {
+            Write-Host "   Opening the report in your browser now..." -ForegroundColor Green
+            Start-Process $html.FullName
+        }
     }
     else {
         Write-Host "`n  WARN No report file found in $Out (the run may have exited early)." -ForegroundColor Yellow

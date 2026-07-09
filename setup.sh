@@ -274,6 +274,18 @@ if [ "$RUN" = 1 ]; then
     [ -n "$_html" ] && printf "\n   Interactive report (opens in your browser):\n     ${C}%s \"%s\"${X}\n" "$_opener" "$_html"
     [ -s "$_md" ]   && printf "\n   Narrative report:\n     ${C}%s \"%s\"${X}\n" "$_opener" "$_md"
     printf "\n   (or just open the folder:  %s \"%s\" )\n\n" "$_opener" "$OUT"
+    # Super-friendly: auto-open the interactive report in the default browser the
+    # moment the run finishes. GUI hosts only (macOS always; Linux only when a
+    # display exists) so it never errors on a headless SAS/ECS/SSH box. Kill with
+    # SIFT_NO_OPEN=1.
+    if [ -n "$_html" ] && [ "${SIFT_NO_OPEN:-0}" != "1" ]; then
+      if [ "$(uname)" = "Darwin" ] || [ -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]; then
+        printf "   ${G}Opening the report in your browser now...${X}\n\n"
+        "$_opener" "$_html" >/dev/null 2>&1 &
+      else
+        printf "   ${Y}(headless box: no browser here - open the folder above on your laptop,\n    or run the open command from a desktop session)${X}\n\n"
+      fi
+    fi
   else
     printf "\n  ${Y}WARN${X} no report file found in %s (the run may have exited early).\n" "$OUT"
   fi
