@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/assets/sentinel-ensemble-logo.png" alt="Sentinel Ensemble - Autonomous DFIR/SOC agent on Qwen Cloud (Alibaba DashScope), Track 4 Autopilot Agent. The AI never gets the final word." width="880">
+</p>
+
 # 🛡️ Sentinel Ensemble
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
