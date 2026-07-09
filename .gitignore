@@ -75,3 +75,6 @@ DEVPOST-FORM-PACK.md
 HANDOVER-QWEN.md
 sentinel-results/
 VIDEO-SCRIPT.md
+
+# setuptools build artifact (never commit; it shadowed src/ with stale code)
+build/

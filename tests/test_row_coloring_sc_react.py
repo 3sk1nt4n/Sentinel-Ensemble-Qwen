@@ -49,6 +49,10 @@ def test_no_color_when_not_tty():
         if isinstance(val, str) and "\033[" in val:
             saved[name] = val
             setattr(R, name, "")
+        elif isinstance(val, dict) and any(
+                isinstance(x, str) and "\033[" in x for x in val.values()):
+            saved[name] = dict(val)
+            setattr(R, name, {k: "" for k in val})
     try:
         sc = _f("F010", 1, self_corrected=True)
         out = R.render_findings_terminal({"benign_or_false_positive": [sc]}, summary={})
