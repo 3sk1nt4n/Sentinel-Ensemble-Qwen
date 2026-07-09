@@ -208,31 +208,46 @@ claim and trace it to raw tool output in seconds.
 
 ## 6️⃣ Verified Qwen Cloud runs
 
-Two full **paired (memory + disk)** investigations ran end-to-end on **Qwen models
-on Alibaba Cloud DashScope**, through the full trust-layer pipeline - the same
-deterministic layer, two model tiers. Numbers are straight from each run's summary
-JSON; the full comparison + honesty notes are in
-[`QWEN-SUBMISSION.md`](QWEN-SUBMISSION.md).
+**Featured case: DFIR Madness "The Stolen Szechuan Sauce" DC01** - a **public,
+one-click-downloadable** case (§4) any judge can pull and rerun. Two full
+**paired (memory + disk)** investigations ran end-to-end on **Qwen models on
+Alibaba Cloud DashScope**, through the full trust-layer pipeline - the same
+deterministic layer, two model tiers, both under Step-13AA consolidated
+finalization (`SIFT_INV3A_FINALIZE=1` + `SIFT_INV3A_REVIEW_ALL=1`). Numbers are
+straight from each run's summary JSON (shipped:
+[`dc01-light-13aa-metrics.json`](docs/qwen-runs/dc01-light-13aa-metrics.json) +
+[`dc01-heavy-13aa-metrics.json`](docs/qwen-runs/dc01-heavy-13aa-metrics.json)); the
+full comparison + honesty notes are in [`QWEN-SUBMISSION.md`](QWEN-SUBMISSION.md).
 
-| | Light (`qwen-plus` ×4) | Heavy (`qwen3.7-max`) |
+| | Light (`qwen-plus` ×4) | Heavy (`qwen3.7-max`, 4-member ensemble) |
 |---|---|---|
-| Findings (final) | 11 | 34 |
-| **Confirmed malicious** | **0** | **4** |
-| Runtime | 5m 37s | 14m 44s |
-| Cost (cache-aware, est.) | ~$0.28 | ~$1.53 |
+| Findings (final) | 1 | 44 |
+| **Confirmed malicious** | **0** | **0** |
+| Needs-review / benign | 1 / 0 | 21 / 23 |
+| Inconclusive | 0 | 0 |
+| Runtime | 3m 46s | 14m 39s |
+| Cost (cache-aware, est.) | ~$0.22 | ~$1.67 |
+| Tools (swept / hit / failed) | 33 / 29 / **0** | 33 / 27 / **0** |
 | Integrity (mem + disk) | MATCH | MATCH |
 
-The light tier confirmed **nothing** - no atomic proof, no confirm (the trust
-layer working as designed, not a gap). The heavy tier reconstructed the intrusion
-chain and **4 findings cleared every confirmation gate** (PsExec lateral movement,
-PWDumpX credential dumping, an IFEO `sethc.exe` sticky-keys backdoor, `p.exe` from
-a temp dir). **The trust layer is the constant; the model tier just changes how
-much clears the bar.**
+The heavy tier surfaced the **full intrusion** - `coreupdater.exe` C2, outbound and
+inbound RDP, `\FileShare\Secret` exfil, memory injection into
+`explorer`/`svchost`/`spoolsv`, plus scheduled-task and WMI persistence attributed
+to `administrator`/`public` - across 5 MITRE tactics (Execution, Persistence,
+Defense Evasion, Lateral Movement, Command and Control), overall risk **CRITICAL**.
+And it **held every lead**: DC01 carries no single atomic-proof artifact, so the
+trust layer confirmed **nothing on either tier** (the layer working as designed,
+not a gap). Step-13AA resolved every ambiguous finding (**0 inconclusive**) and
+**0 tools failed on either tier**. **Depth scales with the model tier
+(1 → 44 findings); the confirmation bar does not.**
 
-A **July 1 reproduction** re-confirmed the chain (3 confirmed / 0 inconclusive
-- normal model non-determinism), and a **flags-off ablation** on the same case
-measured the trust layer directly (1 confirmed / 11 inconclusive without it).
-All **four** run JSONs are shipped in [`docs/qwen-runs/`](docs/qwen-runs/).
+**And when atomic proof _is_ present, the same engine confirms.** On a second
+paired case (DFIR Madness rd01) the heavy tier cleared **4 findings** through every
+confirmation gate - PsExec lateral movement, PWDumpX credential dumping, an IFEO
+`sethc.exe` sticky-keys backdoor, and `p.exe` from a temp dir - while light
+confirmed **0**; a **flags-off ablation** on that case measured the trust layer
+directly (inconclusive **0 → 11** once its gates are removed). Those run JSONs ship
+in [`docs/qwen-runs/`](docs/qwen-runs/) alongside the two DC01 metrics files.
 
 <details><summary>Earlier Claude reference run (architecture-proving, local / not committed)</summary>
 

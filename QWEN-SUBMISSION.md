@@ -18,9 +18,9 @@ An alert fires. Evidence gets captured (memory, disk). Then the expensive part
 begins: a trained analyst spends hours - often a full shift - reconstructing
 what actually happened, and a hallucinated AI "finding" is worse than no answer,
 because a false attribution in an incident report burns response hours and
-credibility. Sentinel Qwen Ensemble runs that entire triage autonomously in **5-20
-minutes for $0.28-$1.53 per full paired investigation** (measured; both runs
-shipped in [`docs/qwen-runs/`](docs/qwen-runs/)), refuses to confirm anything it
+credibility. Sentinel Qwen Ensemble runs that entire triage autonomously in **4-15
+minutes for $0.22-$1.67 per full paired investigation** (measured on the public
+DC01 case; metrics shipped in [`docs/qwen-runs/`](docs/qwen-runs/)), refuses to confirm anything it
 cannot prove from tool output, and gives the analyst an approve/override
 checkpoint before the report. **Incident-response agents fix outages; Sentinel
 Ensemble investigates compromises.** The analyst's hours move from evidence
@@ -29,7 +29,7 @@ grinding to decision-making.
 **Path to production and adoption:** the productization route is a hosted triage
 service on Alibaba Cloud (ECS compute + OSS evidence intake + DashScope
 inference - the runbook already exists in [`DEPLOY-ALIBABA.md`](DEPLOY-ALIBABA.md)),
-priced per investigation against the measured $0.28-$1.53 unit cost. The
+priced per investigation against the measured $0.22-$1.67 unit cost. The
 open-source route is already live: MIT-licensed, running in Docker on any OS
 (one `./setup.sh` command; the image bundles the entire forensic
 toolchain), with a documented tool-plugin contract
@@ -47,8 +47,9 @@ Per the Devpost x Qwen Cloud rules, proof has two parts:
    hardcodes the DashScope base URL judges look for and issues the live HTTPS
    calls:
    `https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions`.
-   The shipped run-metric files in [`docs/qwen-runs/`](docs/qwen-runs/) (light,
-   heavy, plus a July repro and a flags-off ablation) each
+   The shipped run-metric files in [`docs/qwen-runs/`](docs/qwen-runs/) (the
+   featured public DC01 light + heavy, plus the rd01 light, heavy, July repro,
+   and flags-off ablation) each
    record that same `llm_endpoint`, `llm_provider: qwen`, and the model
    (`qwen3.7-max` / `qwen-plus`) - so the runs demonstrably went to Alibaba Cloud.
 
@@ -160,9 +161,9 @@ Four pieces of DashScope-specific engineering, all exercised by the live runs:
 - **Automatic prompt-cache accounting** - DashScope's implicit prefix caching is
   read from `usage.prompt_tokens_details.cached_tokens`, clamped to the prompt
   size, and credited as cache-read in the cost model
-  ([`llm_provider.py`](src/sift_sentinel/llm_provider.py)). The heavy run reused
-  **381,696 tokens** on the shared ensemble / ReAct / 13AA prefix (~36% cost
-  cut, est. at the configured cache rate).
+  ([`llm_provider.py`](src/sift_sentinel/llm_provider.py)). The heavy rd01 run
+  reused **381,696 tokens** on the shared ensemble / ReAct / 13AA prefix (~36%
+  cost cut, est. at the configured cache rate).
 - **`reasoning_content` fallback** - Qwen thinking-mode responses that return an
   empty `content` are recovered from `reasoning_content`, so deep-reasoning
   tiers never silently zero out.
@@ -178,8 +179,11 @@ Four pieces of DashScope-specific engineering, all exercised by the live runs:
 **And a designed model-tier A/B, not two lucky runs:** the light (`qwen-plus` ×4) vs
 heavy (`qwen3.7-max`) pair holds the deterministic trust layer constant and
 varies only the Qwen model tier - measuring what each tier can *prove*, not
-what it says. Result: **0 vs 4 confirmed**. The bar does not move; the model's
-ability to clear it does.
+what it says. On the featured public **DC01** case, depth scales with the tier
+(**1 -> 44 findings**) while the confirmation bar does not (**0 confirmed either
+way** - every lead held for review); and when atomic proof *is* present (the
+rd01 case) the same heavy engine **confirms 4**. The bar does not move; the
+model's ability to clear it does.
 
 ---
 
@@ -221,47 +225,60 @@ Python.
 | Proof-of-Alibaba-Cloud code file | done (`llm_provider.py`) |
 | Architecture diagram (Qwen box) | done (`ARCH_VERTICAL.png`) |
 | **Live Qwen runs + artifacts** | **done** - see "Verified Qwen Cloud runs" below |
-| Demo video (<3 min, YouTube) | **done** - current cut in-repo: `docs/sentinel-qwen-demo.mp4` (2:33, "Sentinel Qwen Ensemble", DC01 public case); YouTube https://youtu.be/NV6Zn0YrD1w (previous 2:56 cut, being refreshed to this one) |
+| Demo video (<3 min, YouTube) | **done** - current cut in-repo: `docs/sentinel-qwen-demo.mp4` (2:50, "Sentinel Qwen Ensemble", DC01 public case); YouTube https://youtu.be/NV6Zn0YrD1w (previous 2:56 cut, being refreshed to this one) |
 | Proof of Deployment on Alibaba Cloud | **done** - code-file + Base URL (`llm_provider.py`; endpoint also in `docs/qwen-runs/`) **and** the Workbench screenshot in `docs/proof/` (SAS instance Running, Singapore; deployed per `DEPLOY-ALIBABA.md`, live `SENTINEL-QWEN-OK` smoke call; instance stays up through judging) |
 | Legacy-doc reframe to Track 4 | done |
 
 ### Verified Qwen Cloud runs (proof)
 
-Two full **paired (memory + disk)** investigations ran end-to-end on **Qwen models
-on Alibaba Cloud DashScope** (rd01 Windows case: memory + C: drive image, both
-read-only), through the **full trust-layer pipeline** (Step-13AA finalize +
-review-all, cross-bucket dedup, signature reconcile, baseline gate) - the same
-deterministic layer, two model tiers. Both record `llm_provider=qwen`, the live
-DashScope endpoint, and **SHA-256 MATCH on both images**; the sanitized aggregate
-metrics are shipped in [`docs/qwen-runs/`](docs/qwen-runs/) (full run outputs stay
-uncommitted per the case-neutral policy).
+The **featured case is DFIR Madness's "Stolen Szechuan Sauce" DC01** - a **public,
+reproducible** intrusion (2 GB memory + 2.4 GB disk) any judge can download and
+rerun. Two full **paired (memory + disk)** investigations ran end-to-end on **Qwen
+models on Alibaba Cloud DashScope** (both images read-only), through the **full
+trust-layer pipeline** (Step-13AA consolidated finalize + review-all with
+`SIFT_INV3A_FINALIZE=1` + `SIFT_INV3A_REVIEW_ALL=1`, cross-bucket dedup, signature
+reconcile, baseline gate) - the same deterministic layer, two model tiers. Both
+record `llm_provider=qwen`, the live DashScope endpoint, and **SHA-256 MATCH on
+both images**; the sanitized aggregate metrics are shipped in
+[`docs/qwen-runs/`](docs/qwen-runs/) as `dc01-light-13aa-metrics.json` and
+`dc01-heavy-13aa-metrics.json` (full run outputs stay uncommitted per the
+case-neutral policy).
 
-| | Light tier (`qwen-plus` ×4) | **Heavy tier (`qwen3.7-max` everywhere)** |
+| | Light tier (`qwen-plus` ×4) | **Heavy tier (`qwen3.7-max`, 4-member ensemble)** |
 |---|---|---|
-| Findings (final) | 11 | 34 |
-| **Confirmed malicious** | **0** | **4** |
-| needs-review / benign / inconclusive | 9 / 1 / 1 | 21 / 9 / **0** |
-| Tokens (uncached in / out) | 614,336 / 23,668 | 306,727 / 89,451 |
-| Prompt-cache reuse (cache-read) | 32,512 | **381,696** |
-| Runtime | 5m 37s | 14m 44s |
-| Cost (cache-aware) | ~$0.28 | ~$1.53 |
+| Findings (final) | 1 | 44 |
+| **Confirmed malicious** | **0** | **0** |
+| needs-review / benign / inconclusive | 1 / 0 / 0 | 21 / 23 / **0** |
+| Tools (swept / hit / failed) | 33 / 29 / **0** | 33 / 27 / **0** (+11 data-only) |
+| Runtime | 3m 46s | 14m 39s |
+| Cost (cache-aware) | ~$0.22 | ~$1.67 |
 | Integrity (mem + disk) | MATCH | MATCH |
-| Disposition gate (shipped JSON) + 4 confirm sub-gates (run logs) | PASS | PASS |
 
-**13AA gives a final verdict on everything.** Step-13AA (inv3a) review-all
-re-judges every ambiguous finding to a final TP / FP / needs-review disposition,
-so the heavy run leaves **zero inconclusive** (it reclassified 22 of the
-36-candidate ambiguous set per the run log - the shipped JSON records the
-36 → 34 counts and `inconclusive_unresolved = 0` - reconciling to 34 findings
-after dedup; a proven-evil floor keeps confirmed findings in the table regardless of
-the model's verdict). The light tier's 13AA still confirmed **nothing** - no
-atomic proof, no confirm.
+**13AA gives a final verdict on everything.** Step-13AA (inv3a) consolidated
+finalize + review-all re-judges every ambiguous finding to a final TP / FP /
+needs-review disposition, so the heavy DC01 run leaves **zero inconclusive** - it
+resolved every ambiguous lead (21 to needs-review, 23 to benign) and skipped the
+wasteful generative self-correction. Neither tier confirmed anything: DC01 **held
+all 44 of its heavy-tier leads for human review** rather than asserting them. No
+atomic proof, no confirm - the trust layer working, not a gap.
 
-**Same gates, different depth.** On the light tier the ensemble's strongest lead -
-RWX code injection in `powershell.exe` - never cleared the atomic-proof
-bar: **0 confirmed**. The AI proposed; the code disposed. On the heavy tier the
-flagship reconstructed a real intrusion chain and **4 findings cleared every
-confirmation gate**:
+**Same gates, different depth.** The light tier surfaced a single lead and
+confirmed nothing. The heavy `qwen3.7-max` ensemble reconstructed the **full
+intrusion** - `coreupdater.exe` C2, outbound and inbound RDP, `\FileShare\Secret`
+exfiltration, memory injection into `explorer` / `svchost` / `spoolsv`, and
+scheduled-task + WMI persistence, attributed to `administrator` / `public`,
+across **5 MITRE tactics** (Execution, Persistence, Defense Evasion, Lateral
+Movement, Command & Control), overall risk **CRITICAL** - and still confirmed
+**0**, escalating every one of the 44 findings to review. Depth scaled from
+**1 to 44 findings**; the confirmation bar did not move. **Zero tool failures on
+both tiers** (a fix pass added `foremost` + MFTECmd / SBECmd / RBCmd and made
+SleuthKit offset-aware, so 33 tools swept clean on each run). **Depth scales with
+the model tier; the confirmation bar does not.**
+
+**And when atomic proof *is* present, the same engine confirms.** On the
+secondary **rd01** Windows case (memory + C: drive, local-only per the
+case-neutral policy) the heavy `qwen3.7-max` run cleared the confirmation bar on
+**4 findings** where the tool output was atomic (the light tier confirmed 0):
 
 - **F009 (CRITICAL)** - `PsExec.exe` - lateral movement
 - **F005 (CRITICAL)** - `PWDumpX.exe` staged - credential dumping
@@ -269,15 +286,14 @@ confirmation gate**:
 - **F004 (HIGH)** - `p.exe` executed from a temp directory
 
 Each traces to its proof tools (`extract_mft_timeline`, `get_amcache`,
-`parse_event_logs`, `run_appcompatcacheparser`, `vol_pstree`). **Automatic
-DashScope prompt caching** reused 381,696 tokens on the heavy run (the shared
-ensemble / ReAct / 13AA prefix), cutting its cost ~36%. **The trust layer is the
-constant; the model tier just changes how much clears the bar.** Dashboards:
-`docs/qwen_paired_dashboard.png` (light), `docs/qwen_allmax_dashboard.png` (heavy)
-- their headers read "SIFT Sentinel", the engine's pre-rebrand report title (the
-current demo video `docs/sentinel-qwen-demo.mp4` is rebranded to Sentinel Qwen Ensemble).
+`parse_event_logs`, `run_appcompatcacheparser`, `vol_pstree`). **The trust layer
+is the constant; the model tier and the evidence just change how much clears the
+bar.** Dashboards for the rd01 run: `docs/qwen_paired_dashboard.png` (light),
+`docs/qwen_allmax_dashboard.png` (heavy) - their headers read "SIFT Sentinel", the
+engine's pre-rebrand report title (the current demo video
+`docs/sentinel-qwen-demo.mp4` is rebranded to Sentinel Qwen Ensemble).
 
-**Reproduced, and ablated (2026-07-01).** An independent rerun on the same case
+**Reproduced, and ablated (2026-07-01).** An independent rerun of the rd01 case
 re-confirmed the intrusion chain (0 inconclusive, integrity MATCH, gate PASS;
 3 confirmed - one fewer than June's 4, normal model non-determinism). More
 importantly, we ran the **same case, same `qwen3.7-max`, with the trust-layer
@@ -287,11 +303,12 @@ it **resolves uncertainty without ever manufacturing a confirmation** - every
 promotion in both runs still passed the identical deterministic eligibility gate.
 Both are shipped in [`docs/qwen-runs/`](docs/qwen-runs/) (repro + ablation).
 
-> **Honesty note:** both are real Qwen Cloud runs (numbers straight from each
-> run's summary JSON; sanitized aggregates shipped in
-> [`docs/qwen-runs/`](docs/qwen-runs/)). The light tier's **0 confirmed** is the design working,
-> not a gap - no evidence, no confirm. An earlier Claude reference run on the same
-> case stays local-only / not shipped (case-neutral policy); the heavy-tier Qwen
-> run independently reproduced that intrusion chain. The trust layer, the typed
-> forensic tools, and the 16-step conductor are model-agnostic - only the
-> provider/tier differs.
+> **Honesty note:** every figure is straight from each run's summary JSON
+> (sanitized aggregates shipped in [`docs/qwen-runs/`](docs/qwen-runs/)). The
+> featured **DC01 is a public, reproducible case** (DFIR Madness "Stolen Szechuan
+> Sauce") - it surfaced the whole attack yet **held every lead for review (0
+> confirmed on both tiers)** with **0 tool failures**: the trust layer working,
+> not a gap. The secondary **rd01** case (local-only per the case-neutral policy)
+> shows the flip side - when atomic proof is present the same heavy engine
+> **confirms 4**. The trust layer, the typed forensic tools, and the 16-step
+> conductor are model-agnostic - only the provider / tier / evidence differs.

@@ -1,0 +1,54 @@
+{
+  "_case": "DFIR Madness Stolen Szechuan Sauce - DC01 (public, reproducible)",
+  "_config": "SIFT_INV3A_FINALIZE=1 + SIFT_INV3A_REVIEW_ALL=1",
+  "_note": "Real Qwen Cloud run on the PUBLIC DFIR Madness DC01 case (memory + disk), light tier. Numbers from the run summary. Reproduce with ./setup.sh run /path/to/dc01.",
+  "_tier": "light",
+  "disk_integrity": "verified",
+  "disposition_counts": {
+    "benign_or_false_positive": 0,
+    "confirmed_malicious_atomic": 0,
+    "inconclusive_unresolved": 0,
+    "suspicious_needs_review": 1,
+    "synthesis_narrative": 0
+  },
+  "elapsed_s": 226.44,
+  "final_disposition_bucket_gate": "PASS",
+  "findings_final_count": 1,
+  "findings_total": 1,
+  "integrity_match": true,
+  "llm_endpoint": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions",
+  "llm_provider": "qwen",
+  "memory_integrity": true,
+  "model": "qwen-plus",
+  "status": "completed",
+  "token_breakdown": {
+    "inv1": {
+      "input": 10562,
+      "output": 381
+    },
+    "inv2": {
+      "input": 438284,
+      "output": 32768
+    },
+    "inv4": {
+      "input": 1174,
+      "output": 981
+    },
+    "react": {
+      "input": 0,
+      "output": 0
+    },
+    "sc": {
+      "input": 0,
+      "output": 0
+    }
+  },
+  "token_usage": {
+    "total_cache_creation": 0,
+    "total_cache_read": 0,
+    "total_input": 450350,
+    "total_output": 34171
+  },
+  "tools_count": 33,
+  "tools_failed": 0
+}

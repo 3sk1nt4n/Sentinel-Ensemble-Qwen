@@ -492,29 +492,58 @@ No majority vote. No "close enough." Fact disagreement = blocked.
 
 ## Proven Run Performance
 
-**Shipped result - live Qwen Cloud runs.** The pipeline's two headline runs
-executed end-to-end on **Qwen models via the Alibaba Cloud DashScope API** on
-the paired Windows reference case (memory + disk), same deterministic trust
-layer, two model tiers - plus a **July 1 reproduction** and a **flags-off
-ablation**, all four committed in `docs/qwen-runs/`.
-Sanitized aggregate metrics are committed in
-[`docs/qwen-runs/`](docs/qwen-runs/); full outputs stay uncommitted per the
-case-neutral policy.
+**Featured case - DC01, public and reproducible.** The headline run is the
+DFIR Madness "Stolen Szechuan Sauce" **DC01** case (memory 2 GB + disk 2.4 GB) -
+a **public dataset any judge can download and rerun**. Both tiers executed
+end-to-end on **Qwen models via the Alibaba Cloud DashScope API**, same
+deterministic trust layer, with the Step-13AA consolidated finalization
+(`SIFT_INV3A_FINALIZE=1` + `SIFT_INV3A_REVIEW_ALL=1`). Sanitized aggregate
+metrics ship in
+[`docs/qwen-runs/dc01-heavy-13aa-metrics.json`](docs/qwen-runs/dc01-heavy-13aa-metrics.json)
+and [`docs/qwen-runs/dc01-light-13aa-metrics.json`](docs/qwen-runs/dc01-light-13aa-metrics.json);
+full outputs stay uncommitted per the case-neutral policy.
 
-| Metric | Light (`qwen-plus` ×4) | Heavy (`qwen3.7-max`) |
+| Metric | Light (`qwen-plus` ×4) | Heavy (`qwen3.7-max`, 4-member ensemble) |
 |---|---|---|
-| Total elapsed | 5m 37s | 14m 44s |
-| Findings (final) | 11 | 34 |
-| **Confirmed malicious** | **0** | **4** |
-| needs-review / benign / inconclusive | 9 / 1 / 1 | 21 / 9 / 0 |
-| Token usage (in / out) | 614,336 / 23,668 | 306,727 / 89,451 |
-| DashScope cache-read reuse | 32,512 | 381,696 |
-| Cost (cache-aware, est.) | ~$0.28 | ~$1.53 |
+| Total elapsed | 3m 46s | 14m 39s |
+| Findings (final) | 1 | 44 |
+| **Confirmed malicious** | **0** | **0** |
+| needs-review / benign / inconclusive | 1 / 0 / 0 | 21 / 23 / 0 |
+| Tools (swept / hit / failed) | 33 / 29 / 0 | 33 / 27 / 0 (11 data-only) |
+| Token usage (in / out) | 450,350 / 34,171 | 340,567 / 96,638 |
+| DashScope cache-read reuse | 0 | 371,072 |
+| Cost (cache-aware, est.) | ~$0.22 | ~$1.67 |
 | Evidence integrity (mem + disk) | SHA256 MATCH | SHA256 MATCH |
 
-The light tier confirmed **nothing** (no atomic proof, no confirm - the trust
-layer working); the heavy tier reconstructed the intrusion chain and 4 findings
-cleared every confirmation gate.
+The heavy tier reconstructed the **full intrusion** - `coreupdater.exe` C2,
+outbound and inbound RDP, `\FileShare\Secret` exfiltration, memory injection
+(explorer / svchost / spoolsv), and scheduled-task + WMI persistence - attributed
+it to `administrator` / `public`, mapped it across **5 MITRE ATT&CK tactics**
+(Execution, Persistence, Defense Evasion, Lateral Movement, Command & Control),
+and rated overall risk **CRITICAL**. And it **confirmed nothing**: with no
+atomic proof in this case, every lead was **held** at needs-review or cleared to
+benign - the trust layer working, not a gap. **Depth scales with the model tier
+(1 → 44 findings); the confirmation bar does not.**
+
+**Zero tool failures on both tiers** (a fix pass added `foremost` plus
+MFTECmd / SBECmd / RBCmd and made the Sleuth Kit calls offset-aware), and
+Step-13AA skipped the wasteful generative self-correction loop while still
+resolving every ambiguous finding - **0 inconclusive**.
+
+### Secondary proof - rd01, where atomic proof IS present
+
+DC01 shows the engine **holding** every lead when the case leaves no atomic
+proof. The private Windows reference case (**rd01**, memory + disk) shows the
+mirror image: when the intrusion *does* leave atomic proof, the **same engine
+and the same gates confirm it**. On rd01 the heavy tier (`qwen3.7-max`) promoted
+**4** findings to **confirmed** - **PsExec** lateral movement, **PWDumpX**
+credential dumping, an **IFEO `sethc.exe`** sticky-keys backdoor, and **`p.exe`**
+run from a temp directory - while the light tier (`qwen-plus` ×4) confirmed
+**0**. A **flags-off ablation** (Step-13AA disabled, same case and model) left
+**11** findings inconclusive instead of **0**: the finalization layer *resolves*
+uncertainty, it never manufactures confirmations. Sanitized metrics for the rd01
+runs (light, heavy, July-1 reproduction, ablation) ship alongside DC01 in
+[`docs/qwen-runs/`](docs/qwen-runs/).
 
 <details><summary>Earlier Claude reference run (architecture-proving, local / not committed)</summary>
 

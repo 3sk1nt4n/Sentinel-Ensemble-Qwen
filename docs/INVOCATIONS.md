@@ -51,10 +51,11 @@ SHA256 again                   5s   (deterministic)
                             ~360s likely case (6 min)
 ```
 
-*(Budget above is the pre-Qwen planning estimate. Measured live Qwen Cloud runs:
-5m 37s light tier, 14m 44s heavy tier - the heavy all-`qwen3.7-max` ensemble
-spends longer inside Inv2/ReAct reasoning than the original budget assumed; see
-`docs/qwen-runs/`.)*
+*(Budget above is the pre-Qwen planning estimate. Measured live Qwen Cloud runs
+on the featured public DC01 case (DFIR Madness "Stolen Szechuan Sauce",
+reproducible by any judge; Step-13AA consolidated finalize): 3m 46s light tier,
+14m 39s heavy tier - the heavy all-`qwen3.7-max` ensemble spends longer inside
+Inv2/ReAct reasoning than the original budget assumed; see `docs/qwen-runs/`.)*
 
 ## State Transfer
 

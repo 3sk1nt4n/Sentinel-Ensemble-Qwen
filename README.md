@@ -22,10 +22,11 @@ investigative report where **every single claim is validated against real tool
 output before you ever see it**.
 
 Incident-response agents fix outages; **Sentinel Qwen Ensemble investigates
-compromises**: **195 typed forensic tools** on a custom MCP server, **two real
-Qwen Cloud runs** on the same intrusion case (**0 vs 4 confirmed** across model
-tiers - the trust layer is the constant), and every finding traced to the exact
-tool execution that proved it.
+compromises**: **195 typed forensic tools** on a custom MCP server, proven on a **PUBLIC
+intrusion case you can download and rerun** (it found the whole attack and held
+every lead) plus cases with atomic proof where it **confirms decisively** - the
+trust layer is the constant, and every finding traces to the exact tool
+execution that proved it.
 
 > Global AI Hackathon with Qwen Cloud · Track 4 (Autopilot Agent) · Adil Eskintan · MIT License
 > *Internal Python package name: `sift_sentinel` (stable import path; the product/repo name is Sentinel Qwen Ensemble).*
@@ -45,26 +46,35 @@ tool execution that proved it.
 | Proof of Deployment - code file + Base URL | done | [`src/sift_sentinel/llm_provider.py`](src/sift_sentinel/llm_provider.py) - live DashScope (Alibaba Cloud) HTTPS calls to `dashscope-intl.aliyuncs.com/compatible-mode/v1`; endpoint also recorded in [`docs/qwen-runs/`](docs/qwen-runs/) |
 | Proof of Deployment - Workbench screenshot | done | [`docs/proof/`](docs/proof/) - SAS instance **Running** in Singapore (deployed per [`DEPLOY-ALIBABA.md`](DEPLOY-ALIBABA.md); live `SENTINEL-QWEN-OK` smoke call from the instance; stays running through judging) |
 | Architecture diagram | done | [`ARCHITECTURE.md`](ARCHITECTURE.md) + `ARCH_VERTICAL.png` (Qwen/DashScope inference box) |
-| Demonstration video (< 3 min) | done | **current cut in-repo:** [`docs/sentinel-qwen-demo.mp4`](docs/sentinel-qwen-demo.mp4) (2:33, "Sentinel Qwen Ensemble", DC01 public case). YouTube: [youtu.be/NV6Zn0YrD1w](https://youtu.be/NV6Zn0YrD1w) (previous 2:56 cut, being refreshed to this one). |
+| Demonstration video (< 3 min) | done | **current cut in-repo:** [`docs/sentinel-qwen-demo.mp4`](docs/sentinel-qwen-demo.mp4) (2:50, "Sentinel Qwen Ensemble", DC01 public case). YouTube: [youtu.be/NV6Zn0YrD1w](https://youtu.be/NV6Zn0YrD1w) (previous 2:56 cut, being refreshed to this one). |
 | Track identified | done | Track 4 - Autopilot Agent |
 | Trust layer (code, not the model, decides "confirmed") | done | deterministic validator + disposition gates; every finding traces to tool output (`src/sift_sentinel/validation/`, `src/sift_sentinel/analysis/disposition.py`) |
 | Self-correction | done | [`SELF-CORRECTION-PROOF.md`](SELF-CORRECTION-PROOF.md) - FP-sweep + ReAct cross-check |
 
-**Proven end-to-end on two real paired (memory + disk) Qwen Cloud runs** on the
-same intrusion case - same deterministic trust layer, two model tiers:
+**Proven on a PUBLIC case you can download and rerun** - DFIR Madness "Stolen
+Szechuan Sauce" (DC01), paired memory + disk, fully autonomous on Qwen. Same
+deterministic trust layer, two model tiers:
 
-| | 🪶 Light (`qwen-plus` ×4) | ⚡ Heavy (`qwen3.7-max`) |
+| DC01 (public, reproducible) | 🪶 Light (`qwen-plus` ×4) | ⚡ Heavy (`qwen3.7-max`) |
 |---|---|---|
-| **Confirmed malicious** | **0** - no atomic proof, no confirm (the trust layer working, not a gap) | **4** - PsExec lateral movement · PWDumpX credential dumping · IFEO `sethc.exe` sticky-keys backdoor · `p.exe` from a temp dir |
-| Runtime · cost | 5m 37s · ~$0.28 | 14m 44s · ~$1.53 |
-| Evidence integrity | SHA256 MATCH | SHA256 MATCH |
+| Findings surfaced | 1 | **44** - the full intrusion: `coreupdater` C2 · RDP · `\FileShare\Secret` exfil · memory injection · scheduled-task / WMI persistence, attributed to `administrator` / `public`, mapped to 5 MITRE tactics |
+| **Confirmed malicious** | **0** | **0** - no single artifact cleared the atomic-proof bar, so it held every lead (the trust layer working, not a gap) |
+| Auto-cleared false positives | 0 | **23** |
+| Tools (0 failed, both tiers) | 33 swept · 29 hit | 33 swept · 27 hit |
+| Runtime · cost · integrity | 3m 46s · ~$0.22 · MATCH | 14m 39s · ~$1.67 · **SHA256 MATCH** |
 
-A July rerun re-confirmed the chain (3 of the 4 findings - normal model
-non-determinism), and a **flags-off ablation** against that rerun measured the
-trust layer directly: inconclusive jumped **0 → 11** and confirmations fell
-**3 → 1** without it. **The bar does not move; the model's
-ability to clear it does.** Full comparison + shipped metrics:
-[`QWEN-SUBMISSION.md`](QWEN-SUBMISSION.md) · [`docs/qwen-runs/`](docs/qwen-runs/).
+**Depth scales with the tier (1 → 44 findings); the confirmation bar does not.**
+DC01's intrusion is real but stealthy (a custom-named C2, living-off-the-land),
+so no single artifact atomically proves malice - and the engine says exactly
+that, on a case any judge can reproduce end to end.
+
+**And when atomic proof IS present, the same engine confirms.** On a separate
+paired intrusion, the heavy tier confirmed **4** - PsExec lateral movement,
+PWDumpX credential dumping, an IFEO `sethc.exe` sticky-keys backdoor, and `p.exe`
+from a temp dir - while the light tier confirmed **0**. A flags-off ablation
+measured the trust layer directly: inconclusive jumped **0 → 11** without it.
+**The bar does not move; the model's ability to clear it does.** Full comparison
++ shipped metrics: [`QWEN-SUBMISSION.md`](QWEN-SUBMISSION.md) · [`docs/qwen-runs/`](docs/qwen-runs/).
 The trust layer, the 195 typed tools, and the 16-step conductor are
 model-agnostic; only the provider/tier differs.
 
@@ -196,7 +206,7 @@ whole 16-step pipeline onto Qwen needs **no code change**.
 > so the file you just edited always works.
 
 > 💰 **Budget, not tiers.** The demo needs **no key at all**. Verified full
-> investigations cost **🪶 ~$0.28 (light)** to **⚡ ~$1.53 (heavy)** - the **$40
+> investigations cost **🪶 ~$0.22 (light)** to **⚡ ~$1.67 (heavy)** - the **$40
 > voucher covers ~12-16 full runs** even worst-case. The 4-model ensemble makes 4
 > concurrent calls; a standard pay-as-you-go DashScope key handled every verified
 > run (long calls auto-retry with backoff; `SIFT_HTTP_TIMEOUT=600` is preset).

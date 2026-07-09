@@ -30,6 +30,41 @@ Unlike the local reference log below, these numbers are **committed to this
 repo**: open [`docs/qwen-runs/`](docs/qwen-runs/) and check every cell (the
 exact JSON field is named per row).
 
+### 🌟 Featured: DC01 (public, reproducible) - the trust layer holding honestly
+
+DC01 is the **primary, featured case**: the PUBLIC DFIR Madness "Stolen Szechuan
+Sauce" domain controller (memory 2 GB + disk 2.4 GB) any judge can download and
+rerun end to end. Both tiers ran the Step-13AA consolidated finalization
+(`SIFT_INV3A_FINALIZE=1` + `SIFT_INV3A_REVIEW_ALL=1`), which resolved **every**
+ambiguous finding to a final verdict (**0 inconclusive**) with **0 tool failures**.
+
+| Self-correction evidence (JSON field) | 🪶 Light (`qwen-plus` ×4) | ⚡ Heavy (`qwen3.7-max`, 4-member) |
+|---|---|---|
+| Confirmed malicious (`disposition_counts.confirmed_malicious_atomic`) | **0** | **0** |
+| Left inconclusive (`disposition_counts.inconclusive_unresolved`) | **0** | **0** |
+| Suspicious / needs-review (`…suspicious_needs_review`) | 1 | 21 |
+| Benign / false-positive, cleared with reasons (`…benign_or_false_positive`) | 0 | 23 |
+| Findings total | 1 | 44 |
+| Runtime · cost | 3m 46s · ~$0.22 | 14m 39s · ~$1.67 |
+| Tool sweep (swept / hit / failed) | 33 / 29 / **0** | 33 / 27 / **0** (+11 data-only) |
+| Integrity (mem+disk SHA256) | MATCH | MATCH |
+
+Heavy surfaced the **full intrusion** (`coreupdater.exe` C2, outbound and inbound
+RDP, `\FileShare\Secret` exfil, memory injection into explorer / svchost /
+spoolsv, and scheduled-task + WMI persistence; attributed to administrator /
+public; **5 MITRE tactics** - Execution, Persistence, Defense Evasion, Lateral
+Movement, Command and Control; overall risk **CRITICAL**) yet **held every
+lead**: **0 confirmed** is the trust layer working, not a gap - no atomic proof
+was present in this case, so nothing was auto-promoted.
+
+> **Depth scales with the model tier (1 -> 44 findings); the confirmation bar does not.**
+
+### And when atomic proof IS present, the same engine confirms (rd01)
+
+On the held-back reference case where atomic proof exists on disk, the identical
+gate *promotes* it. These runs are committed too, alongside a rerun and an
+ablation that isolate Layer 2 directly:
+
 | Self-correction evidence (JSON field) | 🪶 Light | ⚡ Heavy | ⚡ Repro Jul 1 | ⚡ Ablation Jul 1 (13AA **OFF**) |
 |---|---|---|---|---|
 | Validator blocked unproven findings (`findings_blocked`) | 0 | **4** | 0 | 0 |
@@ -38,6 +73,10 @@ exact JSON field is named per row).
 | Suspicious / needs-review (`…suspicious_needs_review`) | 9 | 21 | 15 | 6 |
 | Benign / false-positive, cleared with reasons (`…benign_or_false_positive`) | 1 | 9 | 4 | 3 |
 | Layer-1 ReAct re-investigation spend (`token_breakdown.react`, in/out) | ≈127.7k / 4.0k | ≈160.8k / 30.6k | ≈163.9k / 23.6k | ≈109.0k / 20.4k |
+
+Heavy confirmed **4** on atomic evidence - PsExec lateral movement, PWDumpX
+credential dumping, an IFEO `sethc.exe` sticky-keys backdoor, and `p.exe` run from
+a temp dir - while light confirmed **0**.
 
 **The Layer-2 proof in one comparison:** same case, same model, same day - with
 Step-13AA finalize **ON** (repro): **0 inconclusive, 3 confirmed**; with it

@@ -10,7 +10,7 @@ description: An autonomous incident-response agent on Qwen models where determin
 > Center (DFIR/SOC) triage agent on Qwen Cloud (Alibaba DashScope) - Track 4
 > Autopilot Agent. Deterministic trust layer: code, not the LLM model, decides
 > what is confirmed.** Built for the **Global AI Hackathon with Qwen Cloud**.
-> Code: https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen (MIT). 2:33 demo in
+> Code: https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen (MIT). 2:50 demo in
 > the repo.
 
 ## The problem nobody wants to say out loud
@@ -73,11 +73,13 @@ prompt-cache accounting (one heavy run reused **381,696 cached tokens**, ~36% of
 a `reasoning_content` fallback for Qwen thinking mode, per-model output-cap
 clamps, and bounded read-timeout retries that fixed a live-run failure.
 
-## Two tiers, one intrusion: 0 confirmed vs 4 confirmed
+## Two tiers, one public case: depth scales, the confirmation bar doesn't
 
-I ran the **same** real Windows intrusion case (memory + disk, both mounted
-read-only, both SHA-256 verified) through the **identical trust layer** at two
-Qwen model tiers. Nothing changed but the model. The runs record their own
+I ran the **same** real Windows intrusion case through the **identical trust
+layer** at two Qwen model tiers. Nothing changed but the model. And the case is
+**public and reproducible**: DFIR Madness "Stolen Szechuan Sauce" **DC01** (2 GB
+memory + 2.4 GB disk), which any judge can download and rerun end to end. Both
+images were mounted read-only and SHA-256 verified; the runs record their own
 provenance, so this is not a claim:
 
 ```json
@@ -89,34 +91,54 @@ provenance, so this is not a claim:
 
 | | Light (`qwen-plus` x4) | Heavy (`qwen3.7-max`) |
 |---|---|---|
-| Findings (final) | 11 | 34 |
-| **Confirmed malicious** | **0** | **4** |
-| Runtime | 5m 37s | 14m 44s |
-| Cost (cache-aware) | ~$0.28 | ~$1.53 |
+| Findings (final) | 1 | 44 |
+| **Confirmed malicious** | **0** | **0** |
+| Needs review | 1 | 21 |
+| Benign | 0 | 23 |
+| Runtime | 3m 46s | 14m 39s |
+| Cost (cache-aware) | ~$0.22 | ~$1.67 |
+| Tools (swept / hit / failed) | 33 / 29 / 0 | 33 / 27 / 0 |
 | Integrity (mem + disk) | MATCH | MATCH |
 
-On the **light** tier, the ensemble's strongest lead was code injection in
-`powershell.exe`: a private memory region marked read-write-execute, the classic
-signature of reflectively-loaded malware. The ReAct loop even pulled the VAD
-details to confirm it. And then the deterministic layer **refused to confirm it.**
-A RWX region is suggestive, not atomic proof, so the promotion gates held it back.
-**11 findings, zero confirmed.** Not because the model was bad, but because none
-of the leads cleared the evidence bar, and on this design *no evidence means no
-confirmation.*
+On the **light** tier the ensemble surfaced a single lead, and the deterministic
+layer held it at **needs-review** rather than confirming it. **1 finding, 0
+confirmed.**
 
-On the **heavy** tier the flagship reconstructed a real intrusion chain, and
-**4 findings cleared every confirmation gate**: PsExec lateral movement, PWDumpX
-credential dumping, an IFEO `sethc.exe` sticky-keys backdoor, and a payload run
-from a temp directory. Each traces to the exact tool output that proved it.
+On the **heavy** tier the 4-member ensemble reconstructed the **entire intrusion**:
+the `coreupdater.exe` C2 beacon, outbound and inbound RDP, data staged for exfil to
+`\FileShare\Secret`, code injection into `explorer`/`svchost`/`spoolsv`, and
+scheduled-task plus WMI persistence, attributed to `administrator`/`public` and
+mapped to **5 MITRE tactics** (Execution, Persistence, Defense Evasion, Lateral
+Movement, Command and Control), overall risk **CRITICAL**. That is **44 findings**
+and the whole attack laid out. And still **0 confirmed**: 21 held at needs-review,
+23 judged benign, **0 left inconclusive**. The engine saw the full compromise and
+refused to stamp "confirmed" on a single lead, because none of them carried atomic
+proof, and on this design *no evidence means no confirmation.*
 
-**Same gates. Different depth.** The trust layer is the constant; the model tier
-just changes how much clears the bar.
+**Depth scales with the model tier (1 -> 44 findings); the confirmation bar does
+not.** The 0-confirmed result here is not a gap, it is the trust layer working. Two
+more things held on both tiers: **0 tool failures** (a fix pass added `foremost`
+plus MFTECmd/SBECmd/RBCmd and made Sleuth Kit offset-aware, so 33 tools swept with
+none failing), and **0 inconclusive** findings, because the consolidated Step-13AA
+adjudication skipped the wasteful generative self-correction and re-judged every
+ambiguous finding to a final verdict.
 
-## The ablation: proving the layer resolves uncertainty (and nothing more)
+## And when atomic proof is present, the same engine confirms
+
+DC01 shows the engine holding leads honestly when nothing is atomic. A second real
+intrusion case (`rd01`) shows the other half: when the evidence *is* atomic, the
+identical layer **confirms**. On the heavy tier, **4 findings cleared every
+confirmation gate**: PsExec lateral movement, PWDumpX credential dumping, an IFEO
+`sethc.exe` sticky-keys backdoor, and a payload (`p.exe`) run from a temp directory.
+Each traces to the exact tool output that proved it. On the light tier, `rd01`
+confirmed **0**. Same gates, different depth: the bar is the constant, the model
+tier just changes how much clears it.
+
+## The ablation: the layer resolves uncertainty, it never manufactures a confirmation
 
 Here is the experiment I care about most. A skeptic could say: sure, but does the
-"trust layer" just rubber-stamp whatever the flagship wants? So I ran the **same
-case, same `qwen3.7-max`**, and toggled only the Step-13AA finalization flags:
+"trust layer" just rubber-stamp whatever the flagship wants? So on `rd01` I ran the
+**same case, same `qwen3.7-max`**, and toggled only the Step-13AA finalization flags:
 
 | Trust-layer finalization | Confirmed | Inconclusive |
 |---|---|---|
@@ -125,9 +147,9 @@ case, same `qwen3.7-max`**, and toggled only the Step-13AA finalization flags:
 
 With finalization **off**, 11 findings are stranded at inconclusive and only one
 clears confirmation. Turn it **on** and the layer re-judges every ambiguous
-finding to a final verdict: inconclusive collapses to **0**, and the intrusion
-chain re-confirms. Crucially, in *both* runs every promotion still had to pass
-the same deterministic eligibility gate. **The layer resolves uncertainty; it
+finding to a final verdict: inconclusive collapses from 11 to **0**, and the
+intrusion chain re-confirms. Crucially, in *both* runs every promotion still had to
+pass the same deterministic eligibility gate. **The layer resolves uncertainty; it
 never manufactures a confirmation.** (That 3-confirmed reproduction is one shy of
 June's 4, which is normal model non-determinism, and I would rather report that
 honestly than round it up.)
@@ -152,5 +174,5 @@ trust layer made that reasoning *safe to act on.*
 - **Repo (MIT):** https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen
 - **Zero-cost demo (no key, no evidence, any OS):** `./setup.sh docker` (Windows: `.\setup.cmd docker`)
 - **Proof-of-Alibaba-Cloud code:** `src/sift_sentinel/llm_provider.py`
-- **Shipped run metrics (both tiers + the ablation):** `docs/qwen-runs/`
-- **Demo video:** https://youtu.be/NV6Zn0YrD1w (2:56, the overrule happens on camera)
+- **Shipped run metrics (public DC01 case, both tiers, plus the `rd01` confirm + ablation):** `docs/qwen-runs/`
+- **Demo video (current cut):** `docs/sentinel-qwen-demo.mp4` (2:50, DC01 public case). YouTube https://youtu.be/NV6Zn0YrD1w is the previous cut, being refreshed to this one.
