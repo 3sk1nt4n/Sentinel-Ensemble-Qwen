@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Sentinel Qwen Ensemble -- Full Pipeline Runner.
+Sentinel Qwen Ensemble - Full Pipeline Runner.
 Drives all 16 pipeline steps.
 The configured LLM (Qwen Cloud by default) IS the execution engine -- this script orchestrates.
 """
@@ -693,7 +693,7 @@ def generate_self_assessment(summary, findings_final, blocked_list,
     def _b(items):
         return "\n".join(f"- {r}" for r in items) if items else "- (no data)"
 
-    md = f"""# Sentinel Qwen Ensemble -- Self-Assessment Report
+    md = f"""# Sentinel Qwen Ensemble - Self-Assessment Report
 
 *Auto-generated from pipeline run data. Every score computed from actual metrics.*
 
@@ -1051,7 +1051,7 @@ def generate_html_report(summary, findings_final, blocked_list,
     html = f'''<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Sentinel Qwen Ensemble -- Incident Report</title>
+<title>Sentinel Qwen Ensemble - Incident Report</title>
 <style>
 *{{box-sizing:border-box}}
 body{{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
@@ -1079,7 +1079,7 @@ body{{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-ser
 </style></head><body>
 
 <div class="hdr">
-  <h1>Sentinel Qwen Ensemble -- Autonomous DFIR Agent</h1>
+  <h1>Sentinel Qwen Ensemble - Autonomous DFIR Agent</h1>
   <p>Incident Analysis Report | Generated automatically from forensic evidence</p>
   <p style="margin-top:10px">
     <span class="badge {profile_class}">{profile_text}</span>
@@ -6832,7 +6832,7 @@ try:
 
     print(f"""
 {_BAR}
-{B}{C}  SENTINEL QWEN ENSEMBLE -- Autonomous DFIR Agent{X}
+{B}{C}  SENTINEL QWEN ENSEMBLE - Autonomous DFIR Agent{X}
 {B}{C}  Pipeline Execution Report{X}
 {_BAR}
 

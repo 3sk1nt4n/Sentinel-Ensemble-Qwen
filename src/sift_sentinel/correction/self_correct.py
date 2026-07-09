@@ -1,5 +1,5 @@
 """
-Sentinel Qwen Ensemble -- Self-correction loop (Pipeline Step 12).
+Sentinel Qwen Ensemble - Self-correction loop (Pipeline Step 12).
 Clean-slate correction for validator-blocked findings.
 Code checks AI, not AI checks AI.
 

@@ -1,6 +1,6 @@
 """
 
-Sentinel Qwen Ensemble -- Report validation (Pipeline Step 14).
+Sentinel Qwen Ensemble - Report validation (Pipeline Step 14).
 Python validates every citation before the report ships.
 
 Safety nets:

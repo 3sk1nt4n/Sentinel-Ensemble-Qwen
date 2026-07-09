@@ -45,7 +45,7 @@ def test_compact_table_does_not_render_verbose_live_report_sections():
     rendered = render_compact_findings_table(_sample_findings(), max_rows=2)
 
     forbidden_visible_blocks = [
-        "SENTINEL QWEN ENSEMBLE -- Autonomous DFIR Agent",
+        "SENTINEL QWEN ENSEMBLE - Autonomous DFIR Agent",
         "Pipeline Execution Report",
         "SUBMISSION SUMMARY",
         "ZEROFAKE PROTOCOL",

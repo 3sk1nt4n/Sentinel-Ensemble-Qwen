@@ -1,4 +1,4 @@
-"""Sentinel Qwen Ensemble -- report-stage hard gates (Slot 31E-DB.5.5/.6/.7).
+"""Sentinel Qwen Ensemble - report-stage hard gates (Slot 31E-DB.5.5/.6/.7).
 
 Three independent truth gates that run *after* the report is written:
 

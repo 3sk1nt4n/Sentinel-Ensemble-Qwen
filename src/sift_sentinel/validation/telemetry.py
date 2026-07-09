@@ -1,4 +1,4 @@
-"""Sentinel Qwen Ensemble -- canonical validation telemetry (Slot 31E-DB.5.1).
+"""Sentinel Qwen Ensemble - canonical validation telemetry (Slot 31E-DB.5.1).
 
 Backend Step 10 validator telemetry is the single source of truth for
 evidence-validation counters. report_truth.json,

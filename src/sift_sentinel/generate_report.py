@@ -1,4 +1,4 @@
-"""Sentinel Qwen Ensemble -- HTML Report Generator.
+"""Sentinel Qwen Ensemble - HTML Report Generator.
 
 Reads pipeline state (findings, summary) and produces a styled HTML
 incident report with confidence-level legend and finding cards.
@@ -214,7 +214,7 @@ def generate_html_report(
 </head>
 <body>
 <div class="report-header">
-    <h1>Sentinel Qwen Ensemble -- Incident Report</h1>
+    <h1>Sentinel Qwen Ensemble - Incident Report</h1>
     <div class="subtitle">Autonomous DFIR Pipeline | 16-Step Forensic Analysis</div>
     <div class="brand">SolventAi CyberSecurity | solventcyber.com</div>
 </div>

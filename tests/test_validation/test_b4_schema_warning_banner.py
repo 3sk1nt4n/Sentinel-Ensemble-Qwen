@@ -1,5 +1,5 @@
 """
-Sentinel Qwen Ensemble -- B3/B4 schema warning banner tests.
+Sentinel Qwen Ensemble - B3/B4 schema warning banner tests.
 
 Unit-tests apply_schema_warning_banner helper. No run_pipeline.py
 coupling, no validate_report invocation. Tests only the logic added

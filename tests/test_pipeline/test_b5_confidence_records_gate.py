@@ -1,5 +1,5 @@
 """
-Sentinel Qwen Ensemble -- B5 confidence records-gate tests.
+Sentinel Qwen Ensemble - B5 confidence records-gate tests.
 
 Unit-tests calibrate_confidence with tool_records kwarg. Validates
 that tools in source_tools but with 0 records (or absent from the

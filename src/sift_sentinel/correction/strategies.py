@@ -1,5 +1,5 @@
 """
-Sentinel Qwen Ensemble -- Self-correction strategy templates (Pipeline Step 12).
+Sentinel Qwen Ensemble - Self-correction strategy templates (Pipeline Step 12).
 
 Holds the graduated attempt-specific prompt templates consumed by
 `sift_sentinel.correction.self_correct.self_correct`.

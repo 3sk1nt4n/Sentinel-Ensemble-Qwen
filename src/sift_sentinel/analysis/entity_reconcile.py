@@ -1,4 +1,4 @@
-"""Sentinel Qwen Ensemble -- Entity contradiction reconciliation audit (Slot 31G-E2a).
+"""Sentinel Qwen Ensemble - Entity contradiction reconciliation audit (Slot 31G-E2a).
 
 INERT: describes what reconciliation WOULD do. Mutates no bucket; the only
 side effect is write_audit(), and only when the caller asks. Routing (E2b)

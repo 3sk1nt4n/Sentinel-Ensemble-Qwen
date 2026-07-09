@@ -1,5 +1,5 @@
 """
-Sentinel Qwen Ensemble -- Self-correction loop tests.
+Sentinel Qwen Ensemble - Self-correction loop tests.
 Validates: clean slate protocol, max attempts, UNRESOLVED score,
 audit trail preservation (DRAFT + FINAL), exact error routing.
 """

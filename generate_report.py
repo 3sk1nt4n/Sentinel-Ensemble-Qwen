@@ -196,7 +196,7 @@ def generate(md_path=None, findings_path=None, summary_path=None, out_path=None)
 </head>
 <body>
     <div class="report-header">
-        <h1>Sentinel Qwen Ensemble -- Incident Report</h1>
+        <h1>Sentinel Qwen Ensemble - Incident Report</h1>
         <div class="subtitle">Autonomous DFIR Pipeline | 16-Step Forensic Analysis</div>
         <div class="brand">Solvent CyberSecurity | solventcyber.com</div>
     </div>

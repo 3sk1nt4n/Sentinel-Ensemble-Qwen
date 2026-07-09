@@ -1,5 +1,5 @@
 """
-Sentinel Qwen Ensemble -- Self-correction INTEGRATION tests.
+Sentinel Qwen Ensemble - Self-correction INTEGRATION tests.
 Uses REAL validator.py + reference_set.py. Only the corrector is mocked.
 Proves the full chain: validate -> self_correct -> re-validate.
 """

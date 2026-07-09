@@ -1,4 +1,4 @@
-"""Sentinel Qwen Ensemble -- Agentic DFIR Terminal.
+"""Sentinel Qwen Ensemble - Agentic DFIR Terminal.
 
 Interactive console for forensic investigation with optional AI assistance.
 Modes: --offline (default), --ollama (local LLM), --live (Qwen/DashScope API by default; Anthropic optional fallback).

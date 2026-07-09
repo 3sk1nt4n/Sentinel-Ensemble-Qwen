@@ -1,5 +1,5 @@
 """
-Sentinel Qwen Ensemble -- Self-correction rate-limit protection tests.
+Sentinel Qwen Ensemble - Self-correction rate-limit protection tests.
 Validates: context truncation, relevant tool filtering,
 inter-attempt delay, and 429 retry logic.
 """
