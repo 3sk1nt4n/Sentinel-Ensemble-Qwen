@@ -225,7 +225,7 @@ Python.
 | Proof-of-Alibaba-Cloud code file | done (`llm_provider.py`) |
 | Architecture diagram (Qwen box) | done (`ARCH_VERTICAL.png`) |
 | **Live Qwen runs + artifacts** | **done** - see "Verified Qwen Cloud runs" below |
-| Demo video (<3 min, YouTube) | **done** - current cut in-repo: `docs/sentinel-qwen-demo.mp4` (2:50, "Sentinel Qwen Ensemble", DC01 public case); YouTube https://youtu.be/NV6Zn0YrD1w (previous 2:56 cut, being refreshed to this one) |
+| Demo video (<3 min, YouTube) | **done** - https://youtu.be/A53FpVgdnnU (2:50, PUBLIC, "Sentinel Qwen Ensemble", DC01 public case); also in-repo: `docs/sentinel-qwen-demo.mp4` |
 | Proof of Deployment on Alibaba Cloud | **done** - code-file + Base URL (`llm_provider.py`; endpoint also in `docs/qwen-runs/`) **and** the Workbench screenshot in `docs/proof/` (SAS instance Running, Singapore; deployed per `DEPLOY-ALIBABA.md`, live `SENTINEL-QWEN-OK` smoke call; instance stays up through judging) |
 | Legacy-doc reframe to Track 4 | done |
 

@@ -176,4 +176,4 @@ trust layer made that reasoning *safe to act on.*
 - **Zero-cost demo (no key, no evidence, any OS):** `./setup.sh docker` (Windows: `.\setup.cmd docker`)
 - **Proof-of-Alibaba-Cloud code:** `src/sift_sentinel/llm_provider.py`
 - **Shipped run metrics (public DC01 case, both tiers, plus the `rd01` confirm + ablation):** `docs/qwen-runs/`
-- **Demo video (current cut):** `docs/sentinel-qwen-demo.mp4` (2:50, DC01 public case). YouTube https://youtu.be/NV6Zn0YrD1w is the previous cut, being refreshed to this one.
+- **Demo video:** https://youtu.be/A53FpVgdnnU (2:50, DC01 public case; also in-repo `docs/sentinel-qwen-demo.mp4`).

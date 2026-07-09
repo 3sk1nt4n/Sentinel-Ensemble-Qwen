@@ -46,7 +46,7 @@ execution that proved it.
 | Proof of Deployment - code file + Base URL | done | [`src/sift_sentinel/llm_provider.py`](src/sift_sentinel/llm_provider.py) - live DashScope (Alibaba Cloud) HTTPS calls to `dashscope-intl.aliyuncs.com/compatible-mode/v1`; endpoint also recorded in [`docs/qwen-runs/`](docs/qwen-runs/) |
 | Proof of Deployment - Workbench screenshot | done | [`docs/proof/`](docs/proof/) - SAS instance **Running** in Singapore (deployed per [`DEPLOY-ALIBABA.md`](DEPLOY-ALIBABA.md); live `SENTINEL-QWEN-OK` smoke call from the instance; stays running through judging) |
 | Architecture diagram | done | [`ARCHITECTURE.md`](ARCHITECTURE.md) + `ARCH_VERTICAL.png` (Qwen/DashScope inference box) |
-| Demonstration video (< 3 min) | done | **current cut in-repo:** [`docs/sentinel-qwen-demo.mp4`](docs/sentinel-qwen-demo.mp4) (2:50, "Sentinel Qwen Ensemble", DC01 public case). YouTube: [youtu.be/NV6Zn0YrD1w](https://youtu.be/NV6Zn0YrD1w) (previous 2:56 cut, being refreshed to this one). |
+| Demonstration video (< 3 min) | done | **[youtu.be/A53FpVgdnnU](https://youtu.be/A53FpVgdnnU)** (2:50, "Sentinel Qwen Ensemble", DC01 public case) - also in-repo: [`docs/sentinel-qwen-demo.mp4`](docs/sentinel-qwen-demo.mp4). |
 | Track identified | done | Track 4 - Autopilot Agent |
 | Trust layer (code, not the model, decides "confirmed") | done | deterministic validator + disposition gates; every finding traces to tool output (`src/sift_sentinel/validation/`, `src/sift_sentinel/analysis/disposition.py`) |
 | Self-correction | done | [`SELF-CORRECTION-PROOF.md`](SELF-CORRECTION-PROOF.md) - FP-sweep + ReAct cross-check |
