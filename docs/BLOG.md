@@ -10,7 +10,7 @@ description: An autonomous incident-response agent on Qwen models where determin
 > Center (DFIR/SOC) triage agent on Qwen Cloud (Alibaba DashScope) - Track 4
 > Autopilot Agent. Deterministic trust layer: code, not the LLM model, decides
 > what is confirmed.** Built for the **Global AI Hackathon with Qwen Cloud**.
-> Code: https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen (MIT). 2:56 demo in
+> Code: https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen (MIT). 2:33 demo in
 > the repo.
 
 ## The problem nobody wants to say out loud

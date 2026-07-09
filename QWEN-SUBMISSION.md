@@ -221,7 +221,7 @@ Python.
 | Proof-of-Alibaba-Cloud code file | done (`llm_provider.py`) |
 | Architecture diagram (Qwen box) | done (`ARCH_VERTICAL.png`) |
 | **Live Qwen runs + artifacts** | **done** - see "Verified Qwen Cloud runs" below |
-| Demo video (<3 min, YouTube) | **done** - https://youtu.be/NV6Zn0YrD1w (2:56, Public); in-repo copy: `docs/sentinel-qwen-demo.mp4`. Run footage shows the engine's former name, "SIFT Sentinel" |
+| Demo video (<3 min, YouTube) | **done** - current cut in-repo: `docs/sentinel-qwen-demo.mp4` (2:33, "Sentinel Qwen Ensemble", DC01 public case); YouTube https://youtu.be/NV6Zn0YrD1w (previous 2:56 cut, being refreshed to this one) |
 | Proof of Deployment on Alibaba Cloud | **done** - code-file + Base URL (`llm_provider.py`; endpoint also in `docs/qwen-runs/`) **and** the Workbench screenshot in `docs/proof/` (SAS instance Running, Singapore; deployed per `DEPLOY-ALIBABA.md`, live `SENTINEL-QWEN-OK` smoke call; instance stays up through judging) |
 | Legacy-doc reframe to Track 4 | done |
 
@@ -274,8 +274,8 @@ DashScope prompt caching** reused 381,696 tokens on the heavy run (the shared
 ensemble / ReAct / 13AA prefix), cutting its cost ~36%. **The trust layer is the
 constant; the model tier just changes how much clears the bar.** Dashboards:
 `docs/qwen_paired_dashboard.png` (light), `docs/qwen_allmax_dashboard.png` (heavy)
-- their headers read "SIFT Sentinel", the engine's pre-rebrand report title;
-demo video `docs/sentinel-qwen-demo.mp4`.
+- their headers read "SIFT Sentinel", the engine's pre-rebrand report title (the
+current demo video `docs/sentinel-qwen-demo.mp4` is rebranded to Sentinel Qwen Ensemble).
 
 **Reproduced, and ablated (2026-07-01).** An independent rerun on the same case
 re-confirmed the intrusion chain (0 inconclusive, integrity MATCH, gate PASS;
