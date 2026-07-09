@@ -58,6 +58,10 @@ final Step-13AA cross-check - never silently dropped.** That is the architecture
 working as designed: **code checks the AI; the AI never grades itself.** Every
 surviving claim traces to real tool output.
 
+*(These counts are the **rd01 Claude reference run**; the featured **DC01 Qwen**
+heavy run is 44 findings / 0 confirmed / 21 needs-review / 23 benign, see
+[`docs/qwen-runs/`](qwen-runs/).)*
+
 | Metric | Count |
 |---|---:|
 | Raw findings (4-model ensemble) | 81 |

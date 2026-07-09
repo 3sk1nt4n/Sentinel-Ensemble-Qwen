@@ -168,6 +168,6 @@ period" and is an explicit evaluation plus-point.
   `./setup.sh docker` demo ran clean, and `scripts/qwen_smoke.py` made a live
   Qwen call from the instance (`SENTINEL-QWEN-OK`). The Workbench screenshot is
   committed at [`docs/proof/`](docs/proof/) and the instance stays running
-  through the judging period. Separately, two full paired investigations have
+  through the judging period. Separately, the featured Qwen DC01 pair (heavy + light) plus the reference runs have
   run end-to-end on Qwen models via the same DashScope API (verified numbers in
   `QWEN-SUBMISSION.md`).

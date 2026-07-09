@@ -167,7 +167,7 @@ findevil.sh  ──▶  findevil.py  ──▶  step0_onboard.py  ──▶  run
 > | | What happens | Step | In plain words | Where you SEE it |
 > |---|---|---|---|---|
 > | ⭐ | **The AI double-checks its own work** | 11 | It takes its own suspicious findings back to the evidence with real tools - and **changes its mind when it was wrong**: "I flagged this. I tested it. It's actually safe." | the report row that says `Assessed benign: …` |
-> | ⭐ | **One last review before the report** | 13AA | Every finding that isn't already *proven* or *cleared* gets judged **one more time** - including the ones that failed earlier checks. Nothing gets thrown away quietly. | the console line `INV3A_FINALIZE moved=39/46` |
+> | ⭐ | **One last review before the report** | 13AA | Every finding that isn't already *proven* or *cleared* gets judged **one more time** - including the ones that failed earlier checks. Nothing gets thrown away quietly. | the console line `INV3A_FINALIZE moved=37/44` (DC01 heavy, Qwen) |
 > | 🛡️ | **A safety net underneath** (plain code, not AI) | 12 | If a finding's link to its evidence breaks, the system re-attaches it instead of losing the finding. | the console line `INV3A_REVIEW_BLOCKED routed=N` |
 >
 > **Two shapes of correction (what turns into what):**
@@ -183,7 +183,7 @@ findevil.sh  ──▶  findevil.py  ──▶  step0_onboard.py  ──▶  run
 >   🔴 *Confirmed malicious.*
 >   **An "unproven, set aside" finding becomes a confirmed attack.**
 >
-> **The full autonomous arc - visible end-to-end in `agent_execution_log.txt`:**
+> **The full autonomous arc** (walked here on the Claude reference run - the richest per-line log; the featured **DC01 Qwen** heavy run shows the identical shape: 42 verified / 2 rejected, 12 ReAct investigations, 37/44 re-judged, 4 model-confirmed -> 0 promoted) **- visible end-to-end in `agent_execution_log.txt`:**
 >
 > 1. **Hypothesis →** the agent forms one and picks a tool to test it: *"I need
 >    vol_cmdline on PID 8260 to confirm execution from the temp perfmon staging
@@ -215,7 +215,7 @@ findevil.sh  ──▶  findevil.py  ──▶  step0_onboard.py  ──▶  run
 > (plus the 🛡️ net) proves the agent corrects itself while *thinking*, again
 > while *deciding*, and never loses work in between.
 >
-> 📄 **Full receipt:** every self-correction from the reference run - both layers,
+> 📄 **Full receipt:** every self-correction from the Claude reference run - both layers,
 > before → after, each with its `agent_execution_log.txt` line - is enumerated in
 > **[`SELF-CORRECTION-PROOF.md`](SELF-CORRECTION-PROOF.md)**.
 

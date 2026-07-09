@@ -78,7 +78,7 @@ production-readiness over toy demos. SOC/DFIR triage is exactly that:
 | Invoke external tools | **195 typed forensic tools** (Volatility 3, Sleuth Kit, EZ Tools, Plaso, bulk_extractor, RegRipper, YARA) on a custom **MCP server - zero shell access** | `src/server.py`, `src/sift_sentinel/tools/` |
 | Human-in-the-loop **at critical decision points** | Two layers: (1) the deterministic disposition **escalates** unproven claims to a *needs-review* bucket instead of asserting them; (2) an **opt-in approval gate** (`SIFT_HITL_CHECKPOINT=1`) **pauses at the disposition decision - before the report -** for the analyst to **approve or override** any finding's verdict; plus the launch checkpoints (evidence / depth / key) | `src/sift_sentinel/hitl_checkpoint.py`, `analysis/disposition.py`, `step0_onboard.py` |
 | End-to-end automation | A **16-step deterministic conductor** runs the whole pipeline with zero steering; the model is invoked only inside bounded steps | `run_pipeline.py` |
-| Production-readiness (not a toy) | Read-only evidence + **SHA-256 chain of custody**, ~13 fail-closed gates, automatic prompt caching, a green **4,700+ passing** test suite (`pytest tests/` is green by default; legacy quarantine documented in `tests/QUARANTINE.md`), two real Qwen-Cloud runs, Docker (demo/full/full-plus) | `analysis/`, `tests/`, `Dockerfile` |
+| Production-readiness (not a toy) | Read-only evidence + **SHA-256 chain of custody**, ~13 fail-closed gates, automatic prompt caching, a green **4,700+ passing** test suite (`pytest tests/` is green by default; legacy quarantine documented in `tests/QUARANTINE.md`), six real Qwen-Cloud runs shipped in `docs/qwen-runs/`, Docker (demo/full/full-plus) | `analysis/`, `tests/`, `Dockerfile` |
 
 **Read-only by design is a feature, not a gap.** Track-4's examples mention
 "automated remediation," but in high-stakes incident response, auto-acting on a
@@ -259,7 +259,7 @@ finalize + review-all re-judges every ambiguous finding to a final TP / FP /
 needs-review disposition, so the heavy DC01 run leaves **zero inconclusive** - it
 resolved every ambiguous lead (21 to needs-review, 23 to benign) and skipped the
 wasteful generative self-correction. Neither tier confirmed anything: DC01 **held
-all 44 of its heavy-tier leads for human review** rather than asserting them. No
+every one of its 44 heavy-tier leads short of confirmation** (21 to needs-review, 23 dispositioned benign) rather than asserting them. No
 atomic proof, no confirm - the trust layer working, not a gap.
 
 **Same gates, different depth.** The light tier surfaced a single lead and
@@ -269,7 +269,7 @@ exfiltration, memory injection into `explorer` / `svchost` / `spoolsv`, and
 scheduled-task + WMI persistence, attributed to `administrator` / `public`,
 across **5 MITRE tactics** (Execution, Persistence, Defense Evasion, Lateral
 Movement, Command & Control), overall risk **CRITICAL** - and still confirmed
-**0**, escalating every one of the 44 findings to review. Depth scaled from
+**0**, escalating 21 of the 44 to needs-review (23 dispositioned benign, 0 inconclusive). Depth scaled from
 **1 to 44 findings**; the confirmation bar did not move. **Zero tool failures on
 both tiers** (a fix pass added `foremost` + MFTECmd / SBECmd / RBCmd and made
 SleuthKit offset-aware, so 33 tools swept clean on each run). **Depth scales with

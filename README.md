@@ -24,7 +24,7 @@ output before you ever see it**.
 Incident-response agents fix outages; **Sentinel Qwen Ensemble investigates
 compromises**: **195 typed forensic tools** on a custom MCP server, proven on a **PUBLIC
 intrusion case you can download and rerun** (it found the whole attack and held
-every lead) plus cases with atomic proof where it **confirms decisively** - the
+every lead) plus a held-back reference case (rd01, non-public) with atomic proof where it **confirms decisively** - the
 trust layer is the constant, and every finding traces to the exact tool
 execution that proved it.
 
@@ -69,7 +69,7 @@ so no single artifact atomically proves malice - and the engine says exactly
 that, on a case any judge can reproduce end to end.
 
 **And when atomic proof IS present, the same engine confirms.** On a separate
-paired intrusion, the heavy tier confirmed **4** - PsExec lateral movement,
+held-back **reference** case (rd01, non-public), the heavy tier confirmed **4** - PsExec lateral movement,
 PWDumpX credential dumping, an IFEO `sethc.exe` sticky-keys backdoor, and `p.exe`
 from a temp dir - while the light tier confirmed **0**. A flags-off ablation
 measured the trust layer directly: inconclusive jumped **0 → 11** without it.
@@ -146,7 +146,7 @@ on your machine** (open `report.md` or `summary_report_*.html`). Full guide:
 > These are plain `docker` commands - they work the same in **PowerShell** and
 > the **macOS/Linux Terminal**. Only line-continuation differs: PowerShell uses a
 > backtick `` ` `` where bash uses `\` (or just put the whole `docker run` on one
-> line). On Windows, a case path looks like `-v C:\cases\rd01:/evidence:ro`.
+> line). On Windows, a case path looks like `-v C:\cases\case001:/evidence:ro`.
 
 ```bash
 # zero-cost demo - no API key, no evidence, no forensic tools (~290 MB)

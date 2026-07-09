@@ -84,9 +84,9 @@ custody preserved by math.
 ## And when atomic proof *is* present, the same engine confirms (rd01)
 
 DC01 held every lead at needs-review because it offered no atomic on-disk proof.
-The **secondary Claude reference case rd01** is the control that shows the
-confirmation path still fires when that proof exists. On the **same engine**, the
-**heavy tier confirmed 4** atomic malicious findings on rd01:
+The **secondary reference case rd01** (held-back, non-public) is the control that
+shows the confirmation path still fires when that proof exists. On the **same
+engine** (`qwen3.7-max`), the **heavy tier confirmed 4** atomic malicious findings on rd01:
 
 - **PsExec** lateral movement
 - **PWDumpX** credential dumping
@@ -105,10 +105,9 @@ ensemble)**, run time 509s (8m 29s), cost ~$15.45 (token-derived est.), yielding
 `artifacts/run-rd01/agent_execution_log.txt` - kept **local, not committed**
 (case-neutral policy).
 
-**Self-correction on camera (rd01):** a service flagged as a possible C2 listener
-was correctly re-classified **benign** by the ReAct cross-check after it
-identified the binary as a legitimate signed forensic tool - no human
-intervention.
+**Self-correction on camera (the DC01 demo video):** the ReAct cross-check cleared
+23 false positives with reasons - installer noise, VMware tooling, even the IR
+team's own FTK Imager - each re-classified **benign** with no human intervention.
 
 > 📄 **Full self-correction proof** - every ReAct + Step-13AA correction from the
 > rd01 run (46 ambiguous findings re-judged, 39 reclassified by Step-13AA), before → after,
