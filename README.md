@@ -447,8 +447,22 @@ flowchart LR
 | `run_summary.md` | tools · dispositions · cost · tokens at a glance |
 | `agent_execution_log.txt` | append-only execution log - every tool call, timestamps, token usage |
 | `finding_disposition_buckets.json` | confirmed / needs-review / benign / false-positive buckets, each with its reasoning - written to the run directory; `report.md` renders from it |
-| `summary_report_*.html` | the interactive one-page dashboard - open it in any web browser |
+| `summary_report_*.html` | the interactive one-page dashboard - **opens automatically in your browser** the moment the run finishes (disable with `SIFT_NO_OPEN=1`) |
 | `incident_report_*.md` | the full forensic report (timestamped copy saved alongside) |
+
+### 👀 See a real report right now (no install, one click)
+
+This is the actual HTML dashboard from the featured **public DC01** run:
+
+**▶ [View the live interactive report](https://htmlpreview.github.io/?https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen/blob/master/docs/example-report-dc01-heavy.html)** - renders in your browser, nothing to download.
+
+<p align="center">
+  <img src="docs/assets/example-report-dc01-preview.png" alt="DC01 HTML report: autonomous DFIR dashboard - risk banner, executive summary, findings, MITRE ATT&CK coverage, per-user attribution" width="840">
+</p>
+
+> GitHub shows a committed `.html` as raw source, so the link above uses
+> `htmlpreview` to render it live. The full file is
+> [`docs/example-report-dc01-heavy.html`](docs/example-report-dc01-heavy.html).
 
 ## 🧯 Troubleshooting
 
