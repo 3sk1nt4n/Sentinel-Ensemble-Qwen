@@ -45,7 +45,7 @@ def test_31z_truthy_values_accepted():
 
 def test_31z_no_marketing_inflation_in_log():
     """Ensure the existing 'ENSEMBLE MODE' log line still gates on the flag,
-    not on env-var presence alone — i.e. the log truthfully reports actual
+    not on env-var presence alone - i.e. the log truthfully reports actual
     dispatch, not user intent."""
     src = Path("run_pipeline.py").read_text()
     # The log line must be guarded by INV2_ENSEMBLE_MODE check, not by env

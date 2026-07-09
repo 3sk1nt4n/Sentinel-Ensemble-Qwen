@@ -89,7 +89,7 @@ def test_run_srumecmd_resolves_lowercase_mount(tmp_path):
     when SRUDB.dat exists at a lowercase path but the hint is canonical case."""
     sru = tmp_path / "windows" / "system32" / "sru"
     sru.mkdir(parents=True)
-    # Write a valid (though tiny) ESE DB stub – pyesedb will fail to open it
+    # Write a valid (though tiny) ESE DB stub - pyesedb will fail to open it
     # but the resolver should kick in and not return artifact_missing.
     srudb = sru / "SRUDB.dat"
     srudb.write_bytes(b"\x00" * 16)

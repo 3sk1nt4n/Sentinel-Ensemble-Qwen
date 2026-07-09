@@ -482,14 +482,14 @@ def build_logon_context_section(evidence_db) -> str:
         for user in sorted(owners):
             procs = sorted(set(owners[user]))
             sample = ", ".join(procs[:8]) + (" + more" if len(procs) > 8 else "")
-            lines.append("- `%s` — %d process(es): %s" % (user, len(procs), sample))
+            lines.append("- `%s` - %d process(es): %s" % (user, len(procs), sample))
         lines.append("")
 
     if service_procs:
         sample = ", ".join(sorted(set(service_procs))[:10])
         lines.append(
             "**Execution context:** %d process(es) ran under built-in "
-            "SYSTEM / service identities (not tied to an interactive user) — "
+            "SYSTEM / service identities (not tied to an interactive user) - "
             "e.g. %s. Findings on these processes are labelled "
             "\"SYSTEM/service context\" rather than attributed to a person."
             % (len(set(service_procs)), sample))

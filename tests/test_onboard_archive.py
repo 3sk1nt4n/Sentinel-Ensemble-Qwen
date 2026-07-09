@@ -136,7 +136,7 @@ def _read(p):
 
 
 def test_zero_block_raw_not_detected_as_tar(tmp_path):
-    # A leading zero block reads as an empty tar to tarfile.is_tarfile() — which
+    # A leading zero block reads as an empty tar to tarfile.is_tarfile() - which
     # previously caused a memory image to be "extracted" and destroyed. It must
     # be left as a leaf now.
     import tarfile as _tf

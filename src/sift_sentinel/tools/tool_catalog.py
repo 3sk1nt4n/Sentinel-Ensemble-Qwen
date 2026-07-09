@@ -203,14 +203,14 @@ def recommend_tools(question: str) -> dict:
 
 # ─────────────────────────────────────────────────────────────────────
 # 31AO Turn 2: tool value tiers + use-case hints (additive metadata).
-# Dataset-agnostic — consulted by Inv1 catalog renderer to surface
+# Dataset-agnostic - consulted by Inv1 catalog renderer to surface
 # distinguishing semantic signals. Empty/missing tools default to
 # value_tier="MED" and no hint (no behavioral change from prior runs).
 # ─────────────────────────────────────────────────────────────────────
 
 HIGH_VALUE_TOOLS: frozenset[str] = frozenset({
     # Memory: foundation + uniquely-valuable single-purpose tools
-    "vol_pstree",        # process tree foundation — ANY memory invx
+    "vol_pstree",        # process tree foundation - ANY memory invx
     "vol_getsids",       # UNIQUE: SID-PID user attribution join
     "vol_cmdline",       # process arguments foundation
     "vol_handles",       # process resources foundation
@@ -293,14 +293,14 @@ WHEN_TO_USE_HINTS: dict[str, str] = {
 
 def value_tier(tool_name: str) -> str:
     """Return the value tier for a tool. HIGH if explicitly tagged,
-    otherwise MED. Never raises — safe for all tool names."""
+    otherwise MED. Never raises - safe for all tool names."""
     name = str(tool_name or "")
     return "HIGH" if name in HIGH_VALUE_TOOLS else "MED"
 
 
 def when_to_use(tool_name: str) -> str:
     """Return the use-case hint for a tool, or '' if no hint defined.
-    Never raises — safe for all tool names."""
+    Never raises - safe for all tool names."""
     return WHEN_TO_USE_HINTS.get(str(tool_name or ""), "")
 
 def description_for(tool_name: str) -> str:

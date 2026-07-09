@@ -1,4 +1,4 @@
-"""(B) SIFT_DETERMINISTIC_PROVENANCE_V1 — provenance backstop for single-claim
+"""(B) SIFT_DETERMINISTIC_PROVENANCE_V1 - provenance backstop for single-claim
 deterministic behavioral findings.
 
 A deterministically-emitted finding (candidate_findings) carrying a registered

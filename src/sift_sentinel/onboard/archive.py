@@ -3,7 +3,7 @@
 Two jobs, both by content first / extension second:
 
   * Tell DOCUMENTS apart from evidence ARCHIVES. Office/OpenXML/ODF/PDF/EPUB
-    files are end-user artifacts — they are ZIPs under the hood but must NEVER
+    files are end-user artifacts - they are ZIPs under the hood but must NEVER
     be exploded into their parts. ``is_document`` detects them by extension OR
     by the OpenXML ``[Content_Types].xml`` / ODF ``mimetype`` marker / ``%PDF``.
 
@@ -12,7 +12,7 @@ Two jobs, both by content first / extension second:
     and falling back to the Python stdlib. ``extract_all`` recurses (zip→7z→raw)
     with a depth guard, and leaves documents and EWF segments intact.
 
-EWF segments (.e01/.e02…) are NOT extracted here — they are handed to ewf as a
+EWF segments (.e01/.e02…) are NOT extracted here - they are handed to ewf as a
 single image by the disk path.
 """
 from __future__ import annotations
@@ -72,7 +72,7 @@ class ArchiveToolMissing(ArchiveError):
 
     def __init__(self, kind: str, tool: str, pkg: str) -> None:
         self.kind, self.tool, self.pkg = kind, tool, pkg
-        super().__init__(f"{kind} needs `{tool}` — sudo apt install {pkg}")
+        super().__init__(f"{kind} needs `{tool}` - sudo apt install {pkg}")
 
 
 def magic_hex(path: str, n: int = 16) -> str:
@@ -102,7 +102,7 @@ def is_document(path: str) -> bool:
     if os.path.splitext(path)[1].lower() in DOC_EXTENSIONS:
         return True
     head = magic_hex(path, 4)
-    if head.startswith("504b03"):          # a ZIP — but is it an OOXML/ODF doc?
+    if head.startswith("504b03"):          # a ZIP - but is it an OOXML/ODF doc?
         return _zip_has_doc_marker(path)
     if head.startswith("25504446"):        # %PDF
         return True
@@ -151,7 +151,7 @@ def is_ewf(path: str) -> bool:
 def _looks_like_tar(path: str) -> bool:
     """Uncompressed tar has no offset-0 magic. Detect by the POSIX ``ustar``
     magic at offset 257 (or a .tar name). We deliberately do NOT use
-    tarfile.is_tarfile() as a blanket fallback — it false-positives on large
+    tarfile.is_tarfile() as a blanket fallback - it false-positives on large
     raw images (a leading zero block reads as an empty/short tar), which would
     catastrophically "extract" and destroy a memory image."""
     try:

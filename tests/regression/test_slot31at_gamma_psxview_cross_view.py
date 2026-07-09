@@ -93,8 +93,8 @@ def test_all_views_none_no_signal():
 
 def test_partial_with_none_fields():
     """Partial view data with the REVERSE of the DKOM signature
-    (pslist=True, psscan=False) is a benign view disagreement — pool
-    tag overwritten / transient — not active-but-unlinked DKOM, so
+    (pslist=True, psscan=False) is a benign view disagreement - pool
+    tag overwritten / transient - not active-but-unlinked DKOM, so
     process_view_inconsistency must NOT fire and no process-hiding
     candidate must be created. slot31AV-narrow.
     """
@@ -109,7 +109,7 @@ def test_partial_with_none_fields():
                if "process_view_inconsistency" in c.get("signals", [])]
     assert matches == [], (
         "process_view_inconsistency fired for the reverse direction "
-        "(pslist=True, psscan=False) — that is benign, not DKOM"
+        "(pslist=True, psscan=False) - that is benign, not DKOM"
     )
 
 

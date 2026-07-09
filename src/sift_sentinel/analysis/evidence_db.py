@@ -1513,7 +1513,7 @@ def _c_bulk_extractor(records):
     bulk_extractor is a summary-only tool: it emits exactly one record
     per run carrying feature counts (emails / urls / domains /
     carved_feature_total). The emitted fact stores those counts as
-    metadata only — no entity key, no PID, IP, path, hash, registry,
+    metadata only - no entity key, no PID, IP, path, hash, registry,
     or URL fields. _entity_keys falls back to the artifact tag and
     _score_fact has no branch for this fact_type, so the fact never
     contributes to candidate generation (supporting list stays empty
@@ -1576,8 +1576,8 @@ def _c_bulk_extractor(records):
         urls_sample = _bounded_sample_list("urls_sample", 25)
         domains_sample = _bounded_sample_list("domains_sample", 25)
 
-        # raw_excerpt holds the structural counts only — NOT the carved
-        # text — so no URL/IP literals leak into _entity_keys.
+        # raw_excerpt holds the structural counts only - NOT the carved
+        # text - so no URL/IP literals leak into _entity_keys.
         raw_json = json.dumps({
             "emails": emails, "urls": urls,
             "domains": domains, "carved_feature_total": total,

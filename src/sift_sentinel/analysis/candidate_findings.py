@@ -53,7 +53,7 @@ def _is_local_or_nonroutable_ip(entity_key: str) -> bool:
 # finding's description reads like analysis, not like an internal token list. Unknown
 # signals fall back to a de-underscored form. Universal: structure, no case data.
 _SIGNAL_PLAIN: dict[str, str] = {
-    "admin_share_access": "access to a remote administrative share (SMB) — a lateral-movement behaviour",
+    "admin_share_access": "access to a remote administrative share (SMB) - a lateral-movement behaviour",
     "anti_forensics_execution": "execution of an anti-forensics / log- or evidence-clearing tool",
     "inhibit_system_recovery": "an action that inhibits system recovery (shadow-copy or backup deletion)",
     "archive_in_staging_path": "an archive utility staged in a collection/staging directory",
@@ -561,7 +561,7 @@ def build_candidate_semantic_findings(
         title = "%s: %s" % (ctype.replace("_", " "), _entity_title_label(entity_key))
         _subject = _entity_plain(entity_key) or "the identified artefact"
         description = (
-            "Deterministic detection — %s. Observed for %s directly from forensic "
+            "Deterministic detection - %s. Observed for %s directly from forensic "
             "tool output: this is a structural behavioural signal, not an LLM "
             "assertion, surfaced by construction so a strong signal is never lost to "
             "model under-generation."

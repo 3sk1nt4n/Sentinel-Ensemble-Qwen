@@ -123,7 +123,7 @@ def test_compiler_preserves_raw_excerpt_as_json_with_typed_fields():
 
 
 def test_benign_default_consumer_no_payload_does_not_fire():
-    """ActiveScript consumer with empty script body — the rd-01 shape
+    """ActiveScript consumer with empty script body - the rd-01 shape
     of every Windows-shipped default consumer. Must suppress, not fire.
     """
     fact = _wmi_fact({
@@ -138,7 +138,7 @@ def test_benign_default_consumer_no_payload_does_not_fire():
 
 def test_benign_nt_eventlog_consumer_no_payload_does_not_fire():
     """NTEventLog / SMTP / LogFile / VolumeChange consumers carry no
-    payload field — all default class definitions shipped with Windows
+    payload field - all default class definitions shipped with Windows
     must be excluded by the payload gate.
     """
     for wtype in (
@@ -153,7 +153,7 @@ def test_benign_nt_eventlog_consumer_no_payload_does_not_fire():
 
 
 def test_malicious_active_script_consumer_iex_downloadstring_fires():
-    """ActiveScript body with classic PowerShell download cradle —
+    """ActiveScript body with classic PowerShell download cradle -
     must fire wmi_event_subscription_persistence and be strong-ready.
     """
     fact = _wmi_fact({
@@ -174,7 +174,7 @@ def test_malicious_active_script_consumer_iex_downloadstring_fires():
 
 
 def test_malicious_command_line_consumer_encoded_powershell_fires():
-    """CommandLine consumer with -enc base64 PowerShell payload —
+    """CommandLine consumer with -enc base64 PowerShell payload -
     typical lateral-execution persistence pattern. Must fire.
     """
     fact = _wmi_fact({
@@ -217,7 +217,7 @@ def test_malicious_consumer_non_vendor_url_fires():
 def test_consumer_with_payload_but_no_suspicious_marker_does_not_fire():
     """Consumer carrying a payload that is benign (no LOLBIN, no
     encoding, no staging path, no non-vendor URL) must NOT be
-    strong-ready — weak/context only.
+    strong-ready - weak/context only.
     """
     # No LOLBIN, no encoding/download keywords, no staging-path + EXEC_EXT
     # combo, no URL. notepad/wordpad/etc. are NOT in _LOLBIN_RE.
@@ -232,7 +232,7 @@ def test_consumer_with_payload_but_no_suspicious_marker_does_not_fire():
 
 
 def test_filter_and_binding_records_do_not_fire():
-    """EventFilter and FilterToConsumerBinding rows are not consumers —
+    """EventFilter and FilterToConsumerBinding rows are not consumers -
     the payload gate ("consumer" in wtype) excludes them by design.
     """
     for wtype in ("wmi_event_filter", "wmi_filter_to_consumer_binding"):

@@ -356,7 +356,7 @@ SEVERITY_DESC: dict[str, str] = {
 # credential-access and lateral-movement technique keywords that
 # appear in evidence from any credential-focused attack, not
 # scenario-specific terms. Equivalent to medical diagnostic
-# vocabulary — do NOT remove for agnosticity enforcement.
+# vocabulary - do NOT remove for agnosticity enforcement.
 _CRITICAL_TERMS: list[str] = [
     "pwdump", "mimikatz", "procdump", "lsass",
     "credential", "psexec", "wmiexec", "smbexec",

@@ -97,7 +97,7 @@ def test_compiler_defaults_carved_feature_total_when_missing():
 
 def test_fact_carries_no_entity_or_observable_artifact_fields():
     """The summary fact must be unenrichable: no entity_id, no PID,
-    no IP, no path, no URL, no hash, no registry — so it cannot
+    no IP, no path, no URL, no hash, no registry - so it cannot
     surface as a candidate observation. raw_excerpt holds the count
     counts only (NOT the carved text), so _entity_keys URL/IP regex
     finds nothing.

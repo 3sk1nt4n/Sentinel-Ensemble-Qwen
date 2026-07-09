@@ -58,7 +58,7 @@ def _ids_from_table_section(text: str, section: str) -> list[str]:
         parts = [p.strip().replace("\\|", "|") for p in line.strip().strip("|").split("|")]
         if len(parts) < 3:
             continue
-        if parts[0] in {"#", "---:", "—"}:
+        if parts[0] in {"#", "---:", "-"}:
             continue
         fid = parts[1]
         if re.match(r"^F\d+", fid) or fid.startswith("F_") or fid.startswith("FX"):

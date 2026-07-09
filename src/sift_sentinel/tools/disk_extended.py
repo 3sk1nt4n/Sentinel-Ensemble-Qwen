@@ -794,7 +794,7 @@ def parse_event_logs(
         _ezt = _parse_evtx_with_evtxecmd(evtx_dir, max_records)
         if _ezt is not None:
             return _ezt
-    # 31Q: adaptive per-file timeout — scales with file size so small EVTX
+    # 31Q: adaptive per-file timeout - scales with file size so small EVTX
     # files don't wait the full cap while large files still get headroom.
     #   timeout = base + (size_mb / rate_mb_per_s), clamped to [base, cap]
     _evtx_base = _sift_env_int("SIFT_EVTX_TIMEOUT_BASE_S", 6)

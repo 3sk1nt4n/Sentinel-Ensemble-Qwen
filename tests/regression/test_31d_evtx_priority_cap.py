@@ -463,7 +463,7 @@ def test_parse_event_logs_source_contains_no_print_call():
 
     src = inspect.getsource(parse_event_logs)
     assert "print(" not in src, (
-        "parse_event_logs source contains a print() call — MCP stdio "
+        "parse_event_logs source contains a print() call - MCP stdio "
         "expects JSON-RPC on stdout. Route telemetry through "
         "``logger.info`` / ``logger.warning`` instead."
     )

@@ -1,4 +1,4 @@
-"""A split RAW IMAGE (.001) is NOT a split ARCHIVE — it must reach classification.
+"""A split RAW IMAGE (.001) is NOT a split ARCHIVE - it must reach classification.
 
 Bug (a live paired run): a 2.68GB raw memory dump named "...memory-raw.001"
 (all-zero header, no magic) was classified by detect_archive() as "SPLIT" purely

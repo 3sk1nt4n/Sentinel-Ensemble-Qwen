@@ -1,13 +1,13 @@
 """Callability probe must understand the dynamic-resolution architecture.
 
 Live defect: a zero-record EZ tool (run_recmd) was explained with the reason
-"run_recmd is registered but not callable" — false. 158 of 186 registry
+"run_recmd is registered but not callable" - false. 158 of 186 registry
 tools store (None, category) because they are resolved at RUNTIME (the
 generic Vol3 runner, the EZ-tools dispatch map, the Sleuth Kit runner), not
 as an inline function. A None function slot is the NORM, not breakage.
 
 _tool_callable_status must therefore treat a registered tool as callable even
-when its registry function is None — registration implies runtime dispatch in
+when its registry function is None - registration implies runtime dispatch in
 this architecture. Only a genuinely-absent tool is 'not registered'.
 Universal: keyed on registry presence, not a tool-name list.
 """

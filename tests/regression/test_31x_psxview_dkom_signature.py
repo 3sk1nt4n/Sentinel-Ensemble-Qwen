@@ -9,7 +9,7 @@ DKOM signature (signal must fire):
   - non-kernel          (PID not in {0,4}; name not a system meta-process)
   - active threads      (when a thread view key exists in this Vol3
                          build, at least one of thrdscan/thrdproc is True;
-                         when neither key exists, allow — preserves recall)
+                         when neither key exists, allow - preserves recall)
 
 Counter-cases (signal must NOT fire):
   - terminated process (exit_time set + thrdscan=False)
@@ -43,7 +43,7 @@ def _psxview_fact(pid, name, views, exit_time=""):
     """Build a synthetic psxview_fact in the runtime-storage shape.
 
     The candidate scorer reads ``raw_excerpt`` (verbatim Vol3 record
-    JSON), not the typed view_* fields — mirror that shape.
+    JSON), not the typed view_* fields - mirror that shape.
     """
     raw = {"Name": name, "PID": pid, "Exit Time": exit_time}
     for k in ("pslist", "psscan", "thrdproc", "thrdscan",
@@ -123,7 +123,7 @@ def test_fires_when_no_thread_view_key_present():
 
 def test_does_not_fire_for_terminated_with_exit_time():
     """Terminated process: exit_time set, thrdscan False, pslist F,
-    psscan T. This is the dominant false-positive shape — must not
+    psscan T. This is the dominant false-positive shape - must not
     trip the signal.
     """
     fact = _psxview_fact(
@@ -136,7 +136,7 @@ def test_does_not_fire_for_terminated_with_exit_time():
 
 
 def test_does_not_fire_for_psscan_only_with_no_threads():
-    """pslist=F, psscan=T, thrdscan=F, no exit string — but no live
+    """pslist=F, psscan=T, thrdscan=F, no exit string - but no live
     threads still means terminated. Must not trip the signal.
     """
     fact = _psxview_fact(
@@ -150,7 +150,7 @@ def test_does_not_fire_for_psscan_only_with_no_threads():
 
 def test_does_not_fire_for_active_process_present_in_pslist():
     """Active process present: pslist=T, psscan=T, csrss=F. csrss
-    absence alone is not DKOM — many user processes legitimately miss
+    absence alone is not DKOM - many user processes legitimately miss
     csrss/session/deskthrd views.
     """
     fact = _psxview_fact(
@@ -177,8 +177,8 @@ def test_does_not_fire_for_kernel_pid_4_system():
 
 
 def test_does_not_fire_for_kernel_meta_name_registry():
-    """Kernel meta-process by NAME (Registry) — even if PID is not 0/4
-    in some Vol3 outputs — must not trip the signal.
+    """Kernel meta-process by NAME (Registry) - even if PID is not 0/4
+    in some Vol3 outputs - must not trip the signal.
     """
     fact = _psxview_fact(
         88,  # arbitrary non-kernel-PID-shaped value
@@ -242,7 +242,7 @@ def test_no_validation_ready_on_inconsistency_signal_alone_for_terminated():
     assert hiding_ready == [], (
         f"benign terminated disagreement rows produced "
         f"{len(hiding_ready)} validation-ready process-hiding "
-        f"candidates — should be zero"
+        f"candidates - should be zero"
     )
 
 

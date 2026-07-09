@@ -1,9 +1,9 @@
 """31AH regression: inv2_ensemble_stats includes explicit members[] array.
 
 V3 triple-side:
-  A=static     — ensemble.py has the patch and stats literal includes members
-  B=runtime    — merge_ensemble_findings importable
-  C=behavioral — synthetic per_model exercises all schema paths
+  A=static     - ensemble.py has the patch and stats literal includes members
+  B=runtime    - merge_ensemble_findings importable
+  C=behavioral - synthetic per_model exercises all schema paths
 
 DATASET-AGNOSTIC ABSOLUTE: all per_model inputs synthesized at runtime; no
 hardcoded IDs/PIDs/paths/IPs/hashes/fixtures.
@@ -154,5 +154,5 @@ def test_31ah_behavioral_existing_stats_keys_preserved():
         "merge_algorithm",
     }
     assert expected_keys.issubset(stats.keys()), (
-        f"31AH broke backward compat — missing: {expected_keys - set(stats.keys())}"
+        f"31AH broke backward compat - missing: {expected_keys - set(stats.keys())}"
     )

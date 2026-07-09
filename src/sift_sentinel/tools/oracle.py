@@ -1,13 +1,13 @@
-"""Tool fitness oracle — dataset-agnostic tier + score ranking.
+"""Tool fitness oracle - dataset-agnostic tier + score ranking.
 
 Synthesizes tool-selection signals into 4 categorical tiers with an
 auxiliary numeric score for stable intra-tier ranking.
 
 Tiers:
-  PREFERRED  — strong positive signal (records, category coverage, health)
-  AVAILABLE  — registered, no negative signal
-  PENALIZED  — prior run returned 0 records OR health warnings
-  EXCLUDED   — not registered OR profile-incompatible kernel dependency
+  PREFERRED  - strong positive signal (records, category coverage, health)
+  AVAILABLE  - registered, no negative signal
+  PENALIZED  - prior run returned 0 records OR health warnings
+  EXCLUDED   - not registered OR profile-incompatible kernel dependency
 
 Inputs (all optional, caller-supplied):
   - profile_healthy: bool (default True)

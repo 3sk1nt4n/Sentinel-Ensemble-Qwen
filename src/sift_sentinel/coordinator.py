@@ -2036,7 +2036,7 @@ def _run_tool_inner(
         return {"tool_name": tool_name, "error": f"{type(exc).__name__}: {exc}", "failure_mode": "runtime_error"}
 
 
-# 31AN Turn 3: run_mandatory_tools() deleted — no forced bootstrap
+# 31AN Turn 3: run_mandatory_tools() deleted - no forced bootstrap
 # Stub retained as DEPRECATED PLACEHOLDER so tests importing this
 # function can still collect. Will be removed in 31AN Turn 4.
 def run_mandatory_tools(*args, **kwargs) -> dict[str, dict]:
@@ -2718,7 +2718,7 @@ def build_inv1_prompt(
     # from Inv1 prompt to prevent AI hallucinating observations from phantom tools.
     _bootstrap_ran = bool(bootstrap_outputs)
     summary = build_bootstrap_summary(bootstrap_outputs) if _bootstrap_ran else ""
-    # P0-D: vol_mftscan quarantined (MCP arg validation bug — dispatch signature
+    # P0-D: vol_mftscan quarantined (MCP arg validation bug - dispatch signature
     # misses image_path). Remove from Inv1 catalog until MCP dispatch is fixed.
     # When bootstrap did not run, vol_pstree and vol_netscan are ordinary
     # selectable tools -- the AI must be free to pick them first-line.

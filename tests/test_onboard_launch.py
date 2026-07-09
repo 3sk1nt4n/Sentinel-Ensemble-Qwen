@@ -178,7 +178,7 @@ def test_unwired_cancel_no_exec(monkeypatch, capsys):
                                 input_fn=_feed(["cancel"]))
     out = capsys.readouterr().out
     assert rc is None and called == []
-    assert "cancelled — nothing launched" in out
+    assert "cancelled - nothing launched" in out
     assert "exited with code" not in out
 
 
@@ -199,7 +199,7 @@ def test_closed_stdin_no_exec(monkeypatch, capsys):
                                 input_fn=lambda _p: None)   # EOF / detached -> cancel
     out = capsys.readouterr().out
     assert rc is None and called == []
-    assert "cancelled — nothing launched" in out
+    assert "cancelled - nothing launched" in out
 
 
 # ── FIX 1: wired fast path skips the confirm ─────────────────────────────────

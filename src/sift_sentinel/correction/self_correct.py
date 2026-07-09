@@ -858,7 +858,7 @@ def self_correct(
                     action="declared_unfixable", outcome="UNFIXABLE",
                     reason="wrapper finding=null (AI declined to rewrite)",
                 )
-                break  # AI explicitly declined — no point trying further strategies
+                break  # AI explicitly declined - no point trying further strategies
             if not isinstance(new_finding, dict):
                 attempts.append({
                     "attempt": attempt_num,

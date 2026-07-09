@@ -164,7 +164,7 @@ short summary.
 
 ## Appendix: Per-User Attribution
 
-### User: u1 — VICTIM
+### User: u1 - VICTIM
 **Owned PIDs:** 16 processes (a much longer, richer body than the summary above)
 **Forensic Interpretation:** detailed appendix content here.
 """

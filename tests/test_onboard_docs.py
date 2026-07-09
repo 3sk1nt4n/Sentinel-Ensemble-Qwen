@@ -1,6 +1,6 @@
 """Document-guard + nested-evidence regression + advisor public API.
 
-A .pptx dropped beside the evidence must be kept as a reference document — NOT
+A .pptx dropped beside the evidence must be kept as a reference document - NOT
 exploded into 98 parts, NOT probed, and NOT sent to the advisor. A genuine
 evidence zip(7z(raw)) must still extract to its raw image.
 """
@@ -66,7 +66,7 @@ class DocTestProbes(Probes):
                 if b"MEMDUMP" in head else None)
 
     def mount(self, disk, method, mp):
-        return False, "test image — not mounted"
+        return False, "test image - not mounted"
 
     def health(self, mem):
         return True, [], {}

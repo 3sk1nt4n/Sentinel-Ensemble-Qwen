@@ -14,7 +14,7 @@ from sift_sentinel.tool_semantics import (
     format_grouped_inv1_tool_catalog,
 )
 
-_CATALOG_LINE = re.compile(r"(?m)^- (\S+) — .*\| platform=")
+_CATALOG_LINE = re.compile(r"(?m)^- (\S+) - .*\| platform=")
 
 
 def test_every_registered_tool_resolves_to_semantic_dict():

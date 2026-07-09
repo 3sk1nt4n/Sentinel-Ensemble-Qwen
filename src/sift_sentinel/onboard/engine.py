@@ -1,4 +1,4 @@
-"""Step-Zero onboarding engine — emits PhaseEvents from REAL probes.
+"""Step-Zero onboarding engine - emits PhaseEvents from REAL probes.
 
 Design contract (ZEROFAKE-UI):
   * The engine performs the deterministic onboarding (discover -> extract ->
@@ -102,7 +102,7 @@ class CaseManifest:
     # construct sites stay valid; populated by onboard().
     os_profile: dict = field(default_factory=dict)
     # Audit trail of any AI-advisor consultations. EMPTY when the run was fully
-    # deterministic — that emptiness is the proof the AI was off the critical path.
+    # deterministic - that emptiness is the proof the AI was off the critical path.
     ai_consultations: list = field(default_factory=list)
     # Reference documents (Office/PDF/etc.) found alongside the evidence: kept
     # for the analyst, never analyzed.
@@ -133,7 +133,7 @@ _ARCHIVE_MAGIC = {
     "1f8b": "GZIP",
 }
 
-# Containers we recognize by magic but cannot open deterministically — these
+# Containers we recognize by magic but cannot open deterministically - these
 # are the only files that trigger the EXTRACT AI-consult point.
 _CONTAINER_MAGIC = {
     "526172211a07": "RAR",        # Rar!\x1a\x07
@@ -619,8 +619,8 @@ def detect_os(memory_os: Optional[str], disk_os: Optional[str]) -> dict:
     """Combine memory- and disk-derived OS signals into an os_profile.
 
     Memory (vol3 ``windows.info``) is authoritative. The disk signal is a weak
-    hint (``fsstat`` reports the NTFS *format generation* — "Windows XP" on
-    every modern NTFS — not the OS) and is NEVER allowed to assert agreement it
+    hint (``fsstat`` reports the NTFS *format generation* - "Windows XP" on
+    every modern NTFS - not the OS) and is NEVER allowed to assert agreement it
     cannot support. ``agree`` is True only when BOTH signals exist and resolve
     to the same Windows family; on mismatch both sources are surfaced and
     ``agree`` is False (no "disk+memory agree" claim).
@@ -682,7 +682,7 @@ def _image_floor_bytes() -> int:
 
 def _too_small_to_probe(path: str) -> bool:
     """True only when the real on-disk size is below the floor. Unknown size
-    (virtual/injected paths) is NOT filtered — the probes decide."""
+    (virtual/injected paths) is NOT filtered - the probes decide."""
     sz = _safe_size(path)
     return sz is not None and sz < _image_floor_bytes()
 
@@ -887,7 +887,7 @@ def consult_and_verify(ai, consultations, phase, question, evidence, choices,
             on_event(PhaseEvent(Phase.ADVISE, status, detail, dict(data)))
 
     _emit(Status.START,
-          "Hit something my probes don't recognize — asking the AI advisor…",
+          "Hit something my probes don't recognize - asking the AI advisor…",
           phase=phase)
     try:
         s = ai.advise(question, evidence, choices)
@@ -933,9 +933,9 @@ def onboard(
 ) -> list:
     """Run the deterministic onboarding pipeline, emitting PhaseEvents.
 
-    ``paths`` may be a single path (file OR folder — folders are walked) or an
-    explicit LIST of paths (file-by-file multi-add: each entry is discovered —
-    files used directly, folders walked — then the union is classified/paired
+    ``paths`` may be a single path (file OR folder - folders are walked) or an
+    explicit LIST of paths (file-by-file multi-add: each entry is discovered -
+    files used directly, folders walked - then the union is classified/paired
     exactly as one set). Archives among the entries are still extracted and
     documents are still kept as references.
 
@@ -982,7 +982,7 @@ def onboard(
     _need = _min_free_bytes()
     if _free is not None and _free < _need:
         emit(Phase.ERROR, Status.FAIL,
-             f"Low disk space — only {_free // (1 << 20)} MB free in "
+             f"Low disk space - only {_free // (1 << 20)} MB free in "
              f"{tempfile.gettempdir()} (need >= {_need // (1 << 20)} MB). I won't "
              "start and risk a crash. Free up space (clear old /tmp/sift-* dirs), or "
              "point me at ONE case folder instead of a big shared one, then retry.",
@@ -996,7 +996,7 @@ def onboard(
     queue: list[str] = list(items)
     seen: set = set()
     # De-dup: stems of loose (non-archive, non-document) images already on disk.
-    # An archive whose stem matches one is just its compressed twin — skip it
+    # An archive whose stem matches one is just its compressed twin - skip it
     # (avoids a needless multi-GB re-extraction and a duplicate case).
     loose_stems = {
         _stem(os.path.basename(it)) for it in items
@@ -1014,17 +1014,17 @@ def onboard(
             name = os.path.basename(item)
             if _stem(name) in loose_stems:
                 emit(Phase.EXTRACT, Status.SUBSTEP,
-                     f"{name}: already present uncompressed — skipping extraction",
+                     f"{name}: already present uncompressed - skipping extraction",
                      name=name, skipped_duplicate=True)
                 continue
             emit(Phase.EXTRACT, Status.SUBSTEP,
-                 f"{name} — {kind} → extracting…", name=name, type=kind)
+                 f"{name} - {kind} → extracting…", name=name, type=kind)
             try:
                 children = probes.extract(item)
             except archive.ArchiveToolMissing as exc:
                 emit(Phase.EXTRACT, Status.WARN,
                      f"{name}: {exc.kind} archive detected but `{exc.tool}` "
-                     f"isn't installed — run: sudo apt install {exc.pkg}",
+                     f"isn't installed - run: sudo apt install {exc.pkg}",
                      name=name, tool=exc.tool, pkg=exc.pkg)
                 working.append(item)
                 continue
@@ -1034,19 +1034,19 @@ def onboard(
                 # files already on disk (the loose images still get classified).
                 if getattr(exc, "errno", None) == errno.ENOSPC:
                     emit(Phase.EXTRACT, Status.WARN,
-                         f"{name}: ran out of disk space while extracting — "
+                         f"{name}: ran out of disk space while extracting - "
                          "skipped. Free up space, or point me straight at the "
                          "already-extracted memory/disk images instead.",
                          name=name, error="no_space")
                 else:
                     emit(Phase.EXTRACT, Status.WARN,
                          f"{name}: could not extract "
-                         f"({exc.strerror or exc}) — skipped.",
+                         f"({exc.strerror or exc}) - skipped.",
                          name=name, error="oserror")
                 continue
             except Exception as exc:        # corrupt/locked archive -> skip, never crash
                 emit(Phase.EXTRACT, Status.WARN,
-                     f"{name}: could not extract ({exc}) — skipped.",
+                     f"{name}: could not extract ({exc}) - skipped.",
                      name=name, error="extract_failed")
                 continue
             for child in children:         # already recursed to leaves
@@ -1055,7 +1055,7 @@ def onboard(
                  f"extracted {len(children)} item(s) from {name}",
                  name=name, count=len(children))
             continue
-        # Not a known archive — maybe an unrecognized container (point 1).
+        # Not a known archive - maybe an unrecognized container (point 1).
         mg = probes.magic(item)
         rescued = None
         if _looks_like_unknown_container(mg):
@@ -1091,7 +1091,7 @@ def onboard(
         if archive.is_document(cand):
             documents.append(cand)
             emit(Phase.CLASSIFY, Status.OK,
-                 f"{name} — reference document (kept, not analyzed)",
+                 f"{name} - reference document (kept, not analyzed)",
                  name=name, role="DOC", probe="type")
             continue
         # Known non-image forensic artifacts (triage/.mans, plaso, bodyfile, db,
@@ -1113,7 +1113,7 @@ def onboard(
         if _broken_link or _safe_size(cand) == 0:
             unreadable_count += 1
             emit(Phase.CLASSIFY, Status.WARN,
-                 f"{name} — unreadable ("
+                 f"{name} - unreadable ("
                  f"{'broken link' if _broken_link else 'empty file'}), set aside",
                  name=name, role="SETASIDE", reason="unreadable")
             continue
@@ -1195,7 +1195,7 @@ def onboard(
         if unreadable_count:
             bits.append(f"{unreadable_count} unreadable (broken link/empty)")
         emit(Phase.CLASSIFY, Status.OK,
-             f"set aside {set_aside} non-image file(s) — not analyzed "
+             f"set aside {set_aside} non-image file(s) - not analyzed "
              f"({' · '.join(bits)})", role="SETASIDE", count=set_aside)
 
     # -- pair memory+disk into one or more cases (multi-case aware) ----------
@@ -1230,7 +1230,7 @@ def onboard(
         mem_info = mem_tuple[1] if mem_tuple else None
         cid = f"{_case_id(root)}-{idx + 1}" if multi else _case_id(root)
 
-        # mount ladder (+ advisor point 4) FIRST — so the disk OS can be read
+        # mount ladder (+ advisor point 4) FIRST - so the disk OS can be read
         # from the mounted SOFTWARE hive.
         mount_method: Optional[str] = None
         mount_path: Optional[str] = None
@@ -1275,7 +1275,7 @@ def onboard(
                          method=mount_method, mountpoint=mountpoint)
 
         # OS detection: memory authoritative (vol3 windows.info); disk OS read
-        # FRESH from THIS disk's mounted SOFTWARE hive — never carried, never
+        # FRESH from THIS disk's mounted SOFTWARE hive - never carried, never
         # fsstat's NTFS-version label. Unreadable / unmounted -> None (shown
         # "undetermined"). agree=yes only when both resolve to the same family.
         memory_os = _os_from_memory(mem_info) if mem_info else None
@@ -1340,11 +1340,11 @@ def onboard(
 
         refs = [_REFS_BASE]
         if mem_path:
-            refs.append(f"memory: windows.info (vol3) — {mem_path}")
+            refs.append(f"memory: windows.info (vol3) - {mem_path}")
         if disk_path:
             src = "SOFTWARE hive" if disk_os else "fsstat (TSK)"
             refs.append(f"disk: {src}"
-                        f"{' + ntfs-3g mount' if mount_method else ''} — {disk_path}")
+                        f"{' + ntfs-3g mount' if mount_method else ''} - {disk_path}")
         manifest = CaseManifest(
             case_id=cid, os=os_label, os_source=os_source,
             memory_path=mem_path, memory_health=mem_health,

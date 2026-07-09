@@ -1,10 +1,10 @@
-"""Optional AI advisor — an off-critical-path escape hatch (verify-before-act).
+"""Optional AI advisor - an off-critical-path escape hatch (verify-before-act).
 
 The deterministic onboarding pipeline never depends on this. The advisor is
 consulted ONLY at deterministic-exhaustion points, and every suggestion it
 returns MUST be confirmed by a real probe before it changes any state (see
 ``engine.consult_and_verify``). An unverified suggestion is logged and
-discarded — it is never narrated as success.
+discarded - it is never narrated as success.
 
 Availability is fail-closed and fast:
   * no ``ANTHROPIC_API_KEY`` -> unavailable with NO network call;

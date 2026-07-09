@@ -1,6 +1,6 @@
-"""Fix G — a loopback / unspecified / link-local IP is never lateral movement or
+"""Fix G - a loopback / unspecified / link-local IP is never lateral movement or
 external staging on ANY host, so it must not be emitted as a deterministic suspicious
-finding. Fix F — the deterministic description reads as plain analysis (no internal
+finding. Fix F - the deterministic description reads as plain analysis (no internal
 jargon) and survives the customer sanitiser without gluing words. Universal / no case
 literal.
 """

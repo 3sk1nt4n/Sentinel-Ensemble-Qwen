@@ -1,4 +1,4 @@
-"""Confirmed-section 'Trace to tool execution' block (Criterion 5 — Audit Trail).
+"""Confirmed-section 'Trace to tool execution' block (Criterion 5 - Audit Trail).
 
 Universal / dataset-agnostic: the block maps each validator-backed claim to the
 tool(s) that produced it, using ONLY the finding's own fields (per-claim
@@ -62,6 +62,6 @@ def test_block_carries_no_injected_case_literals(monkeypatch):
     monkeypatch.delenv("SIFT_CONFIRMED_TRACE_BLOCK", raising=False)
     f = _finding(source_tools=["tool_x"], claims=[{"type": "hash", "sha1": "b" * 40}])
     section, _ = render_confirmed_findings_section([f])
-    # only tool_x (the finding's own tool) appears as a producer — nothing invented
+    # only tool_x (the finding's own tool) appears as a producer - nothing invented
     assert "← tool_x" in section
     assert "get_amcache" not in section

@@ -1,4 +1,4 @@
-"""findevil starter contract — the one-command front door for new users.
+"""findevil starter contract - the one-command front door for new users.
 
 Covers the junior-on-a-fresh-VM path promised in the README:
   ./findevil.sh            -> conversational onboarding (delegates to step0_onboard)

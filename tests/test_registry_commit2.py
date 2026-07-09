@@ -16,7 +16,7 @@ EZ_TOOLS = {
 
 
 def test_registry_has_120_or_more_tools():
-    # Floor assertion — grows with Commit 3a (Linux/Mac Vol3) onward.
+    # Floor assertion - grows with Commit 3a (Linux/Mac Vol3) onward.
     assert len(_TOOL_REGISTRY) >= 120, (
         f"Expected >=120 tools after Commit 2, got {len(_TOOL_REGISTRY)}"
     )

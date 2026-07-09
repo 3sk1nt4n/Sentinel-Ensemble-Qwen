@@ -2,7 +2,7 @@
 
 A fake tool = a name in the rendered catalog string not present in the
 registry passed to the renderer. The catalog parser keys off the stable
-rendered line format (``- <name> — ... | platform=``) so prose bullets
+rendered line format (``- <name> - ... | platform=``) so prose bullets
 in the surrounding prompt are never mistaken for tools.
 """
 
@@ -10,7 +10,7 @@ import re
 
 from sift_sentinel.tool_semantics import format_grouped_inv1_tool_catalog
 
-_CATALOG_LINE = re.compile(r"(?m)^- (\S+) — .*\| platform=")
+_CATALOG_LINE = re.compile(r"(?m)^- (\S+) - .*\| platform=")
 
 
 def parse_tool_names_from_catalog(catalog_text):

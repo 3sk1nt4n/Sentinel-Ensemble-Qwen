@@ -53,7 +53,7 @@ DUMP_MASK = PROCESS_VM_READ | PROCESS_QUERY_INFORMATION
 # ── Severity tiers ──
 
 # 31AM v3: forensic vocabularies for role-based scoring signals.
-# Dataset-agnostic — universal Windows/forensic category descriptors,
+# Dataset-agnostic - universal Windows/forensic category descriptors,
 # not values. Each term is a substring match against finding titles
 # and descriptions, working across any Windows-class dataset.
 # (Duplicated from reporting.per_user_summary; refactor to shared
@@ -458,7 +458,7 @@ def _is_credential_authority_open(handle_fact, process_by_pid):
 
     Matches: Type=Process AND access mask has VM_READ+QUERY_INFORMATION
     AND target process is in \\Windows\\System32\\. No hardcoded process
-    name match — the SHAPE is the signature.
+    name match - the SHAPE is the signature.
     """
     if (handle_fact.get("handle_type") or "").lower() != "process":
         return False
@@ -506,7 +506,7 @@ def score_user_risk(user_fact, typed_facts, findings_final):
             continue
         for claim in (f.get("claims") or []):
             pid = claim.get("pid") or claim.get("child_pid") or claim.get("parent_pid")
-            # 31AM v3: defensive int cast — AI sometimes emits string PIDs.
+            # 31AM v3: defensive int cast - AI sometimes emits string PIDs.
             try:
                 pid_int = int(pid) if pid is not None else None
             except (TypeError, ValueError):
@@ -564,17 +564,17 @@ def score_user_risk(user_fact, typed_facts, findings_final):
     if n_krb + n_ntlm > 0:
         signals.append(f"{n_krb}× Kerberos + {n_ntlm}× NTLM auth events")
 
-    # Signal 7 (31AM v2): high PS volume — absolute tier (universal norms)
+    # Signal 7 (31AM v2): high PS volume - absolute tier (universal norms)
     n_ps = int(user_fact.get("powershell_count", 0) or 0)
     if n_ps >= PS_VOLUME_EXCESSIVE:
         score += 50
-        signals.append(f"{n_ps:,} PowerShell commands (excessive — >=5K, automated activity)")
+        signals.append(f"{n_ps:,} PowerShell commands (excessive - >=5K, automated activity)")
     elif n_ps >= PS_VOLUME_VERY_HIGH:
         score += 30
-        signals.append(f"{n_ps:,} PowerShell commands (very high — >=1K)")
+        signals.append(f"{n_ps:,} PowerShell commands (very high - >=1K)")
     elif n_ps >= PS_VOLUME_ELEVATED:
         score += 15
-        signals.append(f"{n_ps:,} PowerShell commands (elevated — >=100)")
+        signals.append(f"{n_ps:,} PowerShell commands (elevated - >=100)")
 
     # Signal 8 (31AM v2): adaptive top-user outlier
     # Dataset-agnostic: computes anomaly relative to observed distribution.
@@ -594,14 +594,14 @@ def score_user_risk(user_fact, typed_facts, findings_final):
             score += 20
             signals.append(
                 f"top PS-user in dataset, >={PS_ADAPTIVE_TOP_RATIO}x "
-                f"next-highest ({_all_counts[1]:,}) — anomaly outlier"
+                f"next-highest ({_all_counts[1]:,}) - anomaly outlier"
             )
 
     # Signal 9 (31AM v3): initial-access role bonus.
     # Dataset-agnostic: a user owning a PID cited in a MEDIUM+ finding
     # whose title/desc matches universal email/browser vocabulary is the
     # likely phishing/drive-by victim. Vocabulary is category-based, not
-    # value-based — works on any dataset with similar tactics.
+    # value-based - works on any dataset with similar tactics.
     _ia_pids = set()
     for _f9 in (findings_final or []):
         if not isinstance(_f9, dict):
@@ -730,7 +730,7 @@ def passes_strict_gate(user_fact, typed_facts, findings_final):
                     elif isinstance(ref, str) and ref in matching_ps_fact_ids:
                         return True
 
-    # (a2) 31AM v2 — High PS volume linked to PS-themed HIGH/CRITICAL finding.
+    # (a2) 31AM v2 - High PS volume linked to PS-themed HIGH/CRITICAL finding.
     # Dataset-agnostic: identity-level threshold + vocabulary check. No
     # finding-ID, no username, no value-specific token is hardcoded.
     n_ps_a2 = int((user_fact or {}).get("powershell_count", 0) or 0)
@@ -885,7 +885,7 @@ def synthesize_compromised_user_findings(typed_facts, findings_final, min_tier="
         # no meaning to a reader; severity already conveys the ranking).
         _n_sig = len(signals)
         _verb = "possible compromise" if not _profile_only else "profile-context activity"
-        title = (f"User '{identity}' — {_verb} ({_n_sig} warning sign"
+        title = (f"User '{identity}' - {_verb} ({_n_sig} warning sign"
                  f"{'' if _n_sig == 1 else 's'}): " + "; ".join(signals_short))
         if len(title) > 200:
             title = title[:197] + "..."
@@ -942,7 +942,7 @@ def enrich_findings_with_user_attribution(findings_final, typed_facts):
     """31AM v2: append user_account claims to existing findings whose PIDs
     are owned by known users (typed_facts.user_account_fact.owned_pids).
 
-    Dataset-agnostic structural join — no hardcoded usernames, PIDs, or
+    Dataset-agnostic structural join - no hardcoded usernames, PIDs, or
     other dataset-specific values. Marks added claims with
     derived_from='owned_pids_join' for audit trail.
 

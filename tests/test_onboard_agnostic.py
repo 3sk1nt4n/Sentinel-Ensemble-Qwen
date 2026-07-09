@@ -9,7 +9,7 @@ drives engine.onboard. The test asserts the two are discovered, the archive
 nest is recursively extracted, and they are paired into ONE case purely from
 probe verdicts.
 
-Nothing here references any real dataset — that absence is the agnosticism
+Nothing here references any real dataset - that absence is the agnosticism
 proof. The engine itself never branches on filename/extension; it trusts only
 probe results, which is what this exercises end-to-end.
 """
@@ -97,7 +97,7 @@ class ContentProbes(Probes):
         return None
 
     def mount(self, disk, method, mountpoint):
-        return False, "fabricated test image — not mounted"
+        return False, "fabricated test image - not mounted"
 
     def health(self, mem):
         return True, [], {"KeNumberProcessors": "2"}

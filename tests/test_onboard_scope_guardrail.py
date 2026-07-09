@@ -46,7 +46,7 @@ def test_paired_agree_shows_agreement():
                              "disk": "Windows 10 (NT 10.0)", "source": "disk+memory",
                              "agree": True, "os": "Windows 10 (NT 10.0)"})
     assert "disk+memory agree" in card
-    assert "memory + disk — full analysis" in card
+    assert "memory + disk - full analysis" in card
 
 
 def test_paired_mismatch_trusts_memory_no_alarm():

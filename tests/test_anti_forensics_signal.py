@@ -1,4 +1,4 @@
-"""#1 anti-forensics signal (T1070/T1485) — defense-evasion EXECUTION.
+"""#1 anti-forensics signal (T1070/T1485) - defense-evasion EXECUTION.
 
 Secure-wipe (SDelete, cipher /w), event-log clearing (wevtutil cl / Clear-EventLog),
 and USN-journal deletion are rare for normal users and common to BOTH ransomware

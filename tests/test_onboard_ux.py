@@ -98,7 +98,7 @@ def test_do_find_unwired_only_stages(capsys):
     out = capsys.readouterr().out
     assert rc is None
     assert "python3 run_pipeline.py" in out
-    assert "cancelled — nothing launched" in out    # EOF confirm -> cancel, no exec
+    assert "cancelled - nothing launched" in out    # EOF confirm -> cancel, no exec
     assert "exited with code" not in out
     assert "report.md" not in out
     assert called == []                             # never executed

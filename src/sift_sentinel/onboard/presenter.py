@@ -1,9 +1,9 @@
-"""Presenter — pure-stdlib terminal rendering for the onboarding engine.
+"""Presenter - pure-stdlib terminal rendering for the onboarding engine.
 
 Subscribes to engine PhaseEvents via ``render_event``. It NEVER probes
 evidence and NEVER fabricates progress: every line is derived solely from the
 event the engine just emitted. A WARN/FAIL event can never render a success
-glyph or a success word ("✓", "mounted via", "HEALTHY") — that invariant is
+glyph or a success word ("✓", "mounted via", "HEALTHY") - that invariant is
 enforced by table construction below and asserted in the test suite.
 
 Degrades gracefully: no color / ASCII box-drawing when stdout is not a TTY,
@@ -128,8 +128,8 @@ def banner(color: Optional[bool] = None, file=None) -> str:
 def _short_os(s: Optional[str]) -> str:
     """Compact OS label for the card's OS row (full string stays in os_profile
     and the --verbose plan). Keeps the (NT x.y) tail; trims redundant words."""
-    if not s or s in ("—", "undetermined"):
-        return s or "—"
+    if not s or s in ("-", "undetermined"):
+        return s or "-"
     nt = ""
     i = s.find("(NT ")
     if i != -1:
@@ -163,13 +163,13 @@ def guidance(color: Optional[bool] = None, file=None) -> str:
         return _c(t, _GREEN, use)
 
     lines = [
-        dim("Point me at ONE case's evidence folder — I take it from there, "
+        dim("Point me at ONE case's evidence folder - I take it from there, "
             "read-only, start to finish."),
         "",
         hdr("  What to put in the folder"),
-        dim("    • Memory image    .raw .img .mem .vmem .dmp      — the live RAM"),
-        dim("    • Disk image      .E01 .dd .raw .img             — the drive"),
-        dim("    • Notes · PDFs · spreadsheets                    — kept as context, "
+        dim("    • Memory image    .raw .img .mem .vmem .dmp      - the live RAM"),
+        dim("    • Disk image      .E01 .dd .raw .img             - the drive"),
+        dim("    • Notes · PDFs · spreadsheets                    - kept as context, "
             "never analyzed"),
         dim("    • Archives (.zip .7z) - I unpack them for you"),
         "",
@@ -179,14 +179,14 @@ def guidance(color: Optional[bool] = None, file=None) -> str:
         "    " + ok("✓") + dim(" pair each memory image with its OWN disk, by host name"),
         "    " + ok("✓") + dim(" mount the disk READ-ONLY, detect the OS, check the "
                                "memory is healthy"),
-        "    " + ok("✓") + dim(" hand you a verified case card — then you pick the "
+        "    " + ok("✓") + dim(" hand you a verified case card - then you pick the "
                                "depth and launch"),
         "",
         hdr("  One folder = one case"),
-        "    " + ok("★") + dim(" works best: ONE memory image + its OWN disk — together they "
+        "    " + ok("★") + dim(" works best: ONE memory image + its OWN disk - together they "
                                "corroborate"),
         "      " + dim("across memory AND disk (cross-domain = the strongest evidence)"),
-        "    " + dim("  memory-only or disk-only is fine too — the card tells you exactly"),
+        "    " + dim("  memory-only or disk-only is fine too - the card tells you exactly"),
         "      " + dim("what THAT evidence can and can't find."),
     ]
     return "\n".join(lines)
@@ -210,12 +210,12 @@ def ask_path(
     use = _resolve_color(color, file)
     if prompt is None:
         prompt = build_ask_prompt(use)        # glowing-orange banner (TTY) or plain
-    nudge = _c("  …I couldn't find that path — try again "
+    nudge = _c("  …I couldn't find that path - try again "
                "(or Q to quit).", _YELLOW, use)
     while True:
         try:
             raw = input_fn(prompt)
-        except EOFError:                  # closed/empty stdin — never hang
+        except EOFError:                  # closed/empty stdin - never hang
             return None
         if raw is None:
             return None
@@ -237,8 +237,8 @@ def ask_path(
 def is_verbose_only(ev: PhaseEvent) -> bool:
     """Events hidden in the default (quiet) view; shown only with --verbose.
 
-    The quiet view keeps the meaningful lines — what each leaf IS, the OS, the
-    final mount result, health — and drops the per-container extraction trace,
+    The quiet view keeps the meaningful lines - what each leaf IS, the OS, the
+    final mount result, health - and drops the per-container extraction trace,
     the 'found N items' count, mount-ladder attempts, the skip summary, and the
     manifest/ready chatter (the runner prints the card + ready prompt itself).
     """
@@ -254,7 +254,7 @@ def is_verbose_only(ev: PhaseEvent) -> bool:
     if p == Phase.CLASSIFY:
         # Quiet view shows ONLY what each leaf positively IS (memory/disk) plus the
         # single 'set aside' summary. Per-file documents, recognized artifacts,
-        # skips, and unknowns are verbose-only — never a wall of UNKNOWN noise.
+        # skips, and unknowns are verbose-only - never a wall of UNKNOWN noise.
         if s == Status.SUBSTEP:
             return True
         if ev.data.get("role") in ("DOC", "UNKNOWN", "ARTIFACT", "IGNORE"):
@@ -292,7 +292,7 @@ def render_event(ev: PhaseEvent, color: Optional[bool] = None, file=None) -> Non
                 f"images, {d.get('disk', 0)} disks).")))
             cases = d.get("cases")
             if cases:
-                line(sub(f"I paired them into {cases} case(s) by HOST NAME — each "
+                line(sub(f"I paired them into {cases} case(s) by HOST NAME - each "
                          "memory image with its own same-host disk."))
             else:
                 line(sub("I'll onboard each as a separate case below."))
@@ -305,7 +305,7 @@ def render_event(ev: PhaseEvent, color: Optional[bool] = None, file=None) -> Non
         if s == Status.SUBSTEP and "child" in d:
             line(nest(f"found {d['child']}…"))
         elif s == Status.SUBSTEP:
-            line(sub(f"{d.get('name', ev.detail)} — {d.get('type', '')} "
+            line(sub(f"{d.get('name', ev.detail)} - {d.get('type', '')} "
                      f"→ extracting…"))
         elif s == Status.OK:
             line(sub(okc(f"{g['ok']} {ev.detail}")))
@@ -318,7 +318,7 @@ def render_event(ev: PhaseEvent, color: Optional[bool] = None, file=None) -> Non
         if role == "SETASIDE":
             line(sub(_c(ev.detail, _DIM, use)))
         elif role == "DOC":
-            line(sub(f"{name} — reference document (kept, not analyzed)"))
+            line(sub(f"{name} - reference document (kept, not analyzed)"))
         elif s == Status.SUBSTEP:          # collapsed non-evidence skip summary
             line(sub(_c(ev.detail, _DIM, use)))
         elif s == Status.OK:
@@ -375,13 +375,13 @@ def render_event(ev: PhaseEvent, color: Optional[bool] = None, file=None) -> Non
     if p == Phase.ADVISE:
         if s == Status.START:
             line(head(warnc(ev.detail or "Hit something my probes don't "
-                            "recognize — asking the AI advisor…")))
+                            "recognize - asking the AI advisor…")))
         elif s == Status.SUBSTEP:
             line(sub(f"suggested: {d.get('suggestion', '?')} "
                      "→ verifying with a probe…"))
         elif s == Status.OK:
             line(sub(okc(f"{g['ok']} verified, applying")))
-        else:  # WARN / FAIL — never a success glyph
+        else:  # WARN / FAIL - never a success glyph
             detail = ev.detail or "suggestion didn't verify → marking UNSUPPORTED"
             line(sub(failc(f"{g['fail']} {detail} (with guidance)")))
         return
@@ -406,29 +406,29 @@ def case_card(manifest: CaseManifest, number: int = 1,
         h, v = "-", "|"
 
     def bn(p):
-        return os.path.basename(p) if p else "—"
+        return os.path.basename(p) if p else "-"
 
     # Findings (basenames + state symbols).
     if manifest.memory_path:
         hh = manifest.memory_health
         state = ("✓ HEALTHY" if hh == "HEALTHY"
-                 else "⚠ DEGRADED" if hh == "DEGRADED" else "— unknown")
+                 else "⚠ DEGRADED" if hh == "DEGRADED" else "- unknown")
         mem_val = f"{bn(manifest.memory_path)}   {state}"
     else:
-        mem_val = "—"
+        mem_val = "-"
     if manifest.disk_path:
         dstate = (f"✓ mounted ({manifest.mount_method})"
                   if manifest.disk_mounted else "✗ not mounted")
         disk_val = f"{bn(manifest.disk_path)}   {dstate}"
     else:
-        disk_val = "—"
+        disk_val = "-"
     prof = manifest.os_profile or {}
-    disk_os_disp = prof.get("disk") or ("undetermined" if manifest.disk_path else "—")
-    mem_os_disp = prof.get("memory") or "—"
+    disk_os_disp = prof.get("disk") or ("undetermined" if manifest.disk_path else "-")
+    mem_os_disp = prof.get("memory") or "-"
     mem_present = bool(manifest.memory_path)
     disk_present = bool(manifest.disk_path)
     # OS row + a guardrail SCOPE row, keyed on which sources are present. A single
-    # source is NOT a disagreement — only a PAIRED mismatch is flagged with ⚠
+    # source is NOT a disagreement - only a PAIRED mismatch is flagged with ⚠
     # (often the sign of a mis-mounted/mis-paired disk or a misread hive).
     if mem_present and disk_present:
         if prof.get("agree"):
@@ -440,28 +440,28 @@ def case_card(manifest: CaseManifest, number: int = 1,
             # so it is shown as a quiet note, never an alarm.
             os_val = (f"{_short_os(mem_os_disp)} · per memory "
                       f"(disk hive reads {_short_os(disk_os_disp)})")
-        scope_val = "memory + disk — full analysis"
+        scope_val = "memory + disk - full analysis"
     elif mem_present:
         os_val = f"memory-only · {_short_os(mem_os_disp)}"
-        scope_val = "memory-only — no disk artifacts (MFT/registry/timeline/Amcache)"
+        scope_val = "memory-only - no disk artifacts (MFT/registry/timeline/Amcache)"
     elif disk_present:
         os_val = f"disk-only · {_short_os(disk_os_disp)}"
-        scope_val = "disk-only — no memory detections (injection/proc-tree/netscan)"
+        scope_val = "disk-only - no memory detections (injection/proc-tree/netscan)"
     else:
-        os_val = "—"
-        scope_val = "—"
+        os_val = "-"
+        scope_val = "-"
     basis_bits = []
     if manifest.memory_path:
         basis_bits.append("mem: vol3 windows.info")
     if manifest.disk_path:
         basis_bits.append("disk: fsstat" + ("+ntfs-3g" if manifest.disk_mounted else ""))
-    basis_val = " · ".join(basis_bits) or "—"
+    basis_val = " · ".join(basis_bits) or "-"
 
     # No Notes row: reference documents are kept on the manifest but never clutter
     # the card (they repeated identically on every case in a multi-host folder).
     rows = [("Memory", mem_val), ("Disk", disk_val), ("OS", os_val),
             ("Scope", scope_val), ("Basis", basis_val)]
-    titlecore = f"CASE {number} — {manifest.os}"
+    titlecore = f"CASE {number} - {manifest.os}"
     title_seg = f"{h} {titlecore} {h}"
 
     cap = max(40, shutil.get_terminal_size((100, 40)).columns - 1)
@@ -493,12 +493,12 @@ def ready_prompt(cases: list, color: Optional[bool] = None, file=None) -> str:
     use = _resolve_color(color, file)
     head = _c("Everything verified and ready.", _BCYAN, use)
     if len(cases) > 1:
-        sel = _c(f"   ▸ {len(cases)} cases ready — type the case NUMBER at the top "
+        sel = _c(f"   ▸ {len(cases)} cases ready - type the case NUMBER at the top "
                  "of a card to run it (e.g. 1).", _CYAN, use)
         opts = _c("     number = run that case · A = onboard another · Q = quit",
                   _DIM, use)
         return "\n".join([head, sel, opts])
-    sel = _c("   ▸ One case ready — choose analysis depth next, then it runs.",
+    sel = _c("   ▸ One case ready - choose analysis depth next, then it runs.",
              _CYAN, use)
     opts = _c("     A = onboard another · Q = quit", _DIM, use)
     return "\n".join([head, sel, opts])

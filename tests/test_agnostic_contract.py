@@ -14,13 +14,13 @@ import re
 SRC_ROOT = pathlib.Path(__file__).resolve().parents[1] / "src"
 
 
-# Tokens that should NEVER appear in source — specific datasets/scenarios.
+# Tokens that should NEVER appear in source - specific datasets/scenarios.
 FORBIDDEN_DATASET: list[str] = [
     "CRIMSON", "OSPREY", "Stark Research", "wkstn-01",
     "BASE" "-RD" "-01", "BASE" "-RD" "-02",
 ]
 
-# Specific malware families / actor groups — AI may output these,
+# Specific malware families / actor groups - AI may output these,
 # code/prompts must not prime AI toward them.
 FORBIDDEN_ATTRIBUTION: list[str] = [
     "Cobalt Strike",
@@ -28,7 +28,7 @@ FORBIDDEN_ATTRIBUTION: list[str] = [
     "Lazarus", "FIN7", "Conti", "Ryuk", "LockBit",
 ]
 
-# Specific scenario artifacts — may appear in test fixtures, never in src/.
+# Specific scenario artifacts - may appear in test fixtures, never in src/.
 FORBIDDEN_SCENARIO_ARTIFACTS: list[str] = [
     "sample_payload.exe", "examples.ps1.rar", "M&A Targets",
     "198.51.100.129",

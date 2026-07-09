@@ -182,7 +182,7 @@ def test_synthetic_typed_evidencedb_gate():
     assert len(tf["process_relationship_fact"]) >= 1
     assert len(tf["network_connection_fact"]) == 1
     assert len(tf["memory_injection_fact"]) == 1
-    # SLOT 31AP: _c_mft routing fixed — MFT now emits filesystem_timeline_fact,
+    # SLOT 31AP: _c_mft routing fixed - MFT now emits filesystem_timeline_fact,
     # file_execution_fact is amcache-only (semantically correct).
     assert len(tf["file_execution_fact"]) == 1  # amcache only
     assert len(tf["filesystem_timeline_fact"]) == 1  # mft

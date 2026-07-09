@@ -1,4 +1,4 @@
-"""Tests for the optional AI advisor — the off-critical-path escape hatch.
+"""Tests for the optional AI advisor - the off-critical-path escape hatch.
 
 Guarantees proven here:
   * no key  -> available() is False instantly, with NO network call; a normal

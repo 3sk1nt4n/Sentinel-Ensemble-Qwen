@@ -1,16 +1,16 @@
 """Late-benign reconciliation backstop (universal, structural).
 
-Live bug (Opus rd01-style run): a finding the system itself assessed BENIGN —
+Live bug (Opus rd01-style run): a finding the system itself assessed BENIGN -
 either ReAct `react_conclusion.verdict == confirmed_benign` / `is_false_positive`,
-or the `_fp_routing_benign` entity-propagation flag — stayed in
+or the `_fp_routing_benign` entity-propagation flag - stayed in
 `suspicious_needs_review` because the benign signal was finalized by a pass that
 runs AFTER `route_findings_for_report` built the buckets. The buckets were never
 re-derived from the final finding state.
 
 `reconcile_benign_misroutes` re-evaluates each suspicious/inconclusive finding
 with the SAME canonical `derive_final_disposition` and moves it to benign only
-when the router itself says benign. It keys on NOTHING case-specific — only the
-structural verdict fields / override flags — so a contested finding
+when the router itself says benign. It keys on NOTHING case-specific - only the
+structural verdict fields / override flags - so a contested finding
 (`react_entity_conflict`) is never moved, and the confirmed bucket is untouched.
 """
 import os
@@ -74,7 +74,7 @@ def test_no_benign_signal_stays_suspicious():
 
 def test_react_entity_conflict_overrides_benign_NOT_moved():
     # CRITICAL: a finding flagged with a contradicting entity must NOT be moved
-    # even if it carries a benign react_conclusion — the override precedence in
+    # even if it carries a benign react_conclusion - the override precedence in
     # derive_final_disposition keeps it in suspicious.
     b = _empty()
     b[BUCKET_SUSPICIOUS].append({

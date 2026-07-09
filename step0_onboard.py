@@ -81,7 +81,7 @@ from sift_sentinel.onboard.engine import (
 
 # ── FIND wiring ──────────────────────────────────────────────────────────────
 # Source default stays False. The EFFECTIVE state is _find_wired(), which also
-# honors env SIFT_FIND_WIRED=1 and the --wire CLI flag — so going live needs no
+# honors env SIFT_FIND_WIRED=1 and the --wire CLI flag - so going live needs no
 # source edit:  SIFT_FIND_WIRED=1 python3 step0_onboard.py <folder>
 FIND_WIRED = False
 _WIRE_OVERRIDE = False           # set True by --wire
@@ -395,7 +395,7 @@ def parse_mode_choice(raw: str) -> Optional[dict]:
 
 def parse_card_choice(raw: str, n: int):
     """A ready-cards selection: a 1-based case NUMBER, or 'a'/'q', or None to
-    re-ask. 'just give the card number at the top' — e.g. 11 -> case 11."""
+    re-ask. 'just give the card number at the top' - e.g. 11 -> case 11."""
     t = _clean_input(raw).strip().lower()
     if t in _ANOTHER:
         return "a"
@@ -434,14 +434,14 @@ def validate_api_key(key: str) -> tuple:
     if _qwen_mode():
         # DashScope (Qwen Cloud) keys: 'sk-…' (NOT 'sk-ant-…'), URL-safe + dots.
         if k.startswith("sk-ant-"):
-            return False, ("looks like an ANTHROPIC key (sk-ant-…) — the Qwen "
+            return False, ("looks like an ANTHROPIC key (sk-ant-…) - the Qwen "
                            "path needs your DashScope key from Model Studio")
         if not k.startswith("sk-"):
             return False, "must start with 'sk-' (got '%s…')" % k[:6]
         if len(k) < 20:
-            return False, "too short — %d chars (a DashScope key is longer)" % len(k)
+            return False, "too short - %d chars (a DashScope key is longer)" % len(k)
         if len(k) > 250:
-            return False, ("too long — %d chars. Did you paste it twice or "
+            return False, ("too long - %d chars. Did you paste it twice or "
                            "include extra text?" % len(k))
         if not re.fullmatch(r"[A-Za-z0-9_\-.]+", k):
             return False, "has characters a DashScope key never contains"
@@ -450,13 +450,13 @@ def validate_api_key(key: str) -> tuple:
         return False, "must start with 'sk-ant-' (got '%s…')" % k[:6]
     _n = k.count("sk-ant-")
     if _n > 1:
-        return False, ("looks pasted %d× — %d chars with %d 'sk-ant-' prefixes "
+        return False, ("looks pasted %d× - %d chars with %d 'sk-ant-' prefixes "
                        "(a key is ONE ~100-char value)" % (_n, len(k), _n))
     if len(k) > 150:
-        return False, ("too long — %d chars (a key is ~100). Did you paste it twice "
+        return False, ("too long - %d chars (a key is ~100). Did you paste it twice "
                        "or include extra text?" % len(k))
     if len(k) < 40:
-        return False, "too short — %d chars (an Anthropic key is ~100)" % len(k)
+        return False, "too short - %d chars (an Anthropic key is ~100)" % len(k)
     if not re.fullmatch(r"[A-Za-z0-9_\-]+", k):
         return False, "has characters an Anthropic key never contains"
     return True, ""
@@ -607,17 +607,17 @@ _VISIBLE_KEY_FILE_TEMPLATE = (
     "# ─────────────────────────────────────────────────────────────────────────────\n"
     "#  Paste YOUR key on the LAST line below (replace the placeholder), then SAVE.\n"
     "#  Get one at  https://console.anthropic.com  →  API keys  →  Create key.\n"
-    "#  Read locally only — never uploaded, logged, or committed (this file is\n"
+    "#  Read locally only - never uploaded, logged, or committed (this file is\n"
     "#  gitignored). Or skip this file: ./setup.sh run asks once at a hidden prompt.\n"
     "#\n"
     "# ─────────────────────────────────────────────────────────────────────────────\n"
-    "#  ⚠️  API USAGE TIER — IMPORTANT\n"
+    "#  ⚠️  API USAGE TIER - IMPORTANT\n"
     "#  The analysis stage runs a 4-MODEL ENSEMBLE in parallel (4 concurrent API\n"
     "#  calls), plus the other invocations. A Tier-1 account ($5) is likely to hit\n"
     "#  rate limits (HTTP 429) on those parallel calls.\n"
-    "#    • Tier 1  ($5)   — fine for `--demo`; will rate-limit the live ensemble\n"
-    "#    • Tier 2  ($40)  — recommended minimum for a full live run\n"
-    "#    • Tier 3  ($200) — smoothest (no throttling on parallel calls)\n"
+    "#    • Tier 1  ($5)   - fine for `--demo`; will rate-limit the live ensemble\n"
+    "#    • Tier 2  ($40)  - recommended minimum for a full live run\n"
+    "#    • Tier 3  ($200) - smoothest (no throttling on parallel calls)\n"
     "#  Your tier auto-increases with account age + spend; check it at\n"
     "#  console.anthropic.com  →  Plans & Billing.\n"
     "#  (Optional) Lower cost: pick \"2\" (LIGHT / Haiku) at the depth prompt, or\n"
@@ -634,11 +634,11 @@ _VISIBLE_KEY_FILE_TEMPLATE_QWEN = (
     "#  Paste YOUR key on the LAST line below (replace the placeholder), then SAVE.\n"
     "#  Get one at  https://qwencloud.com  →  Model Studio (Singapore/Intl region)\n"
     "#  →  API Keys  →  Create API Key.\n"
-    "#  Read locally only — never uploaded, logged, or committed (this file is\n"
+    "#  Read locally only - never uploaded, logged, or committed (this file is\n"
     "#  gitignored). Or skip this file: ./setup.sh run asks once at a hidden prompt.\n"
     "#\n"
     "#  Cost expectations (measured on the reference paired case): a full LIGHT\n"
-    "#  run ~$0.28 (qwen-plus), a full HEAVY run ~$1.53 (qwen3.7-max) — the $40\n"
+    "#  run ~$0.28 (qwen-plus), a full HEAVY run ~$1.53 (qwen3.7-max) - the $40\n"
     "#  hackathon voucher covers many runs. `--demo` is free (no key needed).\n"
     "# ─────────────────────────────────────────────────────────────────────────────\n"
     "\n"
@@ -781,7 +781,7 @@ def _ensure_api_key(getpass_fn=None, max_tries: int = 3, verifier=None) -> bool:
             _src = _flabel
     existing = os.environ.get(_env_name)
     print(_c("\n  🔑 API key", "1;33")
-          + _c("  (hidden — never shown, this session only)", "2"))
+          + _c("  (hidden - never shown, this session only)", "2"))
     # Frictionless skip: a key already configured (environment, .env, or API_KEY.txt)
     # that the API accepts needs no paste at all -- confirm and move on. Set
     # SIFT_FORCE_KEY_PROMPT=1 to always show the paste step instead.
@@ -800,13 +800,13 @@ def _ensure_api_key(getpass_fn=None, max_tries: int = 3, verifier=None) -> bool:
                 print(_c("  ✓ using the verified key in %s." % _flabel, "1;32"))
                 return True
             _ph_hint = ("sk-your-dashscope-key…" if _qwen_mode() else "sk-ant-xxxx…")
-            print(_c("  ⚠ %s still has the placeholder key (%s) — replace it "
+            print(_c("  ⚠ %s still has the placeholder key (%s) - replace it "
                      "with your real key. Paste one below for this run:" % (_src, _ph_hint), "1;33"))
             existing = None
         else:
             status = verify(existing)
             if status == "ok":
-                print(_c("  ✓ API key found in %s and verified — skipping the paste step." % _src, "1;32"))
+                print(_c("  ✓ API key found in %s and verified - skipping the paste step." % _src, "1;32"))
                 return True
             if status == "unverified":
                 print(_c("  ✓ using the API key in %s" % _src, "32")
@@ -818,10 +818,10 @@ def _ensure_api_key(getpass_fn=None, max_tries: int = 3, verifier=None) -> bool:
             _fk, _flabel = _first_verifying_file_key(verify, exclude=existing)
             if _fk:
                 os.environ[_env_name] = _fk
-                print(_c("  ✓ the key in %s was rejected, but %s has a valid one — using it."
+                print(_c("  ✓ the key in %s was rejected, but %s has a valid one - using it."
                          % (_src, _flabel), "1;32"))
                 return True
-            print(_c("  ✗ the API key in %s was rejected (401 invalid x-api-key) — paste a "
+            print(_c("  ✗ the API key in %s was rejected (401 invalid x-api-key) - paste a "
                      "valid one below." % _src, "31"))
             existing = None
     # Key-file discoverability: if we reach the prompt with no usable key, the judge
@@ -832,7 +832,7 @@ def _ensure_api_key(getpass_fn=None, max_tries: int = 3, verifier=None) -> bool:
             not in ("0", "false", "no", "off"):
         _ensure_visible_key_file()
         _kf = os.path.join(_REPO, _VISIBLE_KEY_FILE)
-        print(_c("  ▸ Paste your key at the prompt below — nothing to find or edit.", "2"))
+        print(_c("  ▸ Paste your key at the prompt below - nothing to find or edit.", "2"))
         print(_c("    Prefer a file? Open this visible file, paste your key on its own "
                  "line, and save:", "2"))
         print("        " + _c(_kf, "36"))
@@ -851,24 +851,24 @@ def _ensure_api_key(getpass_fn=None, max_tries: int = 3, verifier=None) -> bool:
                 # most common 401 cause. A rejection forces a fresh paste.
                 if verify(existing) == "rejected":
                     print(_c("  ✗ the key already in your environment was rejected by the "
-                             "API (401 invalid x-api-key) — paste a valid one below.", "31"))
+                             "API (401 invalid x-api-key) - paste a valid one below.", "31"))
                     existing = None
                     continue
                 print(_c("  ✓ using the key already in your environment (hidden).", "32"))
                 return True
-            print(_c("  ✗ no API key provided — cannot launch.", "31"))
+            print(_c("  ✗ no API key provided - cannot launch.", "31"))
             return False
         ok, why = validate_api_key(key)
         if not ok:
-            tail = (" — or press Enter to use the existing key" if existing else "")
+            tail = (" - or press Enter to use the existing key" if existing else "")
             _lbl = ("a Qwen Cloud (DashScope)" if _qwen_mode() else "an Anthropic")
             print(_c("  ✗ that doesn't look like %s key: %s. Try again%s."
                      % (_lbl, why, tail), "31"))
             continue
         status = verify(key)
         if status == "rejected":
-            tail = (" — or press Enter to use the existing key" if existing else "")
-            print(_c("  ✗ the API rejected that key (401 invalid x-api-key) — it may be "
+            tail = (" - or press Enter to use the existing key" if existing else "")
+            print(_c("  ✗ the API rejected that key (401 invalid x-api-key) - it may be "
                      "revoked or for the wrong workspace. Paste a valid one%s." % tail, "31"))
             continue
         os.environ[_env_name] = key
@@ -879,7 +879,7 @@ def _ensure_api_key(getpass_fn=None, max_tries: int = 3, verifier=None) -> bool:
             print(_c("  ✓ key format looks valid (%s, %d chars)." % (_pfx, len(key)), "32")
                   + _c("  (could not verify online; proceeding)", "2"))
         return True
-    print(_c("  ✗ no valid API key after %d attempts — cannot launch." % max_tries, "31"))
+    print(_c("  ✗ no valid API key after %d attempts - cannot launch." % max_tries, "31"))
     return False
 
 
@@ -887,7 +887,7 @@ def render_mode_menu() -> str:
     """A fancy, colorful depth menu that names the actual model/version."""
     w = 64
     top = "  " + _c("╭" + "─" * w + "╮", "36")
-    titletxt = "  CHOOSE  ANALYSIS  DEPTH  —  how hard should the AI think?"
+    titletxt = "  CHOOSE  ANALYSIS  DEPTH  -  how hard should the AI think?"
     title = "  " + _c("│", "36") + _c(titletxt.ljust(w), "1;36") + _c("│", "36")
     bot = "  " + _c("╰" + "─" * w + "╯", "36")
     lines = ["", top, title, bot, ""]
@@ -919,7 +919,7 @@ def _clear_screen() -> None:
 def choose_mode(input_fn=None):
     """Prompt for analysis depth. Returns a mode dict, ``"back"`` (go back a step),
     or None (quit/EOF). Enter = Heavy (default). Every step has an escape: B=back,
-    Q=quit — so a wrong keypress never traps the user."""
+    Q=quit - so a wrong keypress never traps the user."""
     input_fn = input_fn or _safe_input
     print(render_mode_menu())
     while True:
@@ -945,7 +945,7 @@ def warm_sha_async(manifest: CaseManifest):
     pipeline's Step-1 fingerprint (a cold multi-GB hash, ~20-40 s) is instant. Hashing
     overlaps the user picking depth + pasting the key (dead time). Returns the temp
     JSON path immediately; the file appears ATOMICALLY only when hashing finishes, so
-    the pipeline either reuses a complete file or falls back to a full re-hash — never
+    the pipeline either reuses a complete file or falls back to a full re-hash - never
     a partial read. Byte-identical to the pipeline (sha256, full file)."""
     import hashlib
     import json
@@ -1031,7 +1031,7 @@ def scrub_shell_history(histfile: Optional[str] = None) -> int:
 
 def _do_find(manifest: CaseManifest, wired: bool, mode: Optional[dict] = None,
              runner=subprocess.run, input_fn=None, getpass_fn=None):
-    """Launch run_pipeline.py for the chosen case + reasoning mode — never a dead
+    """Launch run_pipeline.py for the chosen case + reasoning mode - never a dead
     end. Confirms (GO/back/cancel), collects a HIDDEN API key if none is set,
     CLEARS the screen so the key/scrollback are not left visible, then execs with
     the mode's model env. Returns the TRUE returncode, or 'back', or None.
@@ -1054,7 +1054,7 @@ def _do_find(manifest: CaseManifest, wired: bool, mode: Optional[dict] = None,
             ans = input_fn(_c("  ▸ Start the hunt now? ", "1;36")
                            + "[" + _c("GO", "1;32") + " / back / cancel]: ")
             if ans is None:                       # closed stdin / EOF -> effective cancel
-                print(_c("  ✗ cancelled — nothing launched.", "31"))
+                print(_c("  ✗ cancelled - nothing launched.", "31"))
                 return None
             a = _clean_input(ans).strip().lower()
             if a in ("", "go", "g", "y", "yes", "start", "run", "find evil", "findevil"):
@@ -1062,15 +1062,15 @@ def _do_find(manifest: CaseManifest, wired: bool, mode: Optional[dict] = None,
             if a in _BACK or a in _ANOTHER:
                 return "back"
             if a in _QUIT or a in ("cancel", "c", "n", "no", "stop", "abort"):
-                print(_c("  ✗ cancelled — nothing launched.", "31"))
+                print(_c("  ✗ cancelled - nothing launched.", "31"))
                 return None
             # unrecognized -> warn + re-ask (no accidental cancel on a typo)
-            print("  " + _c("⚠ didn't catch \"%s\" — type " % ans.strip()[:24], "33")
+            print("  " + _c("⚠ didn't catch \"%s\" - type " % ans.strip()[:24], "33")
                   + _c("GO", "1;32") + _c(" to start · ", "2")
                   + _c("back", "1;36") + _c(" to pick another case · ", "2")
                   + _c("cancel", "31") + _c(" to abort", "2"))
     if not _ensure_api_key(getpass_fn):
-        print(_c("  ✗ No API key — cannot launch. Choose this case again to retry.", "31"))
+        print(_c("  ✗ No API key - cannot launch. Choose this case again to retry.", "31"))
         return None
     _clear_screen()
     # Security guardrail: scrub any key-bearing line from shell history before the
@@ -1103,7 +1103,7 @@ def _safe_input(prompt: str) -> Optional[str]:
     """input() that returns None on EOF/closed/detached stdin instead of raising.
 
     EOFError is the closed-pipe case; OSError covers a detached or
-    capture-redirected stdin (e.g. under pytest) — both mean "no answer
+    capture-redirected stdin (e.g. under pytest) - both mean "no answer
     available", so callers treat None as a decline rather than crashing."""
     try:
         return input(prompt)
@@ -1175,7 +1175,7 @@ def _read_action(input_fn=_safe_input, prompt: str = _MENU_PROMPT) -> str:
             if confirm is not None and _normalize(confirm) in ("", "y", "yes"):
                 return "find"
             continue                         # declined / unclear -> re-ask the menu
-        print("  (didn't catch that — type 'Find Evil', A, Q, or H)")
+        print("  (didn't catch that - type 'Find Evil', A, Q, or H)")
 
 
 def _make_sink(verbose: bool):
@@ -1283,7 +1283,7 @@ def _multi_add(first: str, probes: Probes, input_fn=None) -> list:
             print(f"  • already added: {os.path.basename(p)} (ignored)")
             return
         collected.append(p)
-        print(f"  • added: {os.path.basename(p)} — {_quick_role(p, probes)}")
+        print(f"  • added: {os.path.basename(p)} - {_quick_role(p, probes)}")
 
     add(first)
     while True:
@@ -1297,7 +1297,7 @@ def _multi_add(first: str, probes: Probes, input_fn=None) -> list:
             break
         t = os.path.expandvars(os.path.expanduser(t))
         if not os.path.exists(t):
-            print(f"  …can't find that path — skipping: {t}")
+            print(f"  …can't find that path - skipping: {t}")
             continue
         add(t)
     return collected
@@ -1323,7 +1323,7 @@ def _pick_and_run(cases: list, wired: bool, input_fn=None) -> Optional[str]:
         if len(cases) == 1:
             chosen = cases[0]
         else:
-            raw = input_fn(f"▸ Which case to run? number 1–{len(cases)} "
+            raw = input_fn(f"▸ Which case to run? number 1-{len(cases)} "
                            "· A=another · Q=quit: ")
             c = parse_card_choice(raw, len(cases))
             if c == "a":
@@ -1331,7 +1331,7 @@ def _pick_and_run(cases: list, wired: bool, input_fn=None) -> Optional[str]:
             if c == "q" or raw is None:
                 return None
             if c is None:
-                print(f"  (just type the case number, 1–{len(cases)} — or A / Q)")
+                print(f"  (just type the case number, 1-{len(cases)} - or A / Q)")
                 continue
             chosen = cases[c - 1]
         # Warm the Step-1 SHA in the background NOW, so it overlaps the depth menu +
@@ -1363,16 +1363,16 @@ def format_plan(m: CaseManifest) -> str:
     agree = "yes" if prof.get("agree") else "no"
     cmd = " ".join(find_command_display(m))
     lines = [
-        "DRY RUN — onboarding plan (no pipeline executed)",
+        "DRY RUN - onboarding plan (no pipeline executed)",
         "",
         f"  Case id    : {m.case_id}",
-        f"  Memory     : {m.memory_path or '—'}  [{m.memory_health or 'none'}]",
-        f"  Disk       : {m.disk_path or '—'}",
-        f"  Disk mount : {m.mount_path or '—'}  (method: {m.mount_method or 'none'})",
+        f"  Memory     : {m.memory_path or '-'}  [{m.memory_health or 'none'}]",
+        f"  Disk       : {m.disk_path or '-'}",
+        f"  Disk mount : {m.mount_path or '-'}  (method: {m.mount_method or 'none'})",
         "  OS profile :",
-        f"     memory  : {prof.get('memory') or '—'}"
-        "   [vol3 windows.info — authoritative]",
-        f"     disk    : {prof.get('disk') or ('undetermined' if m.disk_path else '—')}"
+        f"     memory  : {prof.get('memory') or '-'}"
+        "   [vol3 windows.info - authoritative]",
+        f"     disk    : {prof.get('disk') or ('undetermined' if m.disk_path else '-')}"
         "   [SOFTWARE-hive ProductName]",
         f"     agree   : {agree}",
         f"     chosen  : {prof.get('os', m.os)}"
@@ -1388,7 +1388,7 @@ def run_plan(path: Optional[str] = None, probes: Optional[Probes] = None,
              show_banner: bool = True, verbose: bool = False) -> int:
     """--dry-run / --plan: full onboarding, then PRINT the plan instead of exec.
 
-    Independent of the FIND_WIRED gate — this code path NEVER executes the
+    Independent of the FIND_WIRED gate - this code path NEVER executes the
     pipeline. Quiet by default (card + resolved command); --verbose adds the
     full OS-profile plan. Always runs cleanup(); returns 0 (1 if no evidence).
     """
@@ -1403,7 +1403,7 @@ def run_plan(path: Optional[str] = None, probes: Optional[Probes] = None,
                 return 0
         cases = onboard(path, on_event=sink, ai=Advisor(), probes=probes)
         if not cases:
-            print("  Nothing to plan — no usable evidence found.")
+            print("  Nothing to plan - no usable evidence found.")
             return 1
         for i, c in enumerate(cases, 1):
             print()
@@ -1417,7 +1417,7 @@ def run_plan(path: Optional[str] = None, probes: Optional[Probes] = None,
                       "▸ Type  Find Evil  to start the hunt.")
                 print("  " + " ".join(find_command_display(c)))
                 if not _find_wired():
-                    print("  (staged — not launched. "
+                    print("  (staged - not launched. "
                           "Set FIND_WIRED=True to run live.)")
         return 0
     finally:
@@ -1487,7 +1487,7 @@ def run_interactive(initial_path: Optional[str] = None,
             signal.signal(signal.SIGINT, signal.SIG_IGN)
         except Exception:
             pass
-        print("\n  Interrupted — stopping running tools…")
+        print("\n  Interrupted - stopping running tools…")
     finally:
         # Belt-and-suspenders: ignore Ctrl-C during teardown regardless of how we got here.
         try:

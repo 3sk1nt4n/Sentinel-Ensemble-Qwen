@@ -319,7 +319,7 @@ def test_engine_emits_extract_for_archive():
     onboard("/syn/Evidence.zip", on_event=rec, ai=None,
             probes=_single_case_probes())
     extract = rec.of(Phase.EXTRACT)
-    assert any(e.status == Status.SUBSTEP for e in extract)   # "X — ZIP → extracting…"
+    assert any(e.status == Status.SUBSTEP for e in extract)   # "X - ZIP → extracting…"
     ok = [e for e in extract if e.status == Status.OK]
     assert ok and ok[0].data.get("count", 0) >= 1             # collapsed count
 
@@ -417,7 +417,7 @@ def test_engine_os_event_carries_both_sources():
     os_ev = rec.of(Phase.OS_DETECT)[0]
     assert os_ev.data["memory"] is not None
     # Disk OS now comes from the SOFTWARE hive (here a genuinely-XP disk),
-    # not fsstat's "Version" line — and it disagrees with the NT 10.0 memory.
+    # not fsstat's "Version" line - and it disagrees with the NT 10.0 memory.
     assert os_ev.data["disk"] == "Windows XP (NT 5.1)"
     assert os_ev.data["agree"] is False
     assert cases[0].os_profile["agree"] is False
@@ -452,7 +452,7 @@ def test_dry_run_quiet_is_clean(capsys):
     assert ".xml" not in out
     assert "asking the AI advisor" not in out
     assert "python3 run_pipeline.py --live --inv2-ensemble" in out
-    assert "(staged — not launched" in out
+    assert "(staged - not launched" in out
     assert probes.cleaned is True
 
 

@@ -1,4 +1,4 @@
-"""Tool-status-noise suppressor — universal, conservative, downgrade-only.
+"""Tool-status-noise suppressor - universal, conservative, downgrade-only.
 
 The live acme run emitted 6 non-findings that merely narrate a tool's own
 execution status: four 'vol_hollowprocesses timed out' (F014/F025/F042/F051) and

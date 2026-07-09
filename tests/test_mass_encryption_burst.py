@@ -1,4 +1,4 @@
-"""#1 mass-encryption burst (T1486) — the vocabulary-free ransomware lever.
+"""#1 mass-encryption burst (T1486) - the vocabulary-free ransomware lever.
 
 In-place ransomware encryption leaves a corpus fingerprint: one FOREIGN extension
 appended across MANY files of DIVERSE original data types (report.docx.<enc>,

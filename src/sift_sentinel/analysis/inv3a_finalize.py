@@ -1,4 +1,4 @@
-"""Inv3a finalization pass — Step 13AA, the consolidated replacement for the
+"""Inv3a finalization pass - Step 13AA, the consolidated replacement for the
 per-finding self-correction (SC) loop.
 
 WHY this exists
@@ -18,7 +18,7 @@ SAFETY CONTRACT (preserves defense-layer 7 "code checks AI, not AI checks AI")
     ``confirmed_malicious_atomic`` and clear benign are never re-judged.
   * Downgrade / reclassify / escalate-to-review only.  Promotion INTO
     ``confirmed_malicious_atomic`` requires the finding to be ALREADY
-    deterministically eligible (``eligibility_fn``) — the AI only breaks ties
+    deterministically eligible (``eligibility_fn``) - the AI only breaks ties
     among code-permitted buckets; it never manufactures a confirmation.  With no
     ``eligibility_fn`` promotion is impossible (fully fail-closed).
   * Fail-closed: an unparseable / missing / out-of-vocabulary verdict keeps the
@@ -27,7 +27,7 @@ SAFETY CONTRACT (preserves defense-layer 7 "code checks AI, not AI checks AI")
     testable with a fake.  Input buckets are never mutated.
 
 UNIVERSAL: keys on bucket names + the four OS-agnostic disposition tokens + an
-eligibility predicate.  No case data — works on any evidence set.
+eligibility predicate.  No case data - works on any evidence set.
 """
 from __future__ import annotations
 

@@ -1,5 +1,5 @@
 """The evidence-intake prompt is a fancy glowing-orange banner on a color TTY,
-and a clean ANSI-free version when redirected (tests / pipes). Universal UI —
+and a clean ANSI-free version when redirected (tests / pipes). Universal UI -
 no case data, works for every case."""
 import re
 

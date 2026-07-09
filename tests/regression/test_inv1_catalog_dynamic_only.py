@@ -12,7 +12,7 @@ import sift_sentinel.coordinator as c
 from sift_sentinel.tools.capabilities import get_capability
 from sift_sentinel.tool_semantics import format_grouped_inv1_tool_catalog
 
-_CATALOG_LINE = re.compile(r"(?m)^- (\S+) — .*\| platform=")
+_CATALOG_LINE = re.compile(r"(?m)^- (\S+) - .*\| platform=")
 
 
 def _advertised(catalog_text):

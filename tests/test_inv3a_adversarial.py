@@ -2,7 +2,7 @@
 
 These pin the SAFETY contract against a HOSTILE adjudicator (the AI cannot be
 trusted to be well-behaved) and prove the pass is dataset-agnostic. Distinct from
-test_inv3a_finalize.py (happy-path contract) — here every input is chosen to try
+test_inv3a_finalize.py (happy-path contract) - here every input is chosen to try
 to BREAK fail-closed behaviour or smuggle in case assumptions.
 """
 import copy

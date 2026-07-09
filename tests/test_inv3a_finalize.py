@@ -1,4 +1,4 @@
-"""Inv3a finalization pass (the "new SC") — Step 13AA.
+"""Inv3a finalization pass (the "new SC") - Step 13AA.
 
 Replaces the per-finding generative self-correction loop (Handler A, fact-level,
 empirically 0 recoveries + ~45% of run input tokens) with ONE discriminative

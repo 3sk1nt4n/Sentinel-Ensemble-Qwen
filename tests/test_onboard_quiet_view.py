@@ -1,5 +1,5 @@
 """Quiet (default) view shows ONLY memory/disk classifications + one 'set aside'
-summary — never a per-file wall of documents/plaso/UNKNOWN noise. Verbose surfaces
+summary - never a per-file wall of documents/plaso/UNKNOWN noise. Verbose surfaces
 the detail. Generic names only.
 """
 import io

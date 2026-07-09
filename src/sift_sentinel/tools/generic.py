@@ -1044,7 +1044,7 @@ def _resolve_srudb_path(hint_path: str):
     """Find SRUDB.dat case-insensitively near a coordinator-supplied hint path.
 
     Returns the hint itself when it exists (fast path). Otherwise estimates
-    the mount root (3 ancestors above the hint — parents[3]) and walks from
+    the mount root (3 ancestors above the hint - parents[3]) and walks from
     there depth-bounded to 8, returning the first file whose name is
     'srudb.dat' (case-insensitive) that sits inside a path containing both
     'system32' and 'sru' directory tokens.
@@ -1066,7 +1066,7 @@ def _resolve_srudb_path(hint_path: str):
         return str(p)
     # Only attempt glob when the hint looks like a Windows SRU path (contains
     # 'system32' and/or '/sru/' tokens). Bare paths like /tmp/SRUDB.dat must
-    # fail cleanly — the walk must NOT traverse upward into system temp dirs.
+    # fail cleanly - the walk must NOT traverse upward into system temp dirs.
     hint_lower = raw.lower().replace("\\", "/")
     if "system32" not in hint_lower and "/sru/" not in hint_lower:
         return None

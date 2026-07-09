@@ -64,7 +64,7 @@ def rescue_truncated_array_json(text: str, key: str = "findings") -> dict | None
                         break
             end += 1
         if depth != 0:
-            break  # incomplete object — the truncation point; stop salvage
+            break  # incomplete object - the truncation point; stop salvage
         try:
             obj = loads_lenient(stripped[pos:end])
             if isinstance(obj, dict):

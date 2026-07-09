@@ -109,7 +109,7 @@ def test_memprocfs_catalog_position_is_near_memory_tools() -> None:
 
 def test_catalog_still_advertises_only_registered_tools() -> None:
     catalog = _render_catalog()
-    advertised = set(re.findall(r"(?m)^- (\S+) — .*\| platform=", catalog))
+    advertised = set(re.findall(r"(?m)^- (\S+) - .*\| platform=", catalog))
 
     assert advertised
     assert advertised <= set(c._TOOL_REGISTRY)

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8">
-<title>Sentinel Qwen Ensemble — How the Investigation Runs</title>
+<title>Sentinel Qwen Ensemble - How the Investigation Runs</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{width:1180px}
@@ -51,32 +51,32 @@
 </style></head>
 <body>
   <div class="head">
-    <h1>🛡️ Sentinel Qwen Ensemble — How the Investigation Runs</h1>
+    <h1>🛡️ Sentinel Qwen Ensemble - How the Investigation Runs</h1>
     <div class="sub">One autonomous run, top to bottom · Step 0 → 16 · the AI (Qwen on Alibaba Cloud DashScope) is called 5 times (✦), code checks it at every turn</div>
   </div>
   <div class="cond"><b>⚙ CONDUCTOR · run_pipeline.py · deterministic Python</b>
-    <div class="d">owns every step and is the only memory — the AI acts only inside the ✦ AI boxes, and never sees its own previous output</div>
+    <div class="d">owns every step and is the only memory - the AI acts only inside the ✦ AI boxes, and never sees its own previous output</div>
   </div>
   <div class="cond" style="border-color:#06b6d4;background:linear-gradient(135deg,#ecfeff,#cffafe)"><b>🧠 INFERENCE · Qwen models on Alibaba Cloud (DashScope)</b>
-    <div class="d">the 5 ✦ AI calls run on Qwen — <b>qwen3.7-max</b> (keystone) · <b>qwen-plus</b> (volume) — over the provider seam <b>src/sift_sentinel/llm_provider.py</b> (chosen by env; Anthropic supported as a zero-regression fallback). Evidence and tools stay local; only prompts/responses cross to Qwen Cloud.</div>
+    <div class="d">the 5 ✦ AI calls run on Qwen - <b>qwen3.7-max</b> (keystone) · <b>qwen-plus</b> (volume) - over the provider seam <b>src/sift_sentinel/llm_provider.py</b> (chosen by env; Anthropic supported as a zero-regression fallback). Evidence and tools stay local; only prompts/responses cross to Qwen Cloud.</div>
   </div>
   <div class="legend">
     <span class="lg lgA">✦ AI call</span> the 5 invocations &nbsp;·&nbsp;
     <span class="lg lgS">⭐ self-correction</span> the AI revises its own verdicts (twice) &nbsp;·&nbsp;
-    <span class="lg lgC">⚙ code</span> deterministic — checks the AI
+    <span class="lg lgC">⚙ code</span> deterministic - checks the AI
   </div>
 
   <div class="flow">
 
-    <div class="row"><div class="num">0</div><div class="box"><div class="t">📂 Onboarding — you point it at the evidence</div>
+    <div class="row"><div class="num">0</div><div class="box"><div class="t">📂 Onboarding - you point it at the evidence</div>
       <div class="p">it finds your memory + disk images, mounts them read-only, fingerprints them, checks they're healthy, and you pick the analysis depth.</div></div></div>
     <div class="arr">▼</div>
 
-    <div class="row"><div class="num">1</div><div class="box"><div class="t">▶ Start — "Tell me what happened on this system."</div>
+    <div class="row"><div class="num">1</div><div class="box"><div class="t">▶ Start - "Tell me what happened on this system."</div>
       <div class="p">one question kicks off the whole autonomous run.</div></div></div>
     <div class="arr">▼</div>
 
-    <div class="row lock"><div class="num">2</div><div class="box"><div class="t">🔒 Fingerprint #1 — SHA-256 of every evidence file</div>
+    <div class="row lock"><div class="num">2</div><div class="box"><div class="t">🔒 Fingerprint #1 - SHA-256 of every evidence file</div>
       <div class="p">takes a "before" fingerprint so we can prove nothing was changed.</div></div></div>
     <div class="arr">▼</div>
 
@@ -84,54 +84,54 @@
       <div class="p">checks the operating-system core for tampering BEFORE trusting the process list. If hooked, confidence is capped.</div></div></div>
     <div class="arr">▼</div>
 
-    <div class="row"><div class="num">4</div><div class="box"><div class="t">🧰 Tool prep — build the catalog (nothing runs yet)</div>
+    <div class="row"><div class="num">4</div><div class="box"><div class="t">🧰 Tool prep - build the catalog (nothing runs yet)</div>
       <div class="p">discovers 195 typed tools (138 Volatility plugins + disk parsers) sorted into 38 buckets.</div></div></div>
     <div class="arr">▼</div>
 
-    <div class="row ai"><div class="num">5</div><div class="box"><div class="t">AI CALL 1 — Tool selection <span class="bdg">✦ AI</span></div>
+    <div class="row ai"><div class="num">5</div><div class="box"><div class="t">AI CALL 1 - Tool selection <span class="bdg">✦ AI</span></div>
       <div class="p">the AI picks which tools to run; then deterministic code injects the must-have tools it can't skip, so coverage is guaranteed.</div></div></div>
     <div class="arr">▼</div>
 
     <div class="row"><div class="num">6</div><div class="box"><div class="t">🔌 Run tools via the MCP server</div>
-      <div class="p">Volatility 3, Sleuth Kit, EZ Tools, Plaso run as typed functions — typed JSON in/out, never a shell.</div></div></div>
+      <div class="p">Volatility 3, Sleuth Kit, EZ Tools, Plaso run as typed functions - typed JSON in/out, never a shell.</div></div></div>
     <div class="arr">▼</div>
 
-    <div class="row"><div class="num">7</div><div class="box"><div class="t">▦ EvidenceDB — pair every value to its source</div>
-      <div class="p">links each hash→file, pid→process, connection→owner — the "paired reference set" the validator checks against.</div></div></div>
+    <div class="row"><div class="num">7</div><div class="box"><div class="t">▦ EvidenceDB - pair every value to its source</div>
+      <div class="p">links each hash→file, pid→process, connection→owner - the "paired reference set" the validator checks against.</div></div></div>
     <div class="arr">▼</div>
 
-    <div class="row ai"><div class="num">8–9</div><div class="box"><div class="t">AI CALL 2 — Analysis <span class="bdg">✦ 4-MODEL ENSEMBLE</span></div>
+    <div class="row ai"><div class="num">8-9</div><div class="box"><div class="t">AI CALL 2 - Analysis <span class="bdg">✦ 4-MODEL ENSEMBLE</span></div>
       <div class="p">four AI models read the same evidence independently; only what they agree on is kept.</div></div></div>
     <div class="arr">▼</div>
 
-    <div class="row val"><div class="num">10</div><div class="box"><div class="t">🧪 Validator — code checks the AI</div>
-      <div class="p">every claim is checked against the real evidence → MATCH · MISMATCH · UNRESOLVED. A mismatch blocks the finding (not dropped — sent to Step 13AA).</div></div></div>
+    <div class="row val"><div class="num">10</div><div class="box"><div class="t">🧪 Validator - code checks the AI</div>
+      <div class="p">every claim is checked against the real evidence → MATCH · MISMATCH · UNRESOLVED. A mismatch blocks the finding (not dropped - sent to Step 13AA).</div></div></div>
     <div class="arr">▼</div>
 
-    <div class="row ai"><div class="num">11</div><div class="box"><div class="t">AI CALL 3 — ReAct investigation <span class="bdg">✦ AI</span></div>
+    <div class="row ai"><div class="num">11</div><div class="box"><div class="t">AI CALL 3 - ReAct investigation <span class="bdg">✦ AI</span></div>
       <div class="p">the AI re-investigates its own suspicious findings with live tools and can overturn its own verdict.</div>
-      <div class="sc"><b>⭐ SELF-CORRECTION #1</b> &nbsp;<span>"I flagged this — I tested it — it's actually safe." A scary alert becomes Assessed benign.</span></div></div></div>
+      <div class="sc"><b>⭐ SELF-CORRECTION #1</b> &nbsp;<span>"I flagged this - I tested it - it's actually safe." A scary alert becomes Assessed benign.</span></div></div></div>
     <div class="arr">▼</div>
 
-    <div class="row"><div class="num">12</div><div class="box"><div class="t">♻️ Claim rescue (deterministic — no AI)</div>
+    <div class="row"><div class="num">12</div><div class="box"><div class="t">♻️ Claim rescue (deterministic - no AI)</div>
       <div class="p">if a finding's link to its evidence broke, code re-attaches it instead of losing the finding.</div></div></div>
     <div class="arr">▼</div>
 
     <div class="row"><div class="num">13</div><div class="box"><div class="t">📊 Confidence calibration (code, not feelings)</div>
       <div class="p">3+ independent evidence types = HIGH · 2 = MEDIUM · 1 = LOW; seen in disk AND memory = upgraded.</div>
-      <div class="sc"><b>⭐ SELF-CORRECTION #2 · Step 13AA ⟦ AI ✦ ⟧ — final re-judge</b> &nbsp;<span>every still-uncertain finding is judged one last time — code gates promotion: no evidence, no confirm. Can rescue a missed threat, never re-litigates a settled one.</span></div></div></div>
+      <div class="sc"><b>⭐ SELF-CORRECTION #2 · Step 13AA ⟦ AI ✦ ⟧ - final re-judge</b> &nbsp;<span>every still-uncertain finding is judged one last time - code gates promotion: no evidence, no confirm. Can rescue a missed threat, never re-litigates a settled one.</span></div></div></div>
     <div class="arr">▼</div>
 
-    <div class="row ai"><div class="num">14</div><div class="box"><div class="t">AI CALL 4 — Report <span class="bdg">✦ AI</span></div>
-      <div class="p">writes the human report from the validated truth buckets — the prose can never contradict them.</div></div></div>
+    <div class="row ai"><div class="num">14</div><div class="box"><div class="t">AI CALL 4 - Report <span class="bdg">✦ AI</span></div>
+      <div class="p">writes the human report from the validated truth buckets - the prose can never contradict them.</div></div></div>
     <div class="arr">▼</div>
 
-    <div class="row lock"><div class="num">15</div><div class="box"><div class="t">🔒 Fingerprint #2 — must equal #1</div>
+    <div class="row lock"><div class="num">15</div><div class="box"><div class="t">🔒 Fingerprint #2 - must equal #1</div>
       <div class="p">the "after" fingerprint is compared to the "before." Identical = evidence never modified, proven by math.</div></div></div>
     <div class="arr">▼</div>
 
     <div class="row"><div class="num">16</div><div class="box"><div class="t">📋 Delivered</div>
-      <div class="p">a clear report — verdict, attack timeline, who did what, remediation — plus findings table, network IOCs, and a full audit trail.</div></div></div>
+      <div class="p">a clear report - verdict, attack timeline, who did what, remediation - plus findings table, network IOCs, and a full audit trail.</div></div></div>
 
   </div>
 

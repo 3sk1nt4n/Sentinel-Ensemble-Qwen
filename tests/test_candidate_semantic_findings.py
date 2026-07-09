@@ -1,4 +1,4 @@
-"""THE GENERATION FIX — deterministic emission of behavioral candidates.
+"""THE GENERATION FIX - deterministic emission of behavioral candidates.
 
 Root cause (proven in live runs): a validation-ready, non-weak behavioral
 candidate (e.g. archive_in_staging_path at prompt rank 17) produced ZERO findings

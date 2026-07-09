@@ -53,7 +53,7 @@ def test_customer_table_bucket_section_gate_repair_rewrites_stale_table(tmp_path
         "## Actionable / Needs Review\n"
         "| # | ID | Finding | IOCs / Artifacts | Tools Hit | Details |\n"
         "|---:|---|---|---|---|---|\n"
-        "| — | — | No items | — | — | — |\n\n"
+        "| - | - | No items | - | - | - |\n\n"
         "## Self-Correction / Inconclusive\n"
         "| # | ID | Finding | IOCs / Artifacts | Tools Hit | Details |\n"
         "|---:|---|---|---|---|---|\n"

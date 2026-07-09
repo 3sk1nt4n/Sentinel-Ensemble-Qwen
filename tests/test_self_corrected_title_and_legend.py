@@ -1,7 +1,7 @@
-"""Fix C — a self-corrected finding must keep its REAL name; the renderer must never
+"""Fix C - a self-corrected finding must keep its REAL name; the renderer must never
 stamp the blanket "AI self-corrected -> false positive" as a title (it overwrote the
 name AND mislabelled findings corrected INTO needs-review, which are still suspicious).
-Fix E — the summary-box legend renames the green dot to 'ReAct AI-Cross-Check' and
+Fix E - the summary-box legend renames the green dot to 'ReAct AI-Cross-Check' and
 drops the always-empty 'inconclusive' entry.
 
 Universal: keyed on the self_corrected flag + description shape, no case literal.

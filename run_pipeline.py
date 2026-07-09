@@ -343,7 +343,7 @@ _sift_live_v1 = _args.live or _args.gemini or _args.ollama or _args.gpt
 # Evidence may be a memory+disk PAIR, memory-only, or disk-only. Require at least
 # one real evidence source; never hard-require memory (that dead-ended disk-only).
 if _sift_live_v1 and not (_args.image or _args.disk or _args.disk_mount):
-    print("ERROR: live analysis needs evidence — give a memory image and/or a disk.")
+    print("ERROR: live analysis needs evidence - give a memory image and/or a disk.")
     print("  pair        : run_pipeline.py --live --image mem.img --disk disk.E01 --disk-mount /mnt")
     print("  memory-only : run_pipeline.py --live --image mem.img")
     print("  disk-only   : run_pipeline.py --live --disk disk.E01 --disk-mount /mnt")
@@ -1084,12 +1084,12 @@ body{{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-ser
   <p style="margin-top:10px">
     <span class="badge {profile_class}">{profile_text}</span>
     <span class="badge" style="background:rgba(255,255,255,0.2);color:white;margin-left:8px;">
-      {'🔒 SHA256 MATCH — evidence unmodified' if summary.get('integrity_match') else ('🚨 SPOLIATION ALERT' if summary.get('integrity_match') is False else '🔒 SHA256 verification at Step 15')}</span>
+      {'🔒 SHA256 MATCH - evidence unmodified' if summary.get('integrity_match') else ('🚨 SPOLIATION ALERT' if summary.get('integrity_match') is False else '🔒 SHA256 verification at Step 15')}</span>
   </p>
 </div>
 
 <div style="margin:18px 0 0;padding:22px 26px;border-radius:14px;color:white;font-size:21px;font-weight:800;box-shadow:0 2px 6px rgba(0,0,0,0.12);background:{'linear-gradient(135deg,#dc2626,#991b1b)' if _h_cm else ('linear-gradient(135deg,#d97706,#92400e)' if (_h_susp or _h_incon) else 'linear-gradient(135deg,#16a34a,#166534)')};">
-  {'🔴 CONFIRMED MALICIOUS ACTIVITY — ' + str(_h_cm) + ' finding(s) confirmed against tool evidence; incident response recommended' if _h_cm else ('🟡 SUSPICIOUS ACTIVITY — ANALYST REVIEW REQUIRED — ' + str(_h_susp) + ' finding(s) warrant a closer look before this system is cleared' if (_h_susp or _h_incon) else '🟢 NO CONFIRMED MALICIOUS FINDINGS — nothing on the examined evidence survived validation as malicious')}
+  {'🔴 CONFIRMED MALICIOUS ACTIVITY - ' + str(_h_cm) + ' finding(s) confirmed against tool evidence; incident response recommended' if _h_cm else ('🟡 SUSPICIOUS ACTIVITY - ANALYST REVIEW REQUIRED - ' + str(_h_susp) + ' finding(s) warrant a closer look before this system is cleared' if (_h_susp or _h_incon) else '🟢 NO CONFIRMED MALICIOUS FINDINGS - nothing on the examined evidence survived validation as malicious')}
 </div>
 
 <div class="exec">
@@ -1328,7 +1328,7 @@ if MCP_MODE:
     _sel_reg = {n: _TOOL_REGISTRY[n] for n in _selectable}
     _catalog = format_grouped_inv1_tool_catalog(_sel_reg, get_capability)
     _adv = set(_re_gamma.findall(
-        r"(?m)^- (\S+) — .*\| platform=", _catalog,
+        r"(?m)^- (\S+) - .*\| platform=", _catalog,
     ))
     _fake = sorted(_adv - set(_sel_reg))
     _fake_count = len(_fake)
@@ -3060,7 +3060,7 @@ if MCP_MODE:
                     short, tool_outputs=tool_outputs,
                 )
             except PureDerivedLocalUnsupported:
-                # Allow-list mismatch (defensive — short already passed the
+                # Allow-list mismatch (defensive - short already passed the
                 # outer membership check). Fall through to MCP path.
                 pass
             except PureDerivedLocalError as exc:
@@ -4015,7 +4015,7 @@ _record_phase("inv2", _snap_inv2)
 # ════════════════════════════════════════════════════════════════════════
 # STEP 10: Validate every finding against paired reference set
 # ════════════════════════════════════════════════════════════════════════
-print(f"{M}{B}STEP 10: CLAIM VERIFICATION{X} (concurrent with Step 11 ReAct — forwarding all findings)", flush=True)
+print(f"{M}{B}STEP 10: CLAIM VERIFICATION{X} (concurrent with Step 11 ReAct - forwarding all findings)", flush=True)
 logger.info("Step 10: Validating findings against reference set (concurrent with Step 11)")
 
 # NOTE: claim field canonicalization (artifact/path/filename → value, type-aware)
@@ -4199,7 +4199,7 @@ def corrector_fn(raw_data, error):
     return _invoke(str(prompt_path), 30, 1, lambda: None)
 
 # Filter: skip blocked findings already settled by ReAct (benign/inconclusive).
-# ReAct independently verified these via live tool calls — SC would waste tokens.
+# ReAct independently verified these via live tool calls - SC would waste tokens.
 _sc_react_settled = {
     f.get("finding_id")
     for f in findings
@@ -4211,18 +4211,18 @@ if len(_blocked_for_sc) < len(blocked):
     _settled_count = len(blocked) - len(_blocked_for_sc)
     logger.info("  Step 12 SC: skipping %d/%d blocked findings already settled by ReAct",
                 _settled_count, len(blocked))
-    print(f"{G}Step 12: {_settled_count} blocked findings already settled by ReAct — skipping SC{X}", flush=True)
+    print(f"{G}Step 12: {_settled_count} blocked findings already settled by ReAct - skipping SC{X}", flush=True)
 
 # Inv3a (Step 13AA) replaces the generative self-correction loop. When enabled,
 # the per-finding SC calls are skipped entirely (measured: SC was ~45% of a run's
-# input tokens for 0 recoveries) and the blocked findings — still tracked in
-# `blocked`/`blocked_list` for the report — are adjudicated in ONE consolidated
+# input tokens for 0 recoveries) and the blocked findings - still tracked in
+# `blocked`/`blocked_list` for the report - are adjudicated in ONE consolidated
 # pass before Inv4. Env-gated: SIFT_INV3A_FINALIZE default OFF => SC byte-identical.
 INV3A_FINALIZE = os.environ.get("SIFT_INV3A_FINALIZE", "").strip().lower() in ("1", "true", "yes", "on")
 if INV3A_FINALIZE and _blocked_for_sc:
     logger.info("  Step 12 SC: inv3a enabled -> skipping generative SC on %d blocked finding(s); "
                 "deferred to Step 13AA finalization", len(_blocked_for_sc))
-    print(f"{G}Step 12: inv3a enabled — skipping generative SC; "
+    print(f"{G}Step 12: inv3a enabled - skipping generative SC; "
           f"{len(_blocked_for_sc)} blocked finding(s) deferred to Step 13AA{X}", flush=True)
     _blocked_for_sc = []
 
@@ -4378,7 +4378,7 @@ findings_final = step_13_calibrate(passed, ssdt_trust, tool_records=tool_record_
 # GOLD-C: sort by severity for judge-visibility (critical first)
 _SEV_ORDER = {'CRITICAL': 0, 'HIGH': 1, 'MEDIUM': 2, 'LOW': 3, '?': 4}
 findings_final.sort(key=lambda _ff: (_SEV_ORDER.get(str(_ff.get('severity', '?')).upper(), 99), _ff.get('finding_id', '')))
-# Defensive re-attach (idempotent — guards against calibrator rebuilding claim dicts)
+# Defensive re-attach (idempotent - guards against calibrator rebuilding claim dicts)
 findings_final = _attach_inv2_claim_source_tools(findings_final)
 
 # ── Track B: user_account synthesizer (additive, dataset-agnostic) ────
@@ -4931,7 +4931,7 @@ if os.environ.get("SIFT_SIGNATURE_RECONCILE", "").strip().lower() in ("1", "true
 # predicate the confirmed bucket uses (the AI never manufactures a confirmation).
 # Env-gated (SIFT_INV3A_FINALIZE) -> default OFF keeps the pipeline byte-identical.
 if INV3A_FINALIZE:
-    print(f"{M}{B}STEP 13AA: AI FINALIZATION{X} (inv3a — Final Ai-Self-Correction and FP Review before the report)", flush=True)
+    print(f"{M}{B}STEP 13AA: AI FINALIZATION{X} (inv3a - Final Ai-Self-Correction and FP Review before the report)", flush=True)
     logger.info("Step 13AA: inv3a finalization")
     try:
         from sift_sentinel.analysis.inv3a_finalize import (
@@ -5324,7 +5324,7 @@ except Exception as _hitl_e:  # noqa: BLE001
     logger.warning("HITL checkpoint skipped: %s", _hitl_e)
 
 # ── Partition gate: buckets MUST partition findings_final ─────────────
-# 31AI: entity-context map — additive A++ presentation aid.
+# 31AI: entity-context map - additive A++ presentation aid.
 # Builds per-finding entity overlap tags so downstream report clustering
 # can collapse contradictory entity findings without altering buckets.
 _t = time.monotonic()
@@ -5798,7 +5798,7 @@ if os.environ.get("SIFT_NETWORK_SALIENCE", "").strip().lower() in ("1", "true", 
         _ns = _net_salience(_disp_evdb)
         if _ns["total"]:
             _ns_by = " ".join("%s=%d" % (k, v) for k, v in sorted(_ns["by_reason"].items()))
-            print("NETWORK_SALIENCE kept=%d/%d dropped=%d (SHADOW — measuring only, DB unchanged) %s"
+            print("NETWORK_SALIENCE kept=%d/%d dropped=%d (SHADOW - measuring only, DB unchanged) %s"
                   % (_ns["kept"], _ns["total"], _ns["dropped"], _ns_by), flush=True)
             logger.info("NETWORK_SALIENCE shadow: kept=%d/%d dropped=%d %s",
                         _ns["kept"], _ns["total"], _ns["dropped"], _ns_by)
@@ -6013,7 +6013,7 @@ if blocked_findings:
                            "evidence, add it as a validated finding.\n\n")
     report = report.replace("## MITRE ATT&CK Mapping", review_section + "## MITRE ATT&CK Mapping")
 
-# F1: safety-net regex — force correct Report Date regardless of AI compliance
+# F1: safety-net regex - force correct Report Date regardless of AI compliance
 # Catches both the no-review-section path and the branch above if AI used
 # a wrong date despite the prompt instruction.
 import re as _f1_re
@@ -6124,7 +6124,7 @@ def _polished(_md):
 
 # 31AM v3: enrich report.md with per-user attribution section.
 # Dataset-agnostic structural transform; runs before write_state so
-# downstream consumers see the same enriched report. Idempotent — safe
+# downstream consumers see the same enriched report. Idempotent - safe
 # to call multiple times.
 try:
     _evdb_pu = read_state(STATE_DIR, "evidence_db.json") or {}
@@ -6280,7 +6280,7 @@ if LIVE_MODE:
         report = _inv4_result["report"]
         # 31AM v3: enrich report.md with per-user attribution section.
         # Dataset-agnostic structural transform; runs before write_state so
-        # downstream consumers see the same enriched report. Idempotent — safe
+        # downstream consumers see the same enriched report. Idempotent - safe
         # to call multiple times.
         try:
             _evdb_pu = read_state(STATE_DIR, "evidence_db.json") or {}
@@ -6448,7 +6448,7 @@ if not report_check["valid"]:
     report = apply_schema_warning_banner(report, report_check["errors"])
     # 31AM v3: enrich report.md with per-user attribution section.
     # Dataset-agnostic structural transform; runs before write_state so
-    # downstream consumers see the same enriched report. Idempotent — safe
+    # downstream consumers see the same enriched report. Idempotent - safe
     # to call multiple times.
     try:
         _evdb_pu = read_state(STATE_DIR, "evidence_db.json") or {}
@@ -6494,7 +6494,7 @@ integrity_result = (
 report = report.replace("__INTEGRITY_RESULT__", integrity_result)
 # 31AM v3: enrich report.md with per-user attribution section.
 # Dataset-agnostic structural transform; runs before write_state so
-# downstream consumers see the same enriched report. Idempotent — safe
+# downstream consumers see the same enriched report. Idempotent - safe
 # to call multiple times.
 try:
     _evdb_pu = read_state(STATE_DIR, "evidence_db.json") or {}

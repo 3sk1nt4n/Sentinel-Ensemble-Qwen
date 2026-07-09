@@ -1,5 +1,5 @@
 """Opus 4.8 (brand new) rejects the `temperature` request parameter, exactly like
-Opus 4.7 — the cause of the live 400 'temperature is deprecated for this model'.
+Opus 4.7 - the cause of the live 400 'temperature is deprecated for this model'.
 model_rejects_temperature must cover BOTH. Model ids assembled from fragments.
 """
 from sift_sentinel.model_roles import model_rejects_temperature as rejects

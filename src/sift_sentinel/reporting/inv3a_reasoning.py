@@ -54,7 +54,7 @@ def render_inv3a_reasoning(verdicts, color: bool = True, model: str = "") -> str
         who = model_display_name(model) or "The adjudicating model"
     except Exception:
         who = "The adjudicating model"
-    out = ["%s%sAI FINALIZATION · inv3a%s %s— %s re-judged %d ambiguous finding(s), "
+    out = ["%s%sAI FINALIZATION · inv3a%s %s- %s re-judged %d ambiguous finding(s), "
            "reclassified %d (per-finding reasoning):%s" % (C, B, X, D, who, n, moved, X)]
     for v in verdicts:
         fid = str(v.get("finding_id"))

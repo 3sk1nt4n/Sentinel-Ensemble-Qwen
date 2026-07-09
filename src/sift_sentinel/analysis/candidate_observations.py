@@ -1196,7 +1196,7 @@ def _score_fact(fact: dict) -> tuple[int, list[str], list[str]]:
         # may or may not be present. Collect ALL known boolean view
         # names defensively.
         #
-        # The DKOM signature is NOT "any view disagreement" — most
+        # The DKOM signature is NOT "any view disagreement" - most
         # disagreement rows on real Windows images are benign:
         #   * terminated processes (Exit Time set) drop out of pslist
         #     and the thread views while the pool scan still finds them;

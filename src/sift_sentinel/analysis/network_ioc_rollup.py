@@ -344,7 +344,7 @@ def _render_correlated_tiers(rows, carved) -> list:
             sample = ", ".join(carved[:12]) + (" + more" if len(carved) > 12 else "")
             lines.append("**Public IPs seen only in carved strings (no live "
                          "socket, no related finding -- lowest confidence):** "
-                         "%d unique — %s." % (len(carved), sample))
+                         "%d unique - %s." % (len(carved), sample))
         lines.append("")
     return lines
 
@@ -381,7 +381,7 @@ def build_network_ioc_section(evidence_db, buckets=None) -> str:
     lines.append(
         "External network footprint observed on this system, from live sockets "
         "(vol_netscan), carved indicators and DGA scoring. Factual: an endpoint "
-        "is listed because it is EXTERNAL, not because it is malicious — intent "
+        "is listed because it is EXTERNAL, not because it is malicious - intent "
         "is decided by the findings above. Dataset-agnostic (public-IP octet "
         "shape + DGA structure, no IOC list).")
     lines.append("")
@@ -413,14 +413,14 @@ def build_network_ioc_section(evidence_db, buckets=None) -> str:
             lines.append("_(+%d more flagged domains not shown)_"
                          % (len(domains) - _MAX_ROWS))
     else:
-        lines.append("None detected — no domain showed algorithmic-randomness "
+        lines.append("None detected - no domain showed algorithmic-randomness "
                      "structure.")
     lines.append("")
 
     if carved:
         sample = ", ".join(carved[:12]) + (" + more" if len(carved) > 12 else "")
         lines.append("**Other public IPs seen only in carved strings "
-                     "(lower confidence):** %d unique — %s."
+                     "(lower confidence):** %d unique - %s."
                      % (len(carved), sample))
         lines.append("")
 

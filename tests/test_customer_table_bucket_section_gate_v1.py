@@ -72,7 +72,7 @@ def test_bucket_section_gate_fails_when_row_in_wrong_section(tmp_path):
 ## Actionable / Needs Review
 | # | ID | Finding | IOCs / Artifacts | Tools Hit | Details |
 |---:|---|---|---|---|---|
-| — | — | No items | — | — | — |
+| - | - | No items | - | - | - |
 
 ## Self-Correction / Inconclusive
 | # | ID | Finding | IOCs / Artifacts | Tools Hit | Details |
@@ -82,12 +82,12 @@ def test_bucket_section_gate_fails_when_row_in_wrong_section(tmp_path):
 ## Narrative / Context
 | # | ID | Finding | IOCs / Artifacts | Tools Hit | Details |
 |---:|---|---|---|---|---|
-| — | — | No items | — | — | — |
+| - | - | No items | - | - | - |
 
 ## Benign / False Positive
 | # | ID | Finding | IOCs / Artifacts | Tools Hit | Details |
 |---:|---|---|---|---|---|
-| — | — | No items | — | — | — |
+| - | - | No items | - | - | - |
 """
     )
     r = subprocess.run(

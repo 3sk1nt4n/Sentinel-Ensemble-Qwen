@@ -31,7 +31,7 @@ _RECORD_KEYS = {
     "source_tool", "source_record", "original_preview",
     "decoded_preview", "encoding", "suspicious_keywords", "confidence",
 }
-_CATALOG_LINE = re.compile(r"(?m)^- (\S+) — .*\| platform=")
+_CATALOG_LINE = re.compile(r"(?m)^- (\S+) - .*\| platform=")
 
 
 def test_decoder_is_registered_and_capable():

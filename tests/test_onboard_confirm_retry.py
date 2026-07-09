@@ -38,7 +38,7 @@ def test_explicit_cancel_aborts(capsys):
     rc, called = _run(["cancel"])
     out = capsys.readouterr().out
     assert rc is None and called == []
-    assert "cancelled — nothing launched" in out
+    assert "cancelled - nothing launched" in out
 
 
 def test_back_returns_to_cards(capsys):
@@ -55,4 +55,4 @@ def test_eof_is_clean_cancel(capsys):
     rc, called = _run([None])                # closed stdin
     out = capsys.readouterr().out
     assert rc is None and called == []
-    assert "cancelled — nothing launched" in out
+    assert "cancelled - nothing launched" in out

@@ -28,7 +28,7 @@ class TestOllamaUsesChat:
 
     def test_ollama_uses_messages_not_prompt(self):
         """Chat endpoint requires 'messages' key, not 'prompt'."""
-        # Find the Ollama POST block — it should have "messages" not "prompt"
+        # Find the Ollama POST block - it should have "messages" not "prompt"
         # The old format was: json={"model": ..., "prompt": prompt, ...}
         # The new format is: json={"model": ..., "messages": [...], ...}
         assert '"messages"' in self.source or "'messages'" in self.source

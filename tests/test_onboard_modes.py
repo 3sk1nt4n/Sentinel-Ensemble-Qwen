@@ -1,6 +1,6 @@
 """Analysis-depth modes (Heavy/Light), card-number selection, and the launch env.
 Pure, testable pieces of the fancy launch flow. No model literal is hardcoded in
-the test — we assert SHAPE (force-model env set, ensemble flag), not exact ids.
+the test - we assert SHAPE (force-model env set, ensemble flag), not exact ids.
 """
 import step0_onboard as s
 from sift_sentinel.onboard.engine import CaseManifest

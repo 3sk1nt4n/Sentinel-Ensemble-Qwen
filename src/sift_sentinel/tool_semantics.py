@@ -671,7 +671,7 @@ def format_grouped_inv1_tool_catalog(
         _tier_part = f" | value={_tier}" if _tier == "HIGH" else ""
         _hint_part = f" | use_when={_hint}" if _hint else ""
         line = (
-            f"- {tool_name} — {_desc_text}{_tier_part} | platform={platform} "
+            f"- {tool_name} - {_desc_text}{_tier_part} | platform={platform} "
             f"| domain={domain} | buckets={buckets} | cost={sem['cost']}{_hint_part}"
         )
         by_section[header].append(line)
@@ -860,7 +860,7 @@ def _slot31j_epsilon_enrich_catalog_text(catalog: str) -> str:
     for line in catalog.splitlines():
         stripped = line.lstrip()
         prefix = line[: len(line) - len(stripped)]
-        if stripped.startswith("- run_memprocfs — "):
+        if stripped.startswith("- run_memprocfs - "):
             parts = stripped.split(" | ")
             suffix = ""
             if len(parts) > 1:
@@ -869,7 +869,7 @@ def _slot31j_epsilon_enrich_catalog_text(catalog: str) -> str:
                     for part in parts[1:]
                 ]
                 suffix = " | " + " | ".join(suffix_parts)
-            line = prefix + f"- run_memprocfs — {_SLOT31J_EPSILON_MEMPROCFS_PURPOSE}{suffix}"
+            line = prefix + f"- run_memprocfs - {_SLOT31J_EPSILON_MEMPROCFS_PURPOSE}{suffix}"
         enriched.append(line)
     return "\n".join(enriched)
 
