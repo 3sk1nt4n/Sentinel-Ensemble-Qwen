@@ -82,7 +82,7 @@ findevil.sh  ──▶  findevil.py  ──▶  step0_onboard.py  ──▶  run
             │      (no kernel-clean claim inferred - trust level only)
             │
  Step  4 ─▶ TOOL-SELECTION PREP - typed catalog built, NO tools run yet
-            │      186 forensic tools dynamically discovered (138 Vol3 plugins)
+            │      186 forensic tools discovered (138 Vol3) + 9 core/meta = 195
             │      38 semantic buckets · 0 fake advertised tools
             │      gates: 31X-lite surface · dynamic-only · token budget
             │
@@ -226,7 +226,8 @@ findevil.sh  ──▶  findevil.py  ──▶  step0_onboard.py  ──▶  run
 ### 195 Typed Tools, Zero Shell Access
 
 The MCP server (`src/server.py`) advertises **195 typed tools** - **186
-dynamically discovered** forensic tools plus **9 core/meta** functions.
+dynamically discovered** forensic tools plus **9 core/meta** functions. Full
+inventory (auto-generated, no overlap): [`docs/TOOLS.md`](docs/TOOLS.md).
 Seven golden-path core tools anchor the fallback selection. Every tool:
 
 - Accepts typed parameters (Pydantic-validated)
