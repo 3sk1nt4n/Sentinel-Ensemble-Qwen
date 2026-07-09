@@ -1,13 +1,14 @@
 # 🔁 Self-Correction Proof - the AI overruled, on the record
 
 > **Maps to Technical Depth & Engineering + Innovation & AI Creativity.** This
-> page is the receipt. Every number below is a timestamped line in the execution
-> log of the **Claude reference run** (rd01) - `artifacts/run-rd01/agent_execution_log.txt`,
-> a **local** run not committed to the repo (case-neutral policy; reproduce with
-> `./setup.sh /path/to/case`). It is an architecture demonstration, not a Qwen result; the
-> shipped, verifiable Qwen Cloud run metrics are in
-> [`docs/qwen-runs/`](docs/qwen-runs/). Nothing here is narration - it's grep-able
-> once you regenerate the run.
+> page is the receipt. The headline scoreboard and tables are the **featured
+> DC01 run on Qwen Cloud** (`qwen3.7-max`), shipped and verifiable in
+> [`docs/qwen-runs/`](docs/qwen-runs/). The deepest per-line, grep-able detail
+> (Appendices + the per-finding tables) comes from an earlier **Claude Opus
+> reference run** (`run-rd01`) - a local run not committed to the repo
+> (case-neutral policy; reproduce with `./setup.sh /path/to/case`). The
+> self-correction machinery is **model-agnostic** (same code, same gates), so
+> both prove the same thing. Nothing here is narration.
 
 Sentinel Qwen Ensemble corrects itself **twice**: once while it's *thinking* (Layer 1,
 ReAct - the AI re-investigates its own findings and changes its mind), and once
@@ -15,8 +16,9 @@ while the system is *deciding* (Layer 2, Step 13AA - a final AI re-judgment
 whose every promotion deterministic **code** re-gates, refusing the ones it
 can't prove). The design is
 in [`ARCHITECTURE.md` §"Where the self-correction credit is earned"](ARCHITECTURE.md);
-this page is the **evidence** from the `run-rd01` **Claude (Opus 4.8) reference
-run**. The Qwen Cloud runs record the same self-correction machinery in their
+this page is the **evidence**: the DC01 scoreboard below is on Qwen Cloud, and the
+`run-rd01` **Claude Opus reference run** supplies the deepest per-line receipt.
+The Qwen Cloud runs record the same self-correction machinery in their
 shipped metrics - the `react` token counters and the `disposition_counts`
 recording the 13AA outcome inside every
 [`docs/qwen-runs/*.json`](docs/qwen-runs/), including the flags-off ablation
@@ -105,7 +107,35 @@ all four files).
 
 ---
 
-## 📊 Scoreboard (all from the `run-rd01` log - the **Claude reference run**, not a Qwen run)
+## 📊 Scoreboard - the featured DC01 heavy run **on Qwen Cloud** (`qwen3.7-max`)
+
+Every count is from that run's own execution log (in the committed recording;
+the aggregates are in [`docs/qwen-runs/dc01-heavy-13aa-metrics.json`](docs/qwen-runs/dc01-heavy-13aa-metrics.json)).
+
+| Layer / gate | What it did | Count |
+|---|---|---|
+| **Step 10 - validator** | claims checked → verified / rejected | **42 verified · 2 rejected** of 44 |
+| **Layer 1 - Self-Correction (ReAct, Step 11)** | AI re-investigated its own findings | **12 investigations · 33 tool turns** |
+| **Layer 1 - false positives caught** | ReAct overturned flags to benign | **7** |
+| **Layer 2 - Self-Correction (13AA finalize, Step 13AA)** | ambiguous findings re-judged | **37 / 44 moved** (18 → benign, 19 → needs-review) |
+| **Layer 2 - promotion gate** | model `confirmed` → cleared by code | **4 proposed → 0 promoted** (all held: no atomic proof) |
+| **Layer 2 - blocked rescued** | validator-blocked → final cross-check, not dropped | **2 routed** |
+
+`Fabrication check: 4.5% (every claim traces to real tool output), 42/44 verified`
+· `typed_fact_matches=42, unsupported_claim_type_count=0`. **The model proposed 4
+confirmations; the deterministic gate promoted none - no single artifact carried
+atomic proof.** That is the whole thesis, measured on Qwen.
+
+---
+
+## 📎 The most granular receipt: the reference run (Claude Opus, `run-rd01`)
+
+The line-numbered, per-finding detail below is from an **earlier reference run on
+the Claude Opus provider** (`run-rd01`) - the self-correction machinery is
+**model-agnostic** (identical code, gates, and log lines; only the provider
+differs), so this reference run is the richest grep-able receipt of *how* each
+layer behaves. The Qwen Cloud runs record the same machinery (scoreboard above;
+JSON in [`docs/qwen-runs/`](docs/qwen-runs/)).
 
 | Layer / gate | What it did | Count | Log line |
 |---|---|---|---|
@@ -120,7 +150,7 @@ all four files).
 
 ---
 
-## 🧠 Layer 1 - Self-Correction (ReAct, Step 11): the AI re-investigates itself
+## 🧠 Layer 1 detail (reference run) - ReAct re-investigates itself
 
 The agent takes each of its own suspicious findings *back to the evidence* with
 live forensic tools and reaches an independent verdict. `Step 11: 15
@@ -158,7 +188,7 @@ in `c:\windows\temp\perfmon\`), F012/F013/F023/F035/F036 (rundll32 proxy-executi
 
 ---
 
-## ⚖️ Layer 2 - Self-Correction (Step 13AA finalize): code re-judges the AI
+## ⚖️ Layer 2 detail (reference run) - Step 13AA, code re-judges the AI
 
 Before the report, every finding that is **not** already proven-confirmed or
 already-cleared-benign gets one last adjudication. `INV3A_FINALIZE moved=39/46
@@ -190,7 +220,7 @@ threats and tightens downward to drop noise - it never re-litigates a settled ve
 
 ---
 
-## 🔬 The validator underneath (Step 10)
+## 🔬 The validator underneath (Step 10, reference run)
 
 `VERIFIED: 32 findings confirmed | REJECTED: 22` (line **1595**) - of 54 candidate
 findings, 22 were **blocked** because a claim didn't trace to a real tool record
