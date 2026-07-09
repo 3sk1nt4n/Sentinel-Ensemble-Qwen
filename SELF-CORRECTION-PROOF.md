@@ -49,6 +49,24 @@ ambiguous finding to a final verdict (**0 inconclusive**) with **0 tool failures
 | Tool sweep (swept / hit / failed) | 33 / 29 / **0** | 33 / 27 / **0** (+11 data-only) |
 | Integrity (mem+disk SHA256) | MATCH | MATCH |
 
+**What self-correction actually did on the heavy run** (from the run's own
+summary box and log, in the committed recording):
+
+- **Layer 1 (ReAct AI-Cross-Check)** re-investigated the ensemble's output and
+  **cleared 23 false positives with reasons** (the `benign_or_false_positive`
+  row above) - installer noise, VMware tooling, even the IR team's own FTK
+  Imager, each dispositioned instead of inflating the report.
+- **42 of the 44 findings carried at least one AI self-correction move** (the
+  run box prints `(42 AI self-corrected)`; the count is a per-finding
+  annotation of ReAct redirects and 13AA re-judgments).
+- **Layer 2 (Step 13AA)** then re-judged every ambiguous finding to a final
+  verdict. The legacy per-finding generative repair loop (Step 12) is
+  **skipped by design** under 13AA (`corrections_attempted = 0` in the JSON is
+  expected, not absent): its 2 blocked findings were **deferred to 13AA and
+  resolved there**, in one consolidated pass instead of N expensive retries.
+  Net: **0 inconclusive**, and nothing was promoted to confirmed - the
+  deterministic eligibility gate held.
+
 Heavy surfaced the **full intrusion** (`coreupdater.exe` C2, outbound and inbound
 RDP, `\FileShare\Secret` exfil, memory injection into explorer / svchost /
 spoolsv, and scheduled-task + WMI persistence; attributed to administrator /
