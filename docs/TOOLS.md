@@ -231,7 +231,7 @@ tool-recommendation meta-tools:
 **Regenerate this list** (authoritative, from the running registry):
 
 ```bash
-PYTHONPATH=src python3 -c "
+PYTHONPATH=src ./.venv/bin/python3 -c "
 from sift_sentinel.coordinator import _TOOL_REGISTRY
 import re
 reg=sorted(_TOOL_REGISTRY)
@@ -239,3 +239,8 @@ hard=re.findall(r'@mcp\\.tool\\(\\)\\s*\\ndef\\s+(\\w+)',open('src/server.py').r
 print(len(reg),'dynamic +',len(hard),'core =',len(reg)+len(hard))
 "
 ```
+
+The full 186 + 9 = 195 count needs the `volatility3` package importable
+(`./.venv/bin/pip install volatility3`) or the full Docker image - without it
+Vol3 plugins are not advertised (a "Vol3 dynamic discovery unavailable" warning
+is printed) and the totals read lower.

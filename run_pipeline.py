@@ -49,6 +49,31 @@ import time
 import logging
 from pathlib import Path
 
+# If ./setup.sh --native created .venv but this file was launched as a script
+# with a DIFFERENT interpreter (e.g. bare `python3 run_pipeline.py` in a fresh
+# shell), re-exec into the venv python so the installed dependencies are found
+# with NO manual activation. Same guard as findevil.py: `__name__` keeps it
+# import-safe (tests importing this module are never re-exec'd), sys.prefix
+# identifies the running venv even through symlinks, and a user-activated venv
+# (VIRTUAL_ENV) is respected. SIFT_NO_VENV_REEXEC=1 opts out.
+_VENV_REPO_DIR = os.path.dirname(os.path.abspath(__file__))
+_VENV_DIR = os.path.join(_VENV_REPO_DIR, ".venv")
+_VENV_PY = os.path.join(_VENV_DIR, "bin", "python3")
+if (
+    __name__ == "__main__"
+    and os.name != "nt"
+    and not os.environ.get("VIRTUAL_ENV")
+    and not os.environ.get("SIFT_NO_VENV_REEXEC")
+    and os.access(_VENV_PY, os.X_OK)
+    and os.path.realpath(sys.prefix) != os.path.realpath(_VENV_DIR)
+):
+    os.environ["SIFT_NO_VENV_REEXEC"] = "1"  # belt + suspenders vs. exec loops
+    os.environ["VIRTUAL_ENV"] = _VENV_DIR
+    os.environ["PATH"] = (
+        os.path.join(_VENV_DIR, "bin") + os.pathsep + os.environ.get("PATH", "")
+    )
+    os.execv(_VENV_PY, [_VENV_PY, os.path.abspath(__file__)] + sys.argv[1:])
+
 # ── ANSI color constants (disabled when piped) ─────────────────────────
 _TTY = sys.stdout.isatty() or os.environ.get("SIFT_FORCE_COLOR") == "1"
 G  = "\033[92m" if _TTY else ""   # green

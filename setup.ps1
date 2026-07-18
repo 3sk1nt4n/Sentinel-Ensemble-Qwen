@@ -291,7 +291,7 @@ if ($Mode -eq 'run' -or $Mode -eq '') {
 
     # Show the ACTUAL deliverables on THIS machine + the exact open command.
     # (The container's REPORTS box shows /app/reports/... - those are INSIDE the
-    # container. The real files are here, and `ii` opens them with your default app.)
+    # container. The real files are here, and `explorer` opens them with your default app.)
     $html = Get-ChildItem $Out -Filter 'summary_report_*.html' -ErrorAction SilentlyContinue | Sort-Object Name | Select-Object -Last 1
     $md   = Get-ChildItem $Out -Filter 'incident_report_*.md'  -ErrorAction SilentlyContinue | Sort-Object Name | Select-Object -Last 1
     if (-not $md) { $md = Get-ChildItem $Out -Filter 'report.md' -ErrorAction SilentlyContinue | Select-Object -First 1 }
@@ -303,13 +303,13 @@ if ($Mode -eq 'run' -or $Mode -eq '') {
         Write-Host "   Folder:  $Out"
         if ($html) {
             Write-Host "`n   Interactive report (recommended - opens in your browser):" -ForegroundColor White
-            Write-Host "     ii `"$($html.FullName)`"" -ForegroundColor Cyan
+            Write-Host "     explorer `"$($html.FullName)`"" -ForegroundColor Cyan
         }
         if ($md) {
             Write-Host "`n   Narrative report:" -ForegroundColor White
-            Write-Host "     ii `"$($md.FullName)`"" -ForegroundColor Cyan
+            Write-Host "     explorer `"$($md.FullName)`"" -ForegroundColor Cyan
         }
-        Write-Host "`n   (or just open the folder:  ii `"$Out`" )`n"
+        Write-Host "`n   (or just open the folder:  explorer `"$Out`" )`n"
         # Super-friendly: auto-open the interactive report in the default browser
         # the moment the run finishes. Windows is always a desktop session, so
         # this is safe. Kill with $env:SIFT_NO_OPEN=1.

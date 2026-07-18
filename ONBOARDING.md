@@ -16,11 +16,14 @@ legacy tests quarantined - see [`tests/QUARANTINE.md`](tests/QUARANTINE.md)).
 
 ## First steps
 
-1. Clone and install: `pip install -r requirements.txt` (venv on PEP-668 systems).
+1. Clone and install: `./setup.sh --native` - creates `.venv`, installs and
+   verifies everything, runs the demo. No activation needed afterwards - every
+   entry script finds `.venv` by itself. (Inside your own already-activated
+   venv, `pip install -r requirements.txt` works too.)
 2. Smoke test: `./findevil.sh --demo` → must end in **"Everything verified and ready."**
    (No local toolchain? `./setup.sh docker` runs the same demo in Docker.)
 3. Read [`ARCHITECTURE.md`](ARCHITECTURE.md) - the Step 0→16 pipeline diagram and the 14 defense layers.
-4. Run the suite once so you know your baseline: `pytest tests/ -q`.
+4. Run the suite once so you know your baseline: `./.venv/bin/pytest tests/ -q`.
 
 ## Map of the code
 
@@ -42,14 +45,16 @@ suite and the run itself on a half-wired tool.
 ## The verify ritual (after EVERY change - no exceptions)
 
 ```bash
+source .venv/bin/activate   # created by ./setup.sh --native (skip if your own venv is active)
 pytest tests/ -x                                          # stop on first failure
-find src -name '*.py' -exec python -m py_compile {} +     # syntax check
-PYTHONPATH=src python -m sift_sentinel.coordinator --dry-run   # boot check, must exit 0
+find src -name '*.py' -exec python3 -m py_compile {} +    # syntax check
+PYTHONPATH=src python3 -m sift_sentinel.coordinator --dry-run   # boot check, must exit 0
 ```
 
 After any `run_pipeline.py` import edit, also run
-`ruff check --select F821 run_pipeline.py` - it is a script the suite never
-imports, so undefined names slip past everything else.
+`./.venv/bin/pip install ruff && ./.venv/bin/ruff check --select F821 run_pipeline.py`
+(ruff is not in requirements.txt) - it is a script the suite never imports,
+so undefined names slip past everything else.
 
 ## Key rules (non-negotiable)
 

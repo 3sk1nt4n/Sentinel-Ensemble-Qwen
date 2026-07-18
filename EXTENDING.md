@@ -95,9 +95,10 @@ select but the pipeline can't use.
 ## Verify ritual (after every change - no exceptions)
 
 ```bash
+source .venv/bin/activate   # created by ./setup.sh --native (skip if your own venv is active)
 pytest tests/ -x                                          # stop on first failure
-find src -name '*.py' -exec python -m py_compile {} +     # syntax
-PYTHONPATH=src python -m sift_sentinel.coordinator --dry-run   # boot + drift-gate check
+find src -name '*.py' -exec python3 -m py_compile {} +    # syntax
+PYTHONPATH=src python3 -m sift_sentinel.coordinator --dry-run  # boot + drift-gate check
 ```
 
 Gate every new *behavior* behind an env kill-switch (`SIFT_<FEATURE>`), default chosen

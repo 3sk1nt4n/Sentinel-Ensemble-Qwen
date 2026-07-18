@@ -16,7 +16,7 @@ prints **"Everything verified and ready."**, all of this is in place.
 | Docker image (`full`/`full-plus`) - **the run path** | Debian 12 base | every tool below pre-baked; nothing to install (see [`docs/DOCKER.md`](docs/DOCKER.md)) |
 | Native Ubuntu 22.04 (contributors/dev) | Python 3.10+ | for hacking on the code + running the test suite (see [`ONBOARDING.md`](ONBOARDING.md)) |
 | Python | 3.10+ (3.12 in the Docker image) | |
-| Volatility 3 Framework | **2.28.0** (pinned in the Docker image) | native dev: `pip install volatility3` (2.27.0 also verified) |
+| Volatility 3 Framework | **2.28.0** (pinned in the Docker image) | native dev: `./.venv/bin/pip install volatility3` (2.27.0 also verified) |
 
 ## Python Packages
 
@@ -31,11 +31,11 @@ the MCP transport layer.
 **Install:** nothing manual - it ships pinned in `requirements.txt` (and baked
 into the Docker image). Repairing a bespoke environment that lost it:
 
-    pip install pycryptodome
+    ./.venv/bin/pip install pycryptodome
 
 **Verify (should print OK):**
 
-    python3 -c "from Crypto.Cipher import ARC4, AES; print('OK')"
+    ./.venv/bin/python3 -c "from Crypto.Cipher import ARC4, AES; print('OK')"
 
 **Tools that need it directly:**
 

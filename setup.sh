@@ -362,7 +362,7 @@ sec "Python packages"
 # import_name  label  REQUIRED|OPTIONAL|STRETCH  note
 py_check() {
   if python3 -c "import $1" 2>/dev/null; then ok "$2 ($1)"
-  elif [ "$3" = REQUIRED ]; then bad "$2 MISSING - pip install $2   (import $1)"
+  elif [ "$3" = REQUIRED ]; then bad "$2 MISSING - re-run ./setup.sh --native, or: .venv/bin/pip install $2   (import $1)"
   elif [ "$3" = STRETCH ]; then note "$2 not installed - $4"
   else warn "$2 absent (optional: $4)"; fi
 }
@@ -375,8 +375,8 @@ py_check rich        rich            REQUIRED ""
 py_check psutil      psutil          REQUIRED ""
 py_check Evtx        python-evtx     REQUIRED ""
 # OPTIONAL - the default provider is Qwen; these only matter off the demo path:
-py_check anthropic   anthropic       OPTIONAL "the Anthropic FALLBACK provider only; the Qwen path does not need it (pip install .[anthropic])"
-py_check volatility3 volatility3     OPTIONAL "needed only for REAL memory-image runs (not the demo); pip install volatility3, or use SIFT's"
+py_check anthropic   anthropic       OPTIONAL "the Anthropic FALLBACK provider only; the Qwen path does not need it (.venv/bin/pip install \".[anthropic]\")"
+py_check volatility3 volatility3     OPTIONAL "needed only for REAL memory-image runs (not the demo); .venv/bin/pip install volatility3, or use SIFT's"
 py_check pytsk3      pytsk3          OPTIONAL "native disk extraction for real runs; CLI fls/icat fallback exists"
 
 # ── 4. Forensic system tools (real evidence runs only - NOT the demo) ────────
@@ -393,7 +393,7 @@ bin_check() {
     else ok "$name  ($(command -v "$name"))"; fi
   else warn "$name absent (optional, real runs only) - $fix"; fi
 }
-bin_check vol     "pip install volatility3"          ''
+bin_check vol     ".venv/bin/pip install volatility3"          ''
 bin_check fls     "sudo apt install sleuthkit"        'fls -V'
 bin_check ewfinfo "sudo apt install ewf-tools"        'ewfinfo -h 2>&1 | grep -m1 -i ewfinfo'
 bin_check yara    "sudo apt install yara (opt-in: SIFT_ALLOW_YARA=1)" 'yara --version'
@@ -425,8 +425,10 @@ if [ $FAIL -eq 0 ]; then
   printf "\n  ${G}${B}=============================================================${X}\n"
   printf "  ${G}${B}  OK - ready for the demo and the tests.${X}\n"
   printf "  ${G}${B}  Next:  ./findevil.sh --demo       ${X}${G}(zero cost, no key)${X}\n"
+  printf "  ${G}${B}  Live:  ./findevil.sh              ${X}${G}(guided walkthrough: evidence + hidden key prompt)${X}\n"
   printf "  ${G}${B}  Live:  ./setup.sh /path/to/case  ${X}${G}(ONE line, Docker; key from .env or a hidden prompt)${X}\n"
   printf "  ${G}${B}=============================================================${X}\n"
+  printf "  ${G}(no activation needed: every script finds .venv by itself, in any new shell)${X}\n"
   [ "$WARN" -gt 0 ] && printf "  (%d optional note(s) above - fine to ignore for the demo/judge path)\n" "$WARN"
   printf "\n"
   exit 0

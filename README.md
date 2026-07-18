@@ -219,6 +219,8 @@ whole 16-step pipeline onto Qwen needs **no code change**.
 ```bash
 docker run --rm -e SIFT_LLM_PROVIDER=qwen -e DASHSCOPE_API_KEY=sk-... \
   --entrypoint python3 sentinel-qwen:demo scripts/qwen_smoke.py
+
+SIFT_LLM_PROVIDER=qwen DASHSCOPE_API_KEY=sk-... python3 scripts/qwen_smoke.py   # native (./setup.sh --native) - no Docker image needed
 ```
 
 The international (Singapore) DashScope endpoint is the default; set

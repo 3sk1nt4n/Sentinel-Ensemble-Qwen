@@ -2,6 +2,9 @@ __pycache__/
 *.pyc
 *.egg-info/
 .pytest_cache/
+# project venv created by ./setup.sh --native - never commit it
+.venv/
+venv/
 .DS_Store
 .env
 .env.*

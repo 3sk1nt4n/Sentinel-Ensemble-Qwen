@@ -3,6 +3,13 @@
 set -uo pipefail
 cd "$(dirname "$0")/.."
 
+# Auto-use the project venv created by ./setup.sh --native (no activation
+# needed) - same block as findevil.sh; an already-active venv wins.
+if [ -z "${VIRTUAL_ENV:-}" ] && [ -x .venv/bin/python3 ]; then
+    export VIRTUAL_ENV="$PWD/.venv"
+    export PATH="$VIRTUAL_ENV/bin:$PATH"
+fi
+
 DIRTY=$(git status --porcelain | wc -l)
 if [ "$DIRTY" -gt 0 ]; then
     echo "⚠️  Worktree dirty - commit or stash before live run"

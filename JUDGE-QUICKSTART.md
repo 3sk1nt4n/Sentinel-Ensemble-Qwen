@@ -174,9 +174,11 @@ python3 run_pipeline.py --live --inv2-ensemble \
   --disk-mount /path/to/mounted_windows_partition
 ```
 
-The launcher handles read-only mounting and flag wiring automatically -
-prefer `.\setup.cmd` / `./setup.sh` (which invoke `findevil.sh`, the container
-entrypoint, for you) unless you are developing.
+Works from a fresh shell - `run_pipeline.py` auto-uses `.venv` on Linux/macOS
+(no activation needed, same as `findevil.py`). The launcher handles read-only
+mounting and flag wiring automatically - prefer `.\setup.cmd` / `./setup.sh`
+(which invoke `findevil.sh`, the container entrypoint, for you) unless you are
+developing.
 </details>
 
 ---
@@ -276,6 +278,7 @@ docker run --rm --entrypoint python3 sentinel-qwen:demo audit/nocheat.py   # dat
 <summary>Native equivalents (dev checkout with Python 3.10+)</summary>
 
 ```bash
+source .venv/bin/activate                                                # created by ./setup.sh --native (skip if your own venv is active)
 PYTHONPATH=src python3 -m pytest -q tests/test_llm_provider.py           # Qwen/DashScope seam (18)
 PYTHONPATH=src python3 -m pytest -q tests/test_agnostic_contract.py \
     tests/test_onboard_agnostic.py tests/test_secret_input_guard.py      # dataset-agnostic + no-secret guards
@@ -284,11 +287,15 @@ python3 audit/nocheat.py                                                 # datas
 
 </details>
 
-> The full suite is large and green by default: `pytest tests/ -q` -> **4,700+
-> passed, 0 failed** (~2 min). A batch of legacy forensic-parser tests that went
-> stale after tool-signature refactors is quarantined (skipped) with the honest
-> state documented in [`tests/QUARANTINE.md`](tests/QUARANTINE.md); run them
-> anyway with `SIFT_RUN_QUARANTINED=1`.
+> The full suite is large and green by default - **4,700+ passed, 0 failed**
+> (~2 min). Docker:
+> `docker run --rm --entrypoint python3 sentinel-qwen:demo -m pytest -q tests/`;
+> native: `./.venv/bin/pytest tests/ -q` (or bare `pytest tests/ -q` after the
+> `source .venv/bin/activate` line above). A batch of legacy forensic-parser
+> tests that went stale after tool-signature refactors is quarantined (skipped)
+> with the honest state documented in
+> [`tests/QUARANTINE.md`](tests/QUARANTINE.md); run them anyway with
+> `SIFT_RUN_QUARANTINED=1`.
 
 After a run, the judge-facing invariants:
 
