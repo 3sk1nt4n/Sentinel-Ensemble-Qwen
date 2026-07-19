@@ -80,7 +80,9 @@ show_guide() {
   printf "    * tell memory / disk / documents apart by PROBING them (not by name)\n"
   printf "    * mount the disk READ-ONLY, detect the OS, check the memory is healthy\n"
   printf "    * hand you a verified case card - then you pick the depth and launch\n\n"
-  printf "  Need a case? Free public cases (no login) are in docs/DOCKER.md.\n\n"
+  printf "  Need a case? Type ${B}dc01${X} at the prompt - I download the featured public\n"
+  printf "  case for you (DFIR Madness DC01, memory + disk, ~5.4 GB, one time).\n"
+  printf "  More free public cases: docs/DOCKER.md.\n\n"
 }
 # Ask for the evidence folder (like the original onboarding). Echoes the path.
 read_case_path() {
@@ -89,12 +91,13 @@ read_case_path() {
   printf "   Paste the FOLDER that holds this case (memory + disk + notes).\n" >&2
   printf "     Example:  /home/you/cases/my-case\n" >&2
   printf "     Tip: drag the folder into this window to paste its path.\n" >&2
+  printf "     No evidence yet? Type ${B}dc01${X} - I'll download the featured public case (~5.4 GB).\n" >&2
   while true; do
-    printf "   ${B}path (or Q to quit):${X} " >&2
+    printf "   ${B}path (or dc01, or Q to quit):${X} " >&2
     IFS= read -r _p || { echo ""; return; }
     _p="${_p%\"}"; _p="${_p#\"}"; _p="${_p%/}"   # strip quotes + trailing slash
     [ -z "$_p" ] && continue
-    case "$_p" in q|Q) echo ""; return ;; esac
+    case "$_p" in q|Q) echo ""; return ;; [dD][cC]01) echo "dc01"; return ;; esac
     if [ -d "$_p" ]; then echo "$_p"; return; fi
     if [ -f "$_p" ]; then bad "that's a file - give me the FOLDER it lives in." >&2; continue; fi
     bad "not found: $_p" >&2
@@ -206,10 +209,35 @@ if [ "$RUN" = 1 ]; then
     CASE="$(read_case_path)"
     [ -n "$CASE" ] || { printf "  Bye - nothing was run.\n"; exit 0; }
   fi
+  # Magic case name: "dc01" = fetch the featured public case ourselves (DFIR
+  # Madness "Stolen Szechuan Sauce" DC01, memory + disk, ~5.4 GB zipped) so the
+  # user never has to hand-download evidence to try a real investigation.
+  if printf '%s' "$CASE" | grep -qiE '^dc01$'; then
+    CASE="$HOME/cases/dc01"
+    # Reuse only when UNZIPPED evidence exists - a folder holding nothing but
+    # .zip files is an interrupted download, so resume it (wget -c) instead.
+    if [ -d "$CASE" ] && find "$CASE" -maxdepth 1 -type f ! -name '*.zip' 2>/dev/null | head -1 | grep -q .; then
+      ok "using the previously downloaded featured case: $CASE"
+    else
+      sec "Downloading the featured public case (DFIR Madness DC01, ~5.4 GB - one time)"
+      command -v unzip >/dev/null 2>&1 || sudo apt-get install -y unzip >/dev/null 2>&1 || true
+      mkdir -p "$CASE"
+      ( cd "$CASE" || exit 1
+        for _u in https://dfirmadness.com/case001/DC01-memory.zip \
+                  https://dfirmadness.com/case001/DC01-E01.zip; do
+          wget -c "$_u" || curl -fLO -C - "$_u" || exit 1
+        done
+        unzip -o DC01-memory.zip && unzip -o DC01-E01.zip ) \
+        || { bad "download/unpack failed - check the network and re-run the same command (downloads resume)"; exit 1; }
+      [ -n "${SUDO_USER:-}" ] && chown -R "$SUDO_USER" "$CASE" 2>/dev/null || true
+      ok "evidence ready: $CASE"
+    fi
+  fi
   if [ ! -d "$CASE" ]; then
     bad "case folder not found: $CASE"
     printf "  If your download is still a .zip, unzip it first, then use the FOLDER.\n"
     printf "  ${C}Easiest: run just  ./setup.sh  and drag the folder in when it asks.${X}\n"
+    printf "  ${C}No evidence at all?  ./setup.sh dc01  downloads the featured public case.${X}\n"
     exit 2
   fi
   CASE="$(cd "$CASE" && pwd)"
@@ -352,11 +380,12 @@ if [ "$DOCKER_MODE" = 1 ]; then
   sec "Running the demo (no key, no evidence)"
   $DOCKER run --rm sentinel-qwen:demo || { printf "  ${R}FAIL${X} demo run failed\n"; exit 1; }
   printf "\n  ${G}${B}✅  Docker demo works.${X}\n"
-  printf "  ${B}Real investigation on Qwen Cloud - ONE copy-paste line (works from any folder):${X}\n"
+  printf "  ${B}NEXT STEP - real investigation on the featured public case, ONE line${X}\n"
+  printf "  ${B}(auto-downloads the evidence, ~5.4 GB one time; works from any folder):${X}\n"
+  printf "    ${C}cd \"%s\" && ./setup.sh dc01${X}\n" "$REPO_DIR"
+  printf "  Have your own case folder instead?\n"
   printf "    ${C}cd \"%s\" && ./setup.sh /path/to/case${X}\n" "$REPO_DIR"
-  printf "  No case folder yet? Guided mode asks for everything:\n"
-  printf "    ${C}cd \"%s\" && ./setup.sh${X}\n" "$REPO_DIR"
-  printf "  First run asks for your key at a hidden prompt - one Enter saves it for good.\n"
+  printf "  It asks for your key at a hidden prompt - one Enter saves it for good.\n"
   printf "  (Get a key: home.qwencloud.com/api-keys · Full guide: docs/DOCKER.md)\n\n"
   exit 0
 fi

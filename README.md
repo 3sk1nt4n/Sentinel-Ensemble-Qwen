@@ -141,12 +141,14 @@ cd Sentinel-Ensemble-Qwen
 ```powershell
 .\setup.cmd docker                # a) free demo - no key, no evidence (~30 s + a one-time ~290 MB image build on the very first run)
 .\setup.cmd C:\path\to\your\case  # b) real investigation - just the folder, ONE line
+.\setup.cmd dc01                  # c) no evidence? "dc01" auto-downloads the featured public case (~5.4 GB)
 ```
 
 **🍎 macOS / 🐧 Linux - Terminal:**
 ```bash
 ./setup.sh docker               # a) free demo - no key, no evidence (~30 s + a one-time ~290 MB image build on the very first run)
 ./setup.sh /path/to/your/case   # b) real investigation - just the folder, ONE line
+./setup.sh dc01                 # c) no evidence? "dc01" auto-downloads the featured public case (~5.4 GB)
 ```
 
 > 💡 **Easiest of all - let it ask you.** Run just **`.\setup.cmd`** (Windows) or
@@ -263,7 +265,7 @@ The international (Singapore) DashScope endpoint is the default; set
 > zero-regression fallback - unset `SIFT_LLM_PROVIDER` and set `ANTHROPIC_API_KEY`
 > to run the identical pipeline on Claude. Not needed for the Qwen Cloud submission.
 
-## ☁️ Run it on Alibaba Cloud (from a brand-new Ubuntu box)
+## ⛅ Run it on Alibaba Cloud (from a brand-new Ubuntu box)
 
 **Never used a cloud server? No problem.** This is the complete path from an
 empty Alibaba Cloud account to a finished investigation, every click and command
@@ -302,9 +304,9 @@ option Alibaba recommends for AI-API agents.
 ```bash
 # 3) code + toolchain + free demo - one line
 curl -fsSL https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.sh | bash -s -- docker
-# 4) real investigation on the featured public case - the walkthrough asks for
-#    depth + your key (hidden paste; one Enter saves it for good)
-sudo apt-get install -y unzip && mkdir -p ~/cases/dc01 && cd ~/cases/dc01 && wget https://dfirmadness.com/case001/DC01-memory.zip https://dfirmadness.com/case001/DC01-E01.zip && unzip -o DC01-memory.zip && unzip -o DC01-E01.zip && cd ~/Sentinel-Ensemble-Qwen && sudo ./setup.sh ~/cases/dc01
+# 4) real investigation on the featured public case ("dc01" auto-downloads the
+#    evidence; the walkthrough asks depth + your key - one Enter saves it for good)
+cd ~/Sentinel-Ensemble-Qwen && sudo ./setup.sh dc01
 ```
 
 </details>
@@ -342,19 +344,27 @@ cd Sentinel-Ensemble-Qwen
 
 ### 4️⃣ Run a real investigation (ONE command - it asks for everything else)
 
-No key setup, no `.env` editing - **the walkthrough asks for everything**.
-Pull a free public case straight onto the box - this is the **DFIR Madness
-"Stolen Szechuan Sauce" DC01** pair, the exact investigation shown in the demo
-video (more options: [🧪 Get evidence](#-get-evidence-to-investigate)) - then
-point the one-liner at the folder:
+No key setup, no downloads, no `.env` editing - the magic case name **`dc01`**
+tells the launcher to **fetch the featured public case itself** (the **DFIR
+Madness "Stolen Szechuan Sauce" DC01** pair, the exact investigation shown in
+the demo video; ~5.4 GB, one time, downloads resume if interrupted):
 
 ```bash
-sudo apt-get install -y unzip
-mkdir -p ~/cases/dc01 && cd ~/cases/dc01
-wget https://dfirmadness.com/case001/DC01-memory.zip https://dfirmadness.com/case001/DC01-E01.zip
-unzip -o DC01-memory.zip && unzip -o DC01-E01.zip
-cd ~/Sentinel-Ensemble-Qwen && sudo ./setup.sh ~/cases/dc01
+cd ~/Sentinel-Ensemble-Qwen && sudo ./setup.sh dc01
 ```
+
+<details>
+<summary>Prefer to download the evidence yourself (or use another case)?</summary>
+
+```bash
+sudo apt-get install -y unzip && mkdir -p ~/cases/dc01 && cd ~/cases/dc01 && wget https://dfirmadness.com/case001/DC01-memory.zip https://dfirmadness.com/case001/DC01-E01.zip && unzip -o DC01-memory.zip && unzip -o DC01-E01.zip && cd ~/Sentinel-Ensemble-Qwen && sudo ./setup.sh ~/cases/dc01
+```
+
+One paste-safe line on purpose: pasting a multi-line block into a busy
+terminal can feed later lines into a still-running command. More cases:
+[🧪 Get evidence](#-get-evidence-to-investigate).
+
+</details>
 
 **The walkthrough asks you three things, in order:** the case card
 auto-detects the **paired memory + disk** shape (the strongest evidence
@@ -537,6 +547,7 @@ This is the actual HTML dashboard from the featured **public DC01** run:
 | `.\setup.cmd` / `./setup.sh` "not recognized" or nothing happens | wrong terminal: **Windows** uses **`.\setup.cmd`** in **PowerShell**; **macOS/Linux** uses `./setup.sh` in the **Terminal**. Run each line separately (older PowerShell rejects `&&`) |
 | PowerShell "running scripts is disabled" | use **`.\setup.cmd`** (needs no policy change). Only if you chose `.\setup.ps1` directly, one-time: `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned`, answer `Y`, re-run |
 | No Docker / daemon not running | install/start **Docker Desktop** (docker.com); on **Linux** `./setup.sh docker` even offers to install Docker for you and falls back to `sudo docker` automatically |
+| `docker: --env-file: invalid env file (.env)` | your `.env` was hand-edited into an invalid state (e.g. stray characters before a `#`). Fix: `rm .env`, then run `./setup.sh dc01` (or your case) - the hidden key prompt recreates it cleanly |
 | `.E01` disk won't mount in the container | launch via `.\setup.cmd C:\path\to\case` / `./setup.sh /path/to/case` - it passes the required FUSE flags automatically (manual flags: [`docs/DOCKER.md`](docs/DOCKER.md) §3) |
 | The run doesn't start after you pick depth | you ran `step0_onboard.py` directly (staged / dev mode) - use `.\setup.cmd` / `./setup.sh` / `findevil.sh`, which are live by default |
 | No prompt appears in CI/scripts | that's by design: headless + no path → usage + exit 2 (no hang) |

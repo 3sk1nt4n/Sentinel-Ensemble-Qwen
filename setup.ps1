@@ -137,10 +137,12 @@ function Read-CasePath {
     Write-Host "   Paste the FOLDER that holds this case (memory + disk + notes)."
     Write-Host "     Example:  C:\Users\You\Downloads\my-case" -ForegroundColor Gray
     Write-Host "     Tip: you can drag the folder onto this window to paste its path." -ForegroundColor DarkGray
+    Write-Host "     No evidence yet? Type dc01 - the featured public case is downloaded for you (~5.4 GB)." -ForegroundColor DarkGray
     while ($true) {
-        $p = (Read-Host "   path (or Q to quit)").Trim().Trim('"')
+        $p = (Read-Host "   path (or dc01, or Q to quit)").Trim().Trim('"')
         if ($p -eq '') { continue }
         if ($p -eq 'q' -or $p -eq 'Q') { return $null }
+        if ($p -match '^(?i)dc01$') { return 'dc01' }
         if (Test-Path -LiteralPath $p -PathType Container) { return (Resolve-Path -LiteralPath $p).Path }
         if (Test-Path -LiteralPath $p -PathType Leaf) {
             Warn "that's a file - give me the FOLDER it lives in (it should hold the memory + disk)."
@@ -181,10 +183,12 @@ if ($Mode -eq 'docker') {
     docker run --rm -it sentinel-qwen:demo
     if ($LASTEXITCODE -ne 0) { Bad "demo run failed (see above)"; exit 1 }
     Write-Host "`n  OK  Docker demo works." -ForegroundColor Green
-    Write-Host "  Real investigation - ONE line:" -ForegroundColor White
-    Write-Host "    .\setup.cmd C:\path\to\case      (or just .\setup.cmd - it asks for the folder)"
-    Write-Host "    (key from .env or a hidden prompt - get one at home.qwencloud.com/api-keys)"
-    Write-Host "    Free public cases + full guide: docs\DOCKER.md`n"
+    Write-Host "  NEXT STEP - real investigation on the featured public case, ONE line" -ForegroundColor White
+    Write-Host "  (auto-downloads the evidence, ~5.4 GB one time):"
+    Write-Host "    cd `"$RepoDir`"; .\setup.cmd dc01" -ForegroundColor Cyan
+    Write-Host "  Have your own case?  cd `"$RepoDir`"; .\setup.cmd C:\path\to\case"
+    Write-Host "  It asks for your key at a hidden prompt - one Enter saves it for good."
+    Write-Host "    (Get a key: home.qwencloud.com/api-keys - Full guide: docs\DOCKER.md)`n"
     exit 0
 }
 
@@ -212,12 +216,36 @@ if ($Mode -eq 'run' -or $Mode -eq '') {
         $CasePath = Read-CasePath
         if (-not $CasePath) { Write-Host "  Bye - nothing was run."; exit 0 }
     }
+    # Magic case name: "dc01" = download the featured public case (DFIR Madness
+    # "Stolen Szechuan Sauce" DC01, memory + disk, ~5.4 GB zipped) for the user.
+    if ($CasePath -match '^(?i)dc01$') {
+        $CasePath = Join-Path $HOME 'cases\dc01'
+        # Reuse only when UNZIPPED evidence exists - a folder holding nothing
+        # but .zip files is an interrupted download, so finish it instead.
+        if ((Test-Path -LiteralPath $CasePath) -and (Get-ChildItem -LiteralPath $CasePath -File -Exclude '*.zip' -ErrorAction SilentlyContinue)) {
+            Ok "using the previously downloaded featured case: $CasePath"
+        } else {
+            Sec "Downloading the featured public case (DFIR Madness DC01, ~5.4 GB - one time)"
+            New-Item -ItemType Directory -Force -Path $CasePath | Out-Null
+            foreach ($u in 'https://dfirmadness.com/case001/DC01-memory.zip',
+                           'https://dfirmadness.com/case001/DC01-E01.zip') {
+                $zip = Join-Path $CasePath (Split-Path $u -Leaf)
+                if (-not (Test-Path -LiteralPath $zip)) {
+                    Write-Host "  --   downloading $(Split-Path $u -Leaf) ..."
+                    Invoke-WebRequest -Uri $u -OutFile $zip
+                }
+                Expand-Archive -LiteralPath $zip -DestinationPath $CasePath -Force
+            }
+            Ok "evidence ready: $CasePath"
+        }
+    }
     if (-not (Test-Path -LiteralPath $CasePath -PathType Container)) {
         Bad "case folder not found: $CasePath"
         Write-Host "  That path doesn't exist. Two things to check:" -ForegroundColor Yellow
         Write-Host "    1) If your download is still a .zip, unzip it first, then use the unzipped FOLDER."
         Write-Host "    2) Point at the FOLDER (not a file) that holds the memory + disk images."
         Write-Host "  Easiest: run just  .\setup.cmd  and DRAG the folder into the window when it asks." -ForegroundColor Cyan
+        Write-Host "  No evidence at all?  .\setup.cmd dc01  downloads the featured public case." -ForegroundColor Cyan
         exit 2
     }
     $Case = (Resolve-Path -LiteralPath $CasePath).Path

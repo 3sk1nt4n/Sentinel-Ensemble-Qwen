@@ -73,6 +73,16 @@ on the featured case; pick ECS (Option B) only for larger evidence sets.
 
 ## 2) Install Docker + the agent on the instance (SAS or ECS)
 
+One paste does it all - installs git + Docker if missing, clones (or updates)
+the repo, builds the image, runs the zero-cost demo:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.sh | bash -s -- docker
+```
+
+<details>
+<summary>Classic step-by-step equivalent (no piped script)</summary>
+
 ```bash
 sudo apt-get update && sudo apt-get install -y git
 git clone https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen.git
@@ -81,10 +91,16 @@ cd Sentinel-Ensemble-Qwen
                     # builds + runs the zero-cost demo - proves the flow end to end
 ```
 
+</details>
+
 The `sentinel-qwen` image bundles the **entire forensic toolchain**
 ([`docs/DOCKER.md`](docs/DOCKER.md)) - nothing else to install on the host.
 
 ## 3) Point it at Qwen (DashScope)
+
+Zero-edit path: skip this whole section - `./setup.sh dc01` (or
+`./setup.sh /path/to/case`) asks for the key at a **hidden prompt**, and one
+Enter saves it to the gitignored `.env` for every later run. Manual reference:
 
 ```bash
 cp .env.qwen.example .env
