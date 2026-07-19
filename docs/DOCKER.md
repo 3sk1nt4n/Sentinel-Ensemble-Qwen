@@ -8,6 +8,7 @@ VM, no forensic-toolchain install. Two commands cover everything on this page.
 ```powershell
 .\setup.cmd docker               # zero-cost demo - no key, no evidence (~30 s)
 .\setup.cmd C:\path\to\your\case # real investigation - just the folder, ONE line
+.\setup.cmd dc01                 # no evidence? auto-downloads the featured memory + disk case (~5.4 GB, once)
 ```
 *(`.\setup.cmd` needs no setup and sidesteps PowerShell's script policy. `.\setup.ps1`
 works too if scripts are enabled. Run just `.\setup.cmd` to be walked through it.)*
@@ -16,6 +17,7 @@ works too if scripts are enabled. Run just `.\setup.cmd` to be walked through it
 ```bash
 ./setup.sh docker               # zero-cost demo - no key, no evidence (~30 s)
 ./setup.sh /path/to/your/case   # real investigation - just the folder, ONE line
+./setup.sh dc01                 # no evidence? auto-downloads the featured memory + disk case (~5.4 GB, once)
 ```
 
 Handing the launcher your **case folder** builds the image on first use, reads
@@ -60,6 +62,11 @@ docker run --rm -it sentinel-qwen:demo
 ---
 
 ## 2. A real investigation on Qwen Cloud
+
+No evidence of your own yet? `./setup.sh dc01` downloads the featured public
+**memory + disk** pair for you (skipped when already installed) and runs it.
+The hidden key prompt saves your key to the gitignored `.env` with one Enter -
+no run on that machine ever asks again. With your own case:
 
 ```bash
 ./setup.sh /path/to/your/case

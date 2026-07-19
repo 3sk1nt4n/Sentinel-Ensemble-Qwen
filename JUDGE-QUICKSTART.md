@@ -12,6 +12,20 @@ Five minutes from clone to a verified end-to-end demo (**no evidence, no API
 key** - `./setup.sh docker`, §2). A real investigation **on Qwen models hosted
 on Alibaba Cloud** is then one line (first toolchain build ~15 min, once).
 
+> ⚡ **Fastest judge path - ONE paste** (macOS / Linux / cloud Terminal):
+>
+> ```bash
+> curl -fsSL https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.sh | bash -s -- dc01
+> ```
+>
+> That single line self-updates, downloads the featured **memory + disk** case
+> (skipped when already installed), builds the toolchain, then asks the only
+> three things that are yours: **depth (model pick) → hidden API-key paste
+> (one Enter saves it for good) → FIND**. Free no-key demo instead: same line
+> with `docker` in place of `dc01`. Windows:
+> `irm https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.ps1 | iex`,
+> then `.\setup.cmd dc01`.
+
 ---
 
 ## 1️⃣ Prerequisites
@@ -26,8 +40,8 @@ install; the image bundles **every** tool the agent calls (full guide:
 > plus **Git**. That's the only setup - the image brings every forensic tool.
 > On **Linux**, `./setup.sh docker` even installs Docker for you.
 >
-> **☁️ Judging from an Alibaba Cloud instance?** Same two commands on a fresh
-> SAS/ECS Ubuntu box (`apt-get install -y git`, clone, `./setup.sh docker`) -
+> **☁️ Judging from an Alibaba Cloud instance?** The same ONE paste above works
+> on a fresh SAS/ECS Ubuntu box (it installs git and Docker itself) -
 > **verified end-to-end on a SAS instance in Singapore** (screenshot + live
 > `SENTINEL-QWEN-OK` call in [`docs/proof/`](docs/proof/); runbook:
 > [`DEPLOY-ALIBABA.md`](DEPLOY-ALIBABA.md)).
