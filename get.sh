@@ -14,6 +14,11 @@ set -euo pipefail
 REPO_URL="https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen.git"
 DIR="Sentinel-Ensemble-Qwen"
 
+# Already INSIDE the checkout? Use it - never clone a nested copy.
+if [ -d .git ] && [ "$(basename "$PWD")" = "$DIR" ]; then
+  DIR="."
+fi
+
 if ! command -v git >/dev/null 2>&1; then
   echo "Installing git ..."
   if   command -v apt-get >/dev/null 2>&1; then sudo apt-get update -qq && sudo apt-get install -y git

@@ -415,6 +415,10 @@ if [ "$RUN" = 1 ]; then
     printf "   Folder:  %s\n" "$OUT"
     [ -n "$_html" ] && printf "\n   Interactive report (opens in your browser):\n     ${C}%s \"%s\"${X}\n" "$_opener" "$_html"
     [ -s "$_md" ]   && printf "\n   Narrative report:\n     ${C}%s \"%s\"${X}\n" "$_opener" "$_md"
+    # Headless server (no display): the opener cannot help - read it in place.
+    if [ "$(uname)" != "Darwin" ] && [ -z "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ] && [ -s "$_md" ]; then
+      printf "   Headless box? Read it right here:\n     ${C}less \"%s\"${X}\n" "$_md"
+    fi
     printf "\n   (or just open the folder:  %s \"%s\" )\n\n" "$_opener" "$OUT"
     # Super-friendly: auto-open the interactive report in the default browser the
     # moment the run finishes. GUI hosts only (macOS always; Linux only when a
