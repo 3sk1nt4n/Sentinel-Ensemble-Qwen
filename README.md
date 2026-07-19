@@ -88,38 +88,37 @@ Sleuth Kit, YARA, EZ Tools, Plaso, RegRipper, bulk_extractor, …) comes bundled
 
 ### ⚡ Fastest: ONE command does everything
 
-Already have Docker (step 1️⃣)? Then one paste is the whole setup - it fetches
-the code (installing git if needed) and starts the **guided walkthrough**:
-banner → what-to-drop-in-the-folder guide → **drag your evidence folder in** →
-case card → depth pick → **hidden API-key paste** → run. Every step asks you;
-nothing to memorize.
+Already have Docker (step 1️⃣)? Then **one paste is the whole setup**. Find
+your computer below, pick **ONE** line - both start the same guided
+walkthrough, which self-updates, self-heals, builds what's missing, and asks
+you only three things: **depth (model pick: HEAVY `qwen3.7-max` / LIGHT
+`qwen-plus`) → hidden API-key paste (one Enter saves it for good) → FIND**.
 
-**🍎 macOS / 🐧 Linux / ☁️ cloud box** - Terminal:
-```bash
-curl -fsSL https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.sh | bash
-```
+- **Option 1 - your own evidence:** it asks you to drag YOUR evidence folder in.
+- **Option 2 - no evidence yet:** it first auto-downloads the featured public
+  case (the DFIR Madness DC01 **memory + disk** pair, ~5.4 GB once), then runs it.
 
-**🪟 Windows** - PowerShell:
+**🪟 Windows - open PowerShell, paste ONE of these:**
 ```powershell
+# Option 1 - your own evidence (it asks for the folder):
 irm https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.ps1 | iex
-```
 
-**Rest-assured mode** - one line, nothing else to know. It self-updates,
-downloads the featured **memory + disk** case if needed, self-heals, builds
-what's missing, then asks you the only three things that are yours to answer:
-**depth (model pick: HEAVY `qwen3.7-max` / LIGHT `qwen-plus`) → hidden
-API-key paste (one Enter saves it for good) → FIND**:
-
-**🍎 macOS / 🐧 Linux / ☁️ cloud box** - Terminal (bash - NOT PowerShell):
-```bash
-curl -fsSL https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.sh | bash -s -- dc01
-```
-
-**🪟 Windows** - PowerShell (`curl` means something else there - use this form):
-```powershell
+# Option 2 - featured case, auto-downloaded for you:
 & ([scriptblock]::Create((irm https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.ps1))) dc01
 ```
 
+**🍎 macOS / 🐧 Linux / ☁️ cloud box - open the Terminal, paste ONE of these:**
+```bash
+# Option 1 - your own evidence (it asks for the folder):
+curl -fsSL https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.sh | bash
+
+# Option 2 - featured case, auto-downloaded for you:
+curl -fsSL https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.sh | bash -s -- dc01
+```
+
+> ⚠️ **Match the line to the window.** The `curl` lines belong in the
+> macOS/Linux **Terminal** only - in Windows **PowerShell**, `curl` is a
+> different command and will error; use the 🪟 lines above.
 > [`get.sh`](get.sh) / [`get.ps1`](get.ps1) are short, readable scripts in this
 > repo - read them first if you like. Prefer to see every step yourself? The
 > classic 3-step path is right below (same result).
