@@ -152,13 +152,15 @@ ensure_docker() {
   fi
   # Daemon reachable as-is?
   docker info >/dev/null 2>&1 && { DOCKER="docker"; return 0; }
-  # Not running? On Linux offer to start it (Docker Desktop must be started by hand).
-  if [ "$(uname -s)" = "Linux" ] && [ -t 0 ]; then
-    printf "  ${Y}Docker daemon is not reachable.${X} Try starting it (needs sudo)? [Y/n] "
-    read -r _ans
-    case "$_ans" in n|N|no|NO) : ;; *)
-      sudo systemctl start docker >/dev/null 2>&1 || sudo service docker start >/dev/null 2>&1 || true ;;
-    esac
+  # Not running? On Linux start it WITHOUT asking - the user launched a Docker
+  # command, so starting Docker is the task, not a choice. `enable --now` also
+  # turns on start-at-boot, so a rebooted box never hits this again.
+  # (Docker Desktop on macOS/Windows must be started by hand.)
+  if [ "$(uname -s)" = "Linux" ]; then
+    printf "  ${B}--${X}   Docker daemon not running - starting it now (also enabling start-at-boot)...\n"
+    sudo systemctl enable --now docker >/dev/null 2>&1 \
+      || sudo systemctl start docker >/dev/null 2>&1 \
+      || sudo service docker start >/dev/null 2>&1 || true
     docker info >/dev/null 2>&1 && { DOCKER="docker"; return 0; }
   fi
   # Installed + running but this user lacks docker-group access -> sudo fallback.
