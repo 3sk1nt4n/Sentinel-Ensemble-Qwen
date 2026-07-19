@@ -39,13 +39,18 @@ issues live HTTPS calls to the DashScope endpoint.
 ### Option A - Simple Application Server (SAS): the fast, fixed-price path
 
 The official hackathon guide recommends SAS for LLM-API agents ("deploy in
-under 5 minutes", predictable monthly billing). Ideal for the demo +
-proof-of-deployment run; pick ECS (Option B) for full-evidence investigations.
+under 5 minutes", predictable monthly billing). The cheapest plan covers the
+demo + proof-of-deployment run; the top SAS plan covers a real investigation
+on the featured case; pick ECS (Option B) only for larger evidence sets.
 
 1. **[SAS Console](https://swas.console.alibabacloud.com/)** (English / international) → **Create Server** → Region (Singapore matches the
    DashScope intl endpoint) → Image: an **OS image (Ubuntu 22.04)** or the
-   **Docker application image** → cheapest plan → pay. The instance provisions
-   immediately with a public IP.
+   **Docker application image** → pick a plan → pay. The instance provisions
+   immediately with a public IP. Plans: **cheapest** = demo/proof;
+   **General-purpose ($48/mo: 4 vCPU / 16 GB RAM / 80 GB ESSD, 200 Mbps
+   peak)** = the recommended pick for a real run - it comfortably fits the
+   featured DFIR Madness DC01 paired case (~11 GB evidence + toolchain
+   image + tool output). No GPU plan needed: the models run on Qwen Cloud.
 2. **No default password:** on the instance card use **Reset Password** first.
 3. **Connect** via the console's **Workbench** button (browser terminal, logs in
    as root - this is the same Workbench view the proof screenshot comes from).

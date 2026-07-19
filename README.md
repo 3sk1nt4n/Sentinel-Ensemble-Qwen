@@ -277,7 +277,7 @@ option Alibaba recommends for AI-API agents.
 | Open the **[SAS console](https://swas.console.alibabacloud.com/)** (English / international) → **Create Server** | Sign in first; request the **$40 hackathon voucher** if you have not, and check your credit at the **[billing console](https://billing-cost.console.alibabacloud.com/home)** |
 | **Region** | **Singapore** (matches the international DashScope endpoint, lowest latency) |
 | **Image** | **Ubuntu 22.04** (or 24.04), pick the plain **OS image**, not an app image |
-| **Plan** | **demo + proof:** the **cheapest** tier works (that is what we deployed on). **Real investigation, best performance:** **8 vCPU / 16 GB RAM / 100 GB disk** as the floor - Volatility 3 and disk extraction are CPU/RAM/disk-hungry; size RAM **above your largest memory image**. **No GPU needed** - the AI brain runs on **Qwen Cloud**, so spend on CPU/RAM/disk instead ([`DEPLOY-ALIBABA.md`](DEPLOY-ALIBABA.md) §1) |
+| **Plan** | **demo + proof:** the **cheapest** tier works. **Real investigation (recommended):** the top SAS plan - **General-purpose, $48/mo: 4 vCPU / 16 GB RAM / 80 GB ESSD, 200 Mbps** - comfortably runs the featured DC01 paired case (Volatility 3 and disk extraction are CPU/RAM/disk-hungry; size RAM **above your largest memory image**). Evidence bigger than that → **ECS** (8 vCPU / 100 GB+, [`DEPLOY-ALIBABA.md`](DEPLOY-ALIBABA.md) §1B). **No GPU needed** - the AI brain runs on **Qwen Cloud**, so spend on CPU/RAM/disk instead |
 | **Buy**, then wait ~60 seconds | the server gets a **public IP** automatically |
 
 > ✅ **You did it when:** the server card shows **Running** with a green dot.
