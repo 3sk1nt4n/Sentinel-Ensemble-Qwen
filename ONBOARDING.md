@@ -24,12 +24,15 @@ legacy tests quarantined - see [`tests/QUARANTINE.md`](tests/QUARANTINE.md)).
    (No local toolchain? `./setup.sh docker` runs the same demo in Docker.)
 3. Read [`ARCHITECTURE.md`](ARCHITECTURE.md) - the Step 0→16 pipeline diagram and the 14 defense layers.
 4. Run the suite once so you know your baseline: `./.venv/bin/pytest tests/ -q`.
+5. Need real evidence to test against? `./setup.sh dc01` downloads the featured
+   public memory + disk pair (~5.4 GB once) and runs a full investigation on it.
 
 ## Map of the code
 
 | Path | Responsibility |
 |---|---|
 | `run_pipeline.py` | the conductor - top-level 16-step orchestrator (module-level script) |
+| `setup.sh` / `setup.ps1` / `get.sh` / `get.ps1` | the user-facing launcher layer: one-line Docker runs, the `dc01` sample fetcher, hidden-key save, self-healing bootstrap (`get.*` are the curl-able one-command entry points) |
 | `step0_onboard.py` / `findevil.sh` | conversational onboarding: evidence profiling, read-only mounting, launch |
 | `src/sift_sentinel/coordinator.py` | tool dispatch, registry, ReAct investigation loop |
 | `src/sift_sentinel/tools/` | typed MCP tools (memory, disk, capabilities, common) |
