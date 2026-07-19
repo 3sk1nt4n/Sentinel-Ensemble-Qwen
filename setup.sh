@@ -285,6 +285,26 @@ if [ "$RUN" = 1 ]; then
   CASE="$(cd "$CASE" && pwd)"
   ensure_docker
 
+  # OOM guard: cheap cloud tiers get the pipeline SIGKILLed (exit -9) at the
+  # report step when RAM runs out. With < 8 GB RAM and no swap, add an 8 GB
+  # swapfile ONCE (persisted in fstab) so the kernel pages instead of killing.
+  if [ "$(uname -s)" = "Linux" ]; then
+    _mem_kb=$(awk '/MemTotal/{print $2}' /proc/meminfo 2>/dev/null || echo 0)
+    _swap_kb=$(awk '/SwapTotal/{print $2}' /proc/meminfo 2>/dev/null || echo 0)
+    if [ "${_mem_kb:-0}" -gt 0 ] && [ "${_mem_kb:-0}" -lt 8000000 ] && [ "${_swap_kb:-0}" -lt 2000000 ]; then
+      note "small-RAM box detected - adding an 8 GB swapfile once so the run cannot be OOM-killed"
+      if [ ! -f /swapfile ]; then
+        sudo fallocate -l 8G /swapfile 2>/dev/null \
+          || sudo dd if=/dev/zero of=/swapfile bs=1M count=8192 status=none 2>/dev/null || true
+        sudo chmod 600 /swapfile 2>/dev/null || true
+        sudo mkswap /swapfile >/dev/null 2>&1 || true
+      fi
+      sudo swapon /swapfile 2>/dev/null || true
+      grep -q '^/swapfile' /etc/fstab 2>/dev/null \
+        || echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab >/dev/null 2>&1 || true
+    fi
+  fi
+
   # Always build (never just reuse): Docker's layer cache makes this a ~2s no-op
   # when nothing changed, but a plain reuse would silently run a STALE image
   # (e.g. an older build from before a fix). First build ~15 min; later ones instant.
