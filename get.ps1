@@ -27,9 +27,14 @@ if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
 }
 
 if (Test-Path "$dir\.git") {
-    Write-Host "Updating existing $dir ..."
-    git -C $dir pull --ff-only
-    if ($LASTEXITCODE -ne 0) { Write-Host '  (local changes kept - continuing with what you have)' }
+    # Appliance-style update: force the repo to byte-exact latest published
+    # code (as good as a fresh clone). Your key (.env / API_KEY.txt), results
+    # (sentinel-results\) and evidence stay untouched - they are untracked.
+    Write-Host "Updating $dir to the latest published version ..."
+    git -C $dir fetch --quiet origin master
+    if ($LASTEXITCODE -eq 0) { git -C $dir reset --hard --quiet origin/master }
+    if ($LASTEXITCODE -eq 0) { Write-Host '  up to date - repo files now match the latest release exactly' }
+    else { Write-Host '  (update failed - continuing with what you have)' }
 } else {
     # core.longpaths: some test-fixture filenames exceed the legacy 260-char
     # Windows path limit when cloned into a deep folder.

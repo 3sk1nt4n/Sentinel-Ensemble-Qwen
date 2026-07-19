@@ -25,8 +25,17 @@ if ! command -v git >/dev/null 2>&1; then
 fi
 
 if [ -d "$DIR/.git" ]; then
-  echo "Updating existing $DIR ..."
-  git -C "$DIR" pull --ff-only || echo "  (local changes kept - continuing with what you have)"
+  # Appliance-style update: force the repo to byte-exact latest published code
+  # (as good as a fresh clone). Safe by design: your key (.env / API_KEY.txt),
+  # results (sentinel-results/) and evidence (~/cases) are untracked/outside
+  # the repo and are never touched.
+  echo "Updating $DIR to the latest published version ..."
+  if git -C "$DIR" fetch --quiet origin master \
+     && git -C "$DIR" reset --hard --quiet origin/master; then
+    echo "  up to date - repo files now match the latest release exactly"
+  else
+    echo "  (update failed - continuing with what you have)"
+  fi
 else
   git clone "$REPO_URL" "$DIR"
 fi
