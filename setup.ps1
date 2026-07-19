@@ -236,6 +236,14 @@ if ($Mode -eq 'run' -or $Mode -eq '') {
             [bool](Get-ChildItem -LiteralPath $CasePath -Filter '*.E01' -ErrorAction SilentlyContinue)
         }
         Repair-Dc01Layout
+        # Shared host token so the engine pairs memory + disk into ONE card.
+        Get-ChildItem -LiteralPath $CasePath -File -ErrorAction SilentlyContinue | ForEach-Object {
+            if ($_.Name -match '\.(E\d\d)$' -and $_.BaseName -notmatch '^dc01-cdrive') {
+                Move-Item -LiteralPath $_.FullName -Destination (Join-Path $CasePath "dc01-cdrive$($_.Extension)") -Force
+            } elseif ($_.Extension -ieq '.mem' -and $_.BaseName -ne 'dc01-memory') {
+                Move-Item -LiteralPath $_.FullName -Destination (Join-Path $CasePath 'dc01-memory.mem') -Force
+            }
+        }
         if (Test-Dc01Complete) {
             # Leftover zips would be RE-EXTRACTED by the onboarding (it unpacks
             # archives), making every image appear twice - remove them here too.

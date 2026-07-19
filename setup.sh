@@ -220,6 +220,21 @@ if [ "$RUN" = 1 ]; then
     # see; older runs left it that way). Idempotent - a flat folder is a no-op.
     find "$CASE" -mindepth 2 -type f -exec mv -f {} "$CASE"/ \; 2>/dev/null || true
     find "$CASE" -mindepth 1 -type d -empty -delete 2>/dev/null || true
+    # Give the pair a SHARED host token so the engine pairs memory + disk into
+    # ONE case card (the public sample's names share no common token). Rename
+    # only - content untouched, hashes unchanged; EWF family kept consistent.
+    ( cd "$CASE" 2>/dev/null || exit 0
+      for s in *.[Ee][0-9][0-9]; do
+        [ -e "$s" ] || continue
+        case "$s" in dc01-cdrive.*) continue ;; esac
+        mv -f "$s" "dc01-cdrive.${s##*.}" 2>/dev/null || true
+      done
+      for f in *.mem; do
+        [ -e "$f" ] || continue
+        case "$f" in dc01-memory.*) continue ;; esac
+        mv -f "$f" "dc01-memory.mem" 2>/dev/null || true
+        break
+      done ) || true
     # "Installed" means BOTH halves of the pair are present and extracted.
     _dc01_complete() { ls "$CASE"/*.mem >/dev/null 2>&1 && ls "$CASE"/*.[Ee]01 >/dev/null 2>&1; }
     if _dc01_complete; then
@@ -340,8 +355,12 @@ if [ "$RUN" = 1 ]; then
   # add a pseudo-TTY (-t) only for a real terminal (a TTY with a pipe errors).
   TTY=(-i); [ -t 0 ] && TTY=(-it)
   sec "Launching the agent on your case (evidence mounted read-only)"
+  # Loop-device access (loop-control + host /dev + block-cgroup rule) lets the
+  # in-container mount ladder losetup a real .E01 - without it dmpad dies with
+  # "losetup failed". Evidence itself stays read-only (:ro) regardless.
   $DOCKER run --rm "${TTY[@]}" \
     --cap-add SYS_ADMIN --device /dev/fuse --security-opt apparmor:unconfined \
+    --device /dev/loop-control --device-cgroup-rule='b 7:* rmw' -v /dev:/dev \
     "${ENVARGS[@]}" -e SIFT_PERSIST_DIR=/out \
     -v "$CASE":/evidence:ro \
     -v "$OUT":/out \

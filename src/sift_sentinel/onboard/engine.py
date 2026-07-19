@@ -723,6 +723,30 @@ def _is_non_image_artifact(name: str) -> bool:
     return bool(_NON_IMAGE_ARTIFACT_RE.search(os.path.basename(str(name))))
 
 
+def _ewf_trailing_segment(path: str, universe) -> bool:
+    """True for a NON-FIRST EWF segment (.E02+/.Ex02+) whose FIRST segment
+    (.E01/.Ex01, same stem, same directory) is also present. libewf opens the
+    whole family from the first segment - and from ANY segment, which is why
+    each one probes as a full disk on its own. Folding trailing segments
+    prevents phantom extra-disk cases. Structure-only rule: extension
+    arithmetic + sibling presence, never file names."""
+    base = os.path.basename(str(path))
+    m = re.search(r"\.(ex?)(\d{2,})$", base, re.IGNORECASE)
+    if not m:
+        return False
+    try:
+        if int(m.group(2)) <= 1:
+            return False
+    except ValueError:
+        return False
+    first = (base[: m.start()] + "." + m.group(1) + "01").lower()
+    d = os.path.dirname(str(path))
+    for w in universe:
+        if os.path.dirname(str(w)) == d and os.path.basename(str(w)).lower() == first:
+            return True
+    return False
+
+
 # Role markers stripped from a filename to expose the HOST identity. Compound
 # disk markers (c-drive) come first so 'drive' alone never leaves a stray 'c'.
 _ROLE_MARKERS = (
@@ -1098,6 +1122,13 @@ def onboard(
         # evtx, pcap): kept as a quiet note, never probed, never flagged UNKNOWN.
         if _is_non_image_artifact(cand):
             other_artifacts += 1
+            continue
+        # A non-first EWF segment is the SAME disk as its .E01 sibling - fold
+        # it into the family instead of probing it into a phantom extra disk.
+        if _ewf_trailing_segment(cand, working):
+            emit(Phase.CLASSIFY, Status.OK,
+                 f"{name} - EWF segment of its .E01 family (same disk, folded in)",
+                 name=name, role="SEGMENT", probe="ewf-family")
             continue
         if archive.is_junk(cand) or _too_small_to_probe(cand):
             skipped += 1                    # collapsed into one summary line
