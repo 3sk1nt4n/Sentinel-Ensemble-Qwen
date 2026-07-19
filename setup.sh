@@ -385,12 +385,13 @@ if [ "$DOCKER_MODE" = 1 ]; then
   sec "Running the demo (no key, no evidence)"
   $DOCKER run --rm sentinel-qwen:demo || { printf "  ${R}FAIL${X} demo run failed\n"; exit 1; }
   printf "\n  ${G}${B}✅  Docker demo works.${X}\n"
-  printf "  ${B}NEXT STEP - real investigation on the featured public case, ONE line${X}\n"
-  printf "  ${B}(auto-downloads the FULL pair - memory + disk, ~5.4 GB one time; works from any folder):${X}\n"
-  printf "    ${C}cd \"%s\" && ./setup.sh dc01${X}\n" "$REPO_DIR"
+  printf "  ${B}NEXT STEP - real investigation on the featured public case, ONE line.${X}\n"
+  printf "  ${B}Self-updates + auto-downloads the FULL pair (memory + disk, ~5.4 GB one${X}\n"
+  printf "  ${B}time), then asks: depth (model pick) -> hidden key -> FIND:${X}\n"
+  printf "    ${C}curl -fsSL https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.sh | bash -s -- dc01${X}\n"
   printf "  Have your own case folder instead?\n"
   printf "    ${C}cd \"%s\" && ./setup.sh /path/to/case${X}\n" "$REPO_DIR"
-  printf "  It asks for your key at a hidden prompt - one Enter saves it for good.\n"
+  printf "  The hidden key prompt saves your key with one Enter - never asked again.\n"
   printf "  (Get a key: home.qwencloud.com/api-keys · Full guide: docs/DOCKER.md)\n\n"
   exit 0
 fi

@@ -41,6 +41,10 @@ if [ -t 0 ]; then
   exec ./setup.sh "$@"
 elif ( : </dev/tty ) 2>/dev/null; then
   exec ./setup.sh "$@" </dev/tty
+elif [ $# -gt 0 ]; then
+  # Headless but the caller was explicit - honor the args (setup.sh and the
+  # onboarding handle no-TTY sanely: usage + exit instead of hanging).
+  exec ./setup.sh "$@"
 else
   echo "(no interactive terminal detected - running the zero-cost demo instead)"
   exec ./setup.sh docker

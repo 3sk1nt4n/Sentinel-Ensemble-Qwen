@@ -104,6 +104,16 @@ curl -fsSL https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/mas
 irm https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.ps1 | iex
 ```
 
+**Rest-assured mode** - one line, nothing else to know. It self-updates,
+downloads the featured **memory + disk** case if needed, self-heals, builds
+what's missing, then asks you the only three things that are yours to answer:
+**depth (model pick: HEAVY `qwen3.7-max` / LIGHT `qwen-plus`) → hidden
+API-key paste (one Enter saves it for good) → FIND**:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.sh | bash -s -- dc01
+```
+
 > [`get.sh`](get.sh) / [`get.ps1`](get.ps1) are short, readable scripts in this
 > repo - read them first if you like. Prefer to see every step yourself? The
 > classic 3-step path is right below (same result).
@@ -299,15 +309,15 @@ option Alibaba recommends for AI-API agents.
    `root`. *(This is the exact console view our proof screenshot comes from.)*
 
 <details>
-<summary>⚡ <b>In a hurry? Steps 3️⃣-4️⃣ are just TWO pastes</b> (each explained below)</summary>
+<summary>⚡ <b>In a hurry? ONE paste does the whole thing</b> (steps 3️⃣-4️⃣ explain it)</summary>
 
 ```bash
-# 3) code + toolchain + free demo - one line
-curl -fsSL https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.sh | bash -s -- docker
-# 4) real investigation on the featured public case ("dc01" auto-downloads the
-#    memory + disk pair; the walkthrough asks depth + your key - one Enter saves it for good)
-cd ~/Sentinel-Ensemble-Qwen && sudo ./setup.sh dc01
+# Everything: installs git+Docker, fetches the code, downloads the featured
+# memory + disk case, builds the toolchain, then asks depth -> hidden key -> FIND
+curl -fsSL https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.sh | bash -s -- dc01
 ```
+
+(Want the free no-key demo first? Same line with `docker` instead of `dc01`.)
 
 </details>
 
