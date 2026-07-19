@@ -223,6 +223,9 @@ if [ "$RUN" = 1 ]; then
     # "Installed" means BOTH halves of the pair are present and extracted.
     _dc01_complete() { ls "$CASE"/*.mem >/dev/null 2>&1 && ls "$CASE"/*.[Ee]01 >/dev/null 2>&1; }
     if _dc01_complete; then
+      # Leftover zips would be RE-EXTRACTED by the onboarding (it unpacks
+      # archives), making every image appear twice - remove them here too.
+      rm -f "$CASE"/DC01-memory.zip "$CASE"/DC01-E01.zip 2>/dev/null || true
       ok "featured case already installed (memory + disk found) - skipping the download"
     else
       sec "Downloading the featured public case (DFIR Madness DC01: memory + disk pair, ~5.4 GB - one time)"

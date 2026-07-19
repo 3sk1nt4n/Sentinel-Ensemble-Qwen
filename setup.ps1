@@ -237,6 +237,9 @@ if ($Mode -eq 'run' -or $Mode -eq '') {
         }
         Repair-Dc01Layout
         if (Test-Dc01Complete) {
+            # Leftover zips would be RE-EXTRACTED by the onboarding (it unpacks
+            # archives), making every image appear twice - remove them here too.
+            Remove-Item -LiteralPath (Join-Path $CasePath 'DC01-memory.zip'), (Join-Path $CasePath 'DC01-E01.zip') -Force -ErrorAction SilentlyContinue
             Ok "featured case already installed (memory + disk found) - skipping the download"
         } else {
             Sec "Downloading the featured public case (DFIR Madness DC01: memory + disk pair, ~5.4 GB - one time)"
