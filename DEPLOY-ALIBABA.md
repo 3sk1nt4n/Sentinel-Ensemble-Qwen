@@ -52,6 +52,8 @@ on the featured case; pick ECS (Option B) only for larger evidence sets.
    peak)** = the recommended pick for a real run - it comfortably fits the
    featured DFIR Madness DC01 paired case (~11 GB evidence + toolchain
    image + tool output). No GPU plan needed: the models run on Qwen Cloud.
+   Small-RAM tiers: the launcher auto-adds a swapfile so the pipeline is not
+   OOM-killed mid-run - it completes, just slower than on a 16 GB plan.
 2. **No default password:** on the instance card use **Reset Password** first.
 3. **Connect** via the console's **Workbench** button (browser terminal, logs in
    as root - this is the same Workbench view the proof screenshot comes from).
