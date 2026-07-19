@@ -134,7 +134,7 @@ Report artifacts can be pushed back to OSS after the run.
 ## 5) Run an investigation (on Qwen, on Alibaba Cloud)
 
 ```bash
-sudo ./setup.sh /cases/evidence/<case>   # ONE line - image, key (.env), flags, read-only mount
+./setup.sh /cases/evidence/<case>   # ONE line - image, key (.env), flags, read-only mount (self-escalates to sudo docker if needed)
 ```
 Evidence is mounted **read-only** and SHA256-fingerprinted pre/post (chain of
 custody); the report lands in the run directory (and optionally OSS). The

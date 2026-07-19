@@ -213,7 +213,20 @@ if [ "$RUN" = 1 ]; then
   # Madness "Stolen Szechuan Sauce" DC01, memory + disk, ~5.4 GB zipped) so the
   # user never has to hand-download evidence to try a real investigation.
   if printf '%s' "$CASE" | grep -qiE '^dc01$'; then
-    CASE="$HOME/cases/dc01"
+    # Under `sudo ./setup.sh dc01` $HOME is root's - resolve the REAL user's
+    # home so the samples live (and are found) in ONE place, sudo or not.
+    _real_home="$HOME"
+    if [ -n "${SUDO_USER:-}" ]; then
+      _real_home="$(getent passwd "$SUDO_USER" 2>/dev/null | cut -d: -f6)"
+      [ -d "${_real_home:-}" ] || _real_home="$HOME"
+    fi
+    CASE="$_real_home/cases/dc01"
+    # Rescue any copy an earlier sudo run put under root's home.
+    if [ "$CASE" != "$HOME/cases/dc01" ] && [ -d "$HOME/cases/dc01" ]; then
+      mkdir -p "$CASE"
+      find "$HOME/cases/dc01" -maxdepth 1 -type f -exec mv -n {} "$CASE"/ \; 2>/dev/null || true
+      rmdir "$HOME/cases/dc01" 2>/dev/null || true
+    fi
     mkdir -p "$CASE"
     # Heal FIRST, decide second: flatten any nested layout (the E01 zip nests
     # its segments under E01-DC01/, which the top-level case scanner cannot

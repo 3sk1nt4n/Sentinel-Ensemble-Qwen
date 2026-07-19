@@ -361,14 +361,16 @@ investigation shown in the demo video; ~5.4 GB, one time, downloads resume if
 interrupted):
 
 ```bash
-cd ~/Sentinel-Ensemble-Qwen && sudo ./setup.sh dc01
+cd ~/Sentinel-Ensemble-Qwen && ./setup.sh dc01
 ```
+
+(No `sudo` needed - the script escalates by itself exactly where required.)
 
 <details>
 <summary>Prefer to download the evidence yourself (or use another case)?</summary>
 
 ```bash
-sudo apt-get install -y unzip && mkdir -p ~/cases/dc01 && cd ~/cases/dc01 && wget https://dfirmadness.com/case001/DC01-memory.zip https://dfirmadness.com/case001/DC01-E01.zip && unzip -o DC01-memory.zip && unzip -o DC01-E01.zip && cd ~/Sentinel-Ensemble-Qwen && sudo ./setup.sh ~/cases/dc01
+sudo apt-get install -y unzip && mkdir -p ~/cases/dc01 && cd ~/cases/dc01 && wget https://dfirmadness.com/case001/DC01-memory.zip https://dfirmadness.com/case001/DC01-E01.zip && unzip -o DC01-memory.zip && unzip -o DC01-E01.zip && cd ~/Sentinel-Ensemble-Qwen && ./setup.sh ~/cases/dc01
 ```
 
 One paste-safe line on purpose: pasting a multi-line block into a busy
