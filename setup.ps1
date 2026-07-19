@@ -238,6 +238,13 @@ if ($Mode -eq 'run' -or $Mode -eq '') {
             }
             Ok "evidence ready: $CasePath"
         }
+        # The E01 zip nests its segments in a subfolder (E01-DC01\...), but the
+        # case scanner reads top-level items - flatten so the disk is never
+        # missed. Also heals folders downloaded before this fix.
+        Get-ChildItem -LiteralPath $CasePath -Directory -ErrorAction SilentlyContinue | ForEach-Object {
+            Get-ChildItem -LiteralPath $_.FullName -Recurse -File | Move-Item -Destination $CasePath -Force
+            Remove-Item -LiteralPath $_.FullName -Recurse -Force -ErrorAction SilentlyContinue
+        }
     }
     if (-not (Test-Path -LiteralPath $CasePath -PathType Container)) {
         Bad "case folder not found: $CasePath"

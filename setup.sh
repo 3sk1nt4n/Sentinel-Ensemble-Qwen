@@ -227,11 +227,16 @@ if [ "$RUN" = 1 ]; then
                   https://dfirmadness.com/case001/DC01-E01.zip; do
           wget -c "$_u" || curl -fLO -C - "$_u" || exit 1
         done
-        unzip -o DC01-memory.zip && unzip -o DC01-E01.zip ) \
+        unzip -o -j DC01-memory.zip && unzip -o -j DC01-E01.zip ) \
         || { bad "download/unpack failed - check the network and re-run the same command (downloads resume)"; exit 1; }
       [ -n "${SUDO_USER:-}" ] && chown -R "$SUDO_USER" "$CASE" 2>/dev/null || true
       ok "evidence ready: $CASE"
     fi
+    # The E01 zip nests its segments in a subfolder (E01-DC01/...), but the
+    # case scanner reads top-level items - flatten so the disk is never missed.
+    # Also heals folders downloaded before this fix, without re-downloading.
+    find "$CASE" -mindepth 2 -type f -exec mv -f {} "$CASE"/ \; 2>/dev/null || true
+    find "$CASE" -mindepth 1 -type d -empty -delete 2>/dev/null || true
   fi
   if [ ! -d "$CASE" ]; then
     bad "case folder not found: $CASE"
