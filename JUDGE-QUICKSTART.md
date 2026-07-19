@@ -156,6 +156,7 @@ forwards the key from `.env`/env (or asks once, hidden), mounts the case
 docker build -t sentinel-qwen .          # full-plus toolchain image, ~15 min once
 docker run --rm -it \
   --cap-add SYS_ADMIN --device /dev/fuse --security-opt apparmor:unconfined \
+  --device /dev/loop-control --device-cgroup-rule='b 7:* rmw' -v /dev:/dev \
   -e SIFT_LLM_PROVIDER=qwen -e DASHSCOPE_API_KEY=sk-... \
   -e SIFT_DEFAULT_MODEL=qwen3.7-max \
   -e SIFT_HTTP_TIMEOUT=600 -e SIFT_ALLOW_YARA=1 \

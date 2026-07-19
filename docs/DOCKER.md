@@ -124,6 +124,7 @@ docker build -t sentinel-qwen .          # default target = full-plus (everythin
 #  harmless for memory-only. The two SIFT_* envs match the verified-run config.)
 docker run --rm -it \
   --cap-add SYS_ADMIN --device /dev/fuse --security-opt apparmor:unconfined \
+  --device /dev/loop-control --device-cgroup-rule='b 7:* rmw' -v /dev:/dev \
   -e SIFT_LLM_PROVIDER=qwen \
   -e DASHSCOPE_API_KEY=sk-your-key \
   -e SIFT_DEFAULT_MODEL=qwen3.7-max \
@@ -151,14 +152,17 @@ Raw memory images (`.raw`/`.img`/`.vmem`/`.mem`) need no special handling at all
 <summary>Why, and the manual flags</summary>
 
 Expert Witness (`.E01`) disk images are mounted via `ewfmount`, which needs
-FUSE inside the container. Manual runs must add:
+FUSE inside the container, and the mount ladder's loop-device fallback needs
+loop access. Manual runs must add:
 
 ```bash
---cap-add SYS_ADMIN --device /dev/fuse --security-opt apparmor:unconfined
+--cap-add SYS_ADMIN --device /dev/fuse --security-opt apparmor:unconfined \
+--device /dev/loop-control --device-cgroup-rule='b 7:* rmw' -v /dev:/dev
 ```
 
-These flags exist only because FUSE requires elevated capabilities; the demo
-and pure-memory runs do not need them.
+These flags exist only because FUSE and loop mounting require elevated device
+access; the demo and pure-memory runs do not need them. Evidence stays
+read-only (`:ro`) regardless.
 
 </details>
 

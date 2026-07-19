@@ -195,6 +195,7 @@ docker build -t sentinel-qwen .
 #  FUSE - all three public cases below ship .E01; harmless for memory-only)
 docker run --rm -it \
   --cap-add SYS_ADMIN --device /dev/fuse --security-opt apparmor:unconfined \
+  --device /dev/loop-control --device-cgroup-rule='b 7:* rmw' -v /dev:/dev \
   -e SIFT_LLM_PROVIDER=qwen -e DASHSCOPE_API_KEY=sk-... \
   -e SIFT_DEFAULT_MODEL=qwen3.7-max \
   -e SIFT_HTTP_TIMEOUT=600 -e SIFT_ALLOW_YARA=1 \
@@ -219,7 +220,7 @@ Studio)**. Provider + model are chosen entirely by environment, so flipping the
 whole 16-step pipeline onto Qwen needs **no code change**.
 
 1. Go to **https://qwencloud.com** (Alibaba Cloud International) → sign up / log
-   in → request the hackathon **$40 Qwen Cloud voucher** (track your credit at the **[billing console](https://billing-cost.console.alibabacloud.com/home)**, English / international).
+   in → request the hackathon **$40 Qwen Cloud voucher** (track your credit at the **[billing console](https://billing-cost.console.alibabacloud.com/home)**, English / international). **No voucher option?** Top up a small balance instead (billing console → Top Up) - pay-as-you-go covers everything here: ~$0.22 light / ~$1.67 heavy per full investigation.
 2. Open **Model Studio** (Singapore / International region) → **API Keys** →
    **Create API Key** → copy the `sk-…` string.
    (Direct portal: **home.qwencloud.com/api-keys**.)
@@ -294,7 +295,7 @@ option Alibaba recommends for AI-API agents.
 
 | Do this | What to pick / know |
 |---|---|
-| Open the **[SAS console](https://swas.console.alibabacloud.com/)** (English / international) → **Create Server** | Sign in first; request the **$40 hackathon voucher** if you have not, and check your credit at the **[billing console](https://billing-cost.console.alibabacloud.com/home)** |
+| Open the **[SAS console](https://swas.console.alibabacloud.com/)** (English / international) → **Create Server** | Sign in first; request the **$40 hackathon voucher** if you have not - **no voucher option? just top up a small balance** at the **[billing console](https://billing-cost.console.alibabacloud.com/home)** (Top Up): the plan bills monthly and a full heavy investigation costs ~$1.67 of DashScope usage |
 | **Region** | **Singapore** (matches the international DashScope endpoint, lowest latency) |
 | **Image** | **Ubuntu 22.04** (or 24.04), pick the plain **OS image**, not an app image |
 | **Plan** | **demo + proof:** the **cheapest** tier works. **Real investigation (recommended):** the top SAS plan - **General-purpose, $48/mo: 4 vCPU / 16 GB RAM / 80 GB ESSD, 200 Mbps** - comfortably runs the featured DC01 paired case (Volatility 3 and disk extraction are CPU/RAM/disk-hungry; size RAM **above your largest memory image**). Evidence bigger than that → **ECS** (8 vCPU / 100 GB+, [`DEPLOY-ALIBABA.md`](DEPLOY-ALIBABA.md) §1B). **No GPU needed** - the AI brain runs on **Qwen Cloud**, so spend on CPU/RAM/disk instead |

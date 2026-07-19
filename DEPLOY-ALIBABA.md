@@ -30,7 +30,8 @@ issues live HTTPS calls to the DashScope endpoint.
 ## 0) Prerequisites (your Alibaba Cloud account)
 
 - An **Alibaba Cloud** account (Qwen Cloud).
-- A **DashScope / Qwen Cloud API key** - request the **$40 hackathon voucher**.
+- A **DashScope / Qwen Cloud API key** - request the **$40 hackathon voucher**,
+  or top up a small balance (pay-as-you-go; a full heavy run is ~$1.67).
 - An **SAS or ECS instance** (provisioned below - SAS is the 5-minute path).
 - (Optional) an **OSS bucket** for evidence/artifact storage.
 
@@ -134,8 +135,11 @@ Report artifacts can be pushed back to OSS after the run.
 ## 5) Run an investigation (on Qwen, on Alibaba Cloud)
 
 ```bash
-./setup.sh /cases/evidence/<case>   # ONE line - image, key (.env), flags, read-only mount (self-escalates to sudo docker if needed)
+./setup.sh dc01                     # featured public case - auto-downloads the memory + disk pair
+./setup.sh /cases/evidence/<case>   # your own case - image, key (.env), flags, read-only mount (self-escalates to sudo docker if needed)
 ```
+
+The report lands in `sentinel-results/<case>/` inside the repo folder.
 Evidence is mounted **read-only** and SHA256-fingerprinted pre/post (chain of
 custody); the report lands in the run directory (and optionally OSS). The
 manual `docker run` equivalent is in [`JUDGE-QUICKSTART.md`](JUDGE-QUICKSTART.md) §4.

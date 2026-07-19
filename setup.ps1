@@ -391,6 +391,7 @@ if ($Mode -eq 'run' -or $Mode -eq '') {
     # disks (harmless for memory-only). Evidence + results are bind-mounted.
     docker run --rm -it `
         --cap-add SYS_ADMIN --device /dev/fuse --security-opt apparmor:unconfined `
+        --device /dev/loop-control --device-cgroup-rule='b 7:* rmw' -v /dev:/dev `
         @envArgs `
         -v "${Case}:/evidence:ro" `
         -v "${Out}:/out" `
