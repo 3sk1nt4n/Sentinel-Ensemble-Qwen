@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# =============================================================================
+# get.sh - the ONE command (macOS / Linux / cloud box).
+#
+#   curl -fsSL https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.sh | bash
+#
+# Installs git if it is missing, clones (or updates) the repo, then hands off
+# to the guided walkthrough (./setup.sh) where every step asks you: what to
+# drop in the evidence folder, case card, depth, hidden API-key paste.
+# Safe to re-run any time. Short on purpose - read it before you run it.
+# =============================================================================
+set -euo pipefail
+
+REPO_URL="https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen.git"
+DIR="Sentinel-Ensemble-Qwen"
+
+if ! command -v git >/dev/null 2>&1; then
+  echo "Installing git ..."
+  if   command -v apt-get >/dev/null 2>&1; then sudo apt-get update -qq && sudo apt-get install -y git
+  elif command -v dnf     >/dev/null 2>&1; then sudo dnf install -y git
+  elif command -v yum     >/dev/null 2>&1; then sudo yum install -y git
+  elif command -v brew    >/dev/null 2>&1; then brew install git
+  else echo "ERROR: could not install git automatically - install it, then re-run." >&2; exit 1
+  fi
+fi
+
+if [ -d "$DIR/.git" ]; then
+  echo "Updating existing $DIR ..."
+  git -C "$DIR" pull --ff-only || echo "  (local changes kept - continuing with what you have)"
+else
+  git clone "$REPO_URL" "$DIR"
+fi
+cd "$DIR"
+
+# Testing hook: stop before the interactive hand-off.
+[ -n "${SENTINEL_GET_NO_LAUNCH:-}" ] && { echo "READY: $PWD (launch skipped)"; exit 0; }
+
+# Piped run (curl | bash): stdin is the pipe, so hand the walkthrough the real
+# keyboard. Truly headless (no TTY at all)? Run the zero-cost demo instead.
+if [ -t 0 ]; then
+  exec ./setup.sh "$@"
+elif ( : </dev/tty ) 2>/dev/null; then
+  exec ./setup.sh "$@" </dev/tty
+else
+  echo "(no interactive terminal detected - running the zero-cost demo instead)"
+  exec ./setup.sh docker
+fi

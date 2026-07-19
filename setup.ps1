@@ -255,9 +255,38 @@ if ($Mode -eq 'run' -or $Mode -eq '') {
         $envmap[$e.Name] = $e.Value
     }
 
-    # Key: ask once (hidden) if provider is qwen and none is set (unless dry-run).
+    # A leftover placeholder (from .env or a stale export) counts as NO key.
+    foreach ($k in @('DASHSCOPE_API_KEY','QWEN_API_KEY','ANTHROPIC_API_KEY')) {
+        if ($envmap[$k] -and $envmap[$k] -match 'your-.*key|xxxxxxxx|^sk-\.\.\.') { [void]$envmap.Remove($k) }
+    }
+
+    # API_KEY.txt (visible, gitignored): created on first run, honored on later
+    # runs - README key option 2. Template only; a pasted key is never written.
+    $keyFile = Join-Path $PSScriptRoot 'API_KEY.txt'
+    if (-not (Test-Path $keyFile)) {
+        @(
+            '# Sentinel Qwen Ensemble - your Qwen Cloud (DashScope) API key'
+            '# Replace the last line with YOUR sk-... key, then save. Gitignored -'
+            '# never uploaded or committed. Or skip this file: the launcher asks at'
+            '# a hidden prompt. Get a key: home.qwencloud.com/api-keys'
+            ''
+            'sk-your-dashscope-key-here'
+        ) | Set-Content $keyFile
+    }
+
+    # Key: env/.env first, then API_KEY.txt, then ask once (hidden; unless dry-run).
     $provider = $envmap['SIFT_LLM_PROVIDER']
     $haveKey = $envmap['DASHSCOPE_API_KEY'] -or $envmap['QWEN_API_KEY']
+    if ($provider -eq 'qwen' -and -not $haveKey -and (Test-Path $keyFile)) {
+        $fileKey = Get-Content $keyFile | Where-Object { $_ -notmatch '^\s*#' } |
+            Select-String -Pattern 'sk-[A-Za-z0-9_.-]{16,}' -AllMatches |
+            ForEach-Object { $_.Matches.Value } | Select-Object -Last 1
+        if ($fileKey -and $fileKey -notmatch 'your-.*key') {
+            $envmap['DASHSCOPE_API_KEY'] = $fileKey
+            Write-Host "  -- using the key from API_KEY.txt"
+            $haveKey = $true
+        }
+    }
     if ($provider -eq 'qwen' -and -not $haveKey -and -not $DryRun) {
         Write-Host ""
         Write-Host "  DashScope API key (hidden - never shown; get one at home.qwencloud.com/api-keys)" -ForegroundColor White

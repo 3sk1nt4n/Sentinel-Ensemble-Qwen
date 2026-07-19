@@ -86,6 +86,28 @@ Everything runs in **Docker**, so the whole forensic toolchain (Volatility 3,
 Sleuth Kit, YARA, EZ Tools, Plaso, RegRipper, bulk_extractor, …) comes bundled -
 **nothing to install but Docker itself.** Follow the row for your computer.
 
+### ⚡ Fastest: ONE command does everything
+
+Already have Docker (step 1️⃣)? Then one paste is the whole setup - it fetches
+the code (installing git if needed) and starts the **guided walkthrough**:
+banner → what-to-drop-in-the-folder guide → **drag your evidence folder in** →
+case card → depth pick → **hidden API-key paste** → run. Every step asks you;
+nothing to memorize.
+
+**🍎 macOS / 🐧 Linux / ☁️ cloud box** - Terminal:
+```bash
+curl -fsSL https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.sh | bash
+```
+
+**🪟 Windows** - PowerShell:
+```powershell
+irm https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.ps1 | iex
+```
+
+> [`get.sh`](get.sh) / [`get.ps1`](get.ps1) are short, readable scripts in this
+> repo - read them first if you like. Prefer to see every step yourself? The
+> classic 3-step path is right below (same result).
+
 ### 1️⃣ Install Docker Desktop (one time, ~5 min)
 
 | Your computer | Do this once | Then use |
@@ -117,20 +139,20 @@ cd Sentinel-Ensemble-Qwen
 
 **🪟 Windows - PowerShell** (use **`.\setup.cmd`** - `./setup.sh` is the Mac/Linux one):
 ```powershell
-.\setup.cmd docker                # a) free demo - no key, no evidence (~30 s)
+.\setup.cmd docker                # a) free demo - no key, no evidence (~30 s + a one-time ~290 MB image build on the very first run)
 .\setup.cmd C:\path\to\your\case  # b) real investigation - just the folder, ONE line
 ```
 
 **🍎 macOS / 🐧 Linux - Terminal:**
 ```bash
-./setup.sh docker               # a) free demo - no key, no evidence (~30 s)
+./setup.sh docker               # a) free demo - no key, no evidence (~30 s + a one-time ~290 MB image build on the very first run)
 ./setup.sh /path/to/your/case   # b) real investigation - just the folder, ONE line
 ```
 
 > 💡 **Easiest of all - let it ask you.** Run just **`.\setup.cmd`** (Windows) or
 > **`./setup.sh`** (Mac/Linux) with nothing after it: it shows the banner,
 > explains what to drop in the folder, and **asks you to paste - or drag - your
-> evidence folder** into the window. Just like the original. No path to type.
+> evidence folder** into the window. No path to type.
 
 **What command (b) does for you:** builds the toolchain image on first use (one
 time, ~15 min), reads your DashScope key from `.env` / the environment (or
@@ -195,15 +217,16 @@ whole 16-step pipeline onto Qwen needs **no code change**.
 
 | | Option | How | Notes |
 |---|---|---|---|
-| ① | 🚀 **Just run it & paste** *(recommended)* | Launch it (`.\setup.cmd` / `./setup.sh`) - at the **🔑 API key** step it asks at a **hidden prompt**. Paste, press Enter. | **Verified live with the API before launch** · this session only · never echoed, logged, or written to disk · even shell history is scrubbed. Nothing to find or edit. |
+| ① | 🚀 **Just run it & paste** *(recommended)* | Launch it (`.\setup.cmd` / `./setup.sh`) - at the **🔑 API key** step it asks at a **hidden prompt**. Paste, press Enter. | **Verified live with the API before launch** · this session only · never echoed, logged, or written to disk (native Linux/macOS runs even scrub old key-bearing lines from bash history). Nothing to find or edit. |
 | ② | 📄 **A visible file** *(set once)* | Open **`API_KEY.txt`** in the repo root, replace the placeholder on the last line with your key, save. | Created for you on first run · **gitignored**, so your key is never committed · no prompt next time. |
 | ③ | 🌐 **Environment variable** | `export DASHSCOPE_API_KEY=sk-…` (`QWEN_API_KEY` works too; a hidden `.env` via `cp .env.qwen.example .env` also works). | For CI / power users - the launchers forward it into the container. |
 
-> 🔓 **Order & self-healing.** The launcher checks **env var → `.env` →
-> `API_KEY.txt`**. A **real key always beats a leftover placeholder**, and if the
-> environment key is **rejected** (e.g. a stale `export` left in your shell, HTTP
-> 401) it **automatically falls back to a valid key in your file** before asking -
-> so the file you just edited always works.
+> 🔓 **Order & self-healing.** The launcher picks the **first real key** it
+> finds - **env var → `.env` → `API_KEY.txt`** - and a **leftover placeholder
+> never beats a real key**. Nothing found? The guided flow simply asks at the
+> hidden prompt. (Native runs go further: an env key the API **rejects**, e.g.
+> a stale `export` / HTTP 401, automatically falls back to a valid key in your
+> file before asking.)
 
 > 💰 **Budget, not tiers.** The demo needs **no key at all**. Verified full
 > investigations cost **🪶 ~$0.22 (light)** to **⚡ ~$1.67 (heavy)** - the **$40
@@ -217,10 +240,12 @@ whole 16-step pipeline onto Qwen needs **no code change**.
 `./setup.sh docker`):
 
 ```bash
+# Docker (uses the demo image from ./setup.sh docker):
 docker run --rm -e SIFT_LLM_PROVIDER=qwen -e DASHSCOPE_API_KEY=sk-... \
   --entrypoint python3 sentinel-qwen:demo scripts/qwen_smoke.py
 
-SIFT_LLM_PROVIDER=qwen DASHSCOPE_API_KEY=sk-... python3 scripts/qwen_smoke.py   # native (./setup.sh --native) - no Docker image needed
+# Native (works with bare python3 - no Docker image, no install needed):
+SIFT_LLM_PROVIDER=qwen DASHSCOPE_API_KEY=sk-... python3 scripts/qwen_smoke.py
 ```
 
 The international (Singapore) DashScope endpoint is the default; set
@@ -252,7 +277,7 @@ option Alibaba recommends for AI-API agents.
 | Open the **[SAS console](https://swas.console.alibabacloud.com/)** (English / international) → **Create Server** | Sign in first; request the **$40 hackathon voucher** if you have not, and check your credit at the **[billing console](https://billing-cost.console.alibabacloud.com/home)** |
 | **Region** | **Singapore** (matches the international DashScope endpoint, lowest latency) |
 | **Image** | **Ubuntu 22.04** (or 24.04), pick the plain **OS image**, not an app image |
-| **Plan** | the **cheapest** tier is fine for the demo + proof; size up only for big evidence |
+| **Plan** | **demo + proof:** the **cheapest** tier works (that is what we deployed on). **Real investigation, best performance:** **8 vCPU / 16 GB RAM / 100 GB disk** as the floor - Volatility 3 and disk extraction are CPU/RAM/disk-hungry; size RAM **above your largest memory image**. **No GPU needed** - the AI brain runs on **Qwen Cloud**, so spend on CPU/RAM/disk instead ([`DEPLOY-ALIBABA.md`](DEPLOY-ALIBABA.md) §1) |
 | **Buy**, then wait ~60 seconds | the server gets a **public IP** automatically |
 
 > ✅ **You did it when:** the server card shows **Running** with a green dot.
@@ -263,9 +288,37 @@ option Alibaba recommends for AI-API agents.
 2. Click **Connect → Workbench**. A **browser terminal** opens, logged in as
    `root`. *(This is the exact console view our proof screenshot comes from.)*
 
-### 3️⃣ Install + build (one paste, ~15 min the first time)
+<details>
+<summary>⚡ <b>In a hurry? Steps 3️⃣-6️⃣ are just four pastes</b> (each explained below)</summary>
 
-Paste this whole block into the Workbench terminal:
+```bash
+# 3) code + toolchain + free demo - one line
+curl -fsSL https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.sh | bash -s -- docker
+# 4) your key (replace the sk-your-dashscope-key-here placeholder)
+cd ~/Sentinel-Ensemble-Qwen && cp .env.qwen.example .env && nano .env
+# 5) prove the Qwen connection (prints SENTINEL-QWEN-OK)
+sudo docker run --rm -e SIFT_LLM_PROVIDER=qwen --env-file .env --entrypoint python3 sentinel-qwen:demo scripts/qwen_smoke.py
+# 6) real investigation on the featured public case
+sudo apt-get install -y unzip && mkdir -p ~/cases/dc01 && cd ~/cases/dc01 && wget https://dfirmadness.com/case001/DC01-memory.zip https://dfirmadness.com/case001/DC01-E01.zip && unzip -o DC01-memory.zip && unzip -o DC01-E01.zip && cd ~/Sentinel-Ensemble-Qwen && sudo ./setup.sh ~/cases/dc01
+```
+
+</details>
+
+### 3️⃣ Install + build (ONE paste, ~15 min the first time)
+
+Paste this single line into the Workbench terminal:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.sh | bash -s -- docker
+```
+
+That one line does it all: **installs git and Docker** (if missing), **fetches
+the code**, builds the image with the *entire* forensic toolchain baked in
+(Volatility 3, Sleuth Kit, EZ Tools, Plaso, YARA, …), and runs a **free,
+no-key demo** to prove the flow.
+
+<details>
+<summary>Prefer the classic paste (no piped script)?</summary>
 
 ```bash
 sudo apt-get update && sudo apt-get install -y git
@@ -274,19 +327,20 @@ cd Sentinel-Ensemble-Qwen
 ./setup.sh docker
 ```
 
-`./setup.sh docker` **installs Docker for you** (if it is missing), builds the
-image with the *entire* forensic toolchain baked in (Volatility 3, Sleuth Kit,
-EZ Tools, Plaso, YARA, …), and runs a **free, no-key demo** to prove the flow.
+</details>
 
-> ✅ **You did it when:** the demo prints a `PIPELINE SUMMARY` box headed
-> `SENTINEL QWEN ENSEMBLE`. The first build takes ~15 min (it downloads the
-> toolchain once); every run after that is instant.
+> ✅ **You did it when:** the demo ends with the **CASE 1 card** and
+> **`Everything verified and ready`**, then setup.sh prints **`✅  Docker demo
+> works.`** (The `PIPELINE SUMMARY` box comes later, on a real evidence run -
+> step 6️⃣.) The first build takes ~15 min (it downloads the toolchain once);
+> every run after that is instant.
 
 ### 4️⃣ Add your Qwen key (the AI brain)
 
 ```bash
+cd ~/Sentinel-Ensemble-Qwen
 cp .env.qwen.example .env
-nano .env     # find the DASHSCOPE_API_KEY= line, paste your sk-... key, then Ctrl-O, Enter, Ctrl-X
+nano .env     # on the DASHSCOPE_API_KEY= line, REPLACE sk-your-dashscope-key-here with your sk-... key, then Ctrl-O, Enter, Ctrl-X
 ```
 
 You only add the **key**, the provider and model tiering are already preset. Get
@@ -307,19 +361,31 @@ sudo docker run --rm -e SIFT_LLM_PROVIDER=qwen --env-file .env \
 
 ### 6️⃣ Run a real investigation
 
-Grab a free public case (see [🧪 Get evidence](#-get-evidence-to-investigate)
-below), then one line:
+Pull a free public case straight onto the box - this is the **DFIR Madness
+"Stolen Szechuan Sauce" DC01** pair, the exact investigation shown in the demo
+video (more options: [🧪 Get evidence](#-get-evidence-to-investigate)) - then
+point the one-liner at the folder:
 
 ```bash
-sudo ./setup.sh /cases/evidence/<your-case>
+sudo apt-get install -y unzip
+mkdir -p ~/cases/dc01 && cd ~/cases/dc01
+wget https://dfirmadness.com/case001/DC01-memory.zip https://dfirmadness.com/case001/DC01-E01.zip
+unzip -o DC01-memory.zip && unzip -o DC01-E01.zip
+cd ~/Sentinel-Ensemble-Qwen && sudo ./setup.sh ~/cases/dc01
 ```
 
-Evidence is mounted **read-only** and **SHA256-fingerprinted before and after**
-(chain of custody); the verified, proof-linked report lands in the run folder.
+**What you'll see:** the case card auto-detects the **paired memory + disk**
+shape (the strongest evidence combo), the depth prompt asks **HEAVY**
+(≈ $1.67 - the configuration of the featured verified run) or **LIGHT**
+(≈ $0.22 - the budget pass), you type **FIND**, and the 16-step pipeline
+streams live. Evidence is mounted **read-only** and **SHA256-fingerprinted
+before and after** (chain of custody).
 
-> 💡 **Reproduce our featured run:** download the public **DFIR Madness "Stolen
-> Szechuan Sauce" DC01** pair (memory + disk), point `./setup.sh` at it, and you
-> get the exact investigation shown in the demo video.
+> ✅ **You did it when:** the run ends with **`SHA256 MATCH`** and the report +
+> dashboard are on the box in `~/Sentinel-Ensemble-Qwen/sentinel-results/dc01/`
+> (`report.md`, `summary_report_*.html`) - the same DC01 intrusion chain the
+> verified Qwen runs in [`docs/qwen-runs/`](docs/qwen-runs/) found. That is the
+> full replication of our featured run, on your own Alibaba Cloud box.
 
 ### 7️⃣ Capture the Proof of Deployment (for judges)
 
@@ -336,7 +402,7 @@ Deployment. Full details: [`DEPLOY-ALIBABA.md`](DEPLOY-ALIBABA.md) §6.
 | Step | Success signal |
 |---|---|
 | Server up | Console shows **Running** (green dot) |
-| Toolchain built | Demo prints the `PIPELINE SUMMARY` box |
+| Toolchain built | Demo ends `Everything verified and ready` + `✅  Docker demo works.` |
 | Qwen wired | Smoke test prints **`SENTINEL-QWEN-OK`** |
 | Investigation | A report appears in the run folder with **SHA256 MATCH** |
 

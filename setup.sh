@@ -28,12 +28,14 @@ if [ "${1:-}" = "run" ]; then
   RUN=1; shift; RUN_ARGS=("$@")
 elif [ "${1:-}" = "docker" ]; then
   DOCKER_MODE=1
-elif [ -n "${1:-}" ] && [ -d "$1" ]; then
-  # "./setup.sh /path/to/case" - a folder as the first arg means run it directly.
-  RUN=1; RUN_ARGS=("$@")
 elif [ -z "${1:-}" ]; then
   # Bare "./setup.sh" = the guided judge experience (banner + ask for evidence).
   RUN=1; GUIDED=1
+elif [ "${1#-}" = "$1" ]; then
+  # Any non-flag first arg is the case path - even a typo'd or still-zipped
+  # one, so a bad path gets the friendly "case folder not found" message
+  # instead of silently starting the contributor native install.
+  RUN=1; RUN_ARGS=("$@")
 else
   # Flags: --native (contributor pip/apt install + verify), --check, --no-sudo.
   MODE_INSTALL=1
@@ -186,7 +188,6 @@ if [ "$RUN" = 1 ]; then
   fi
   note "working folder: $REPO_DIR"
   note "results always land in: $REPO_DIR/sentinel-results/<case>/"
-  ensure_docker
 
   CASE=""; PASS=()
   # First EXISTING directory wins as the case path (a stray trailing word can't
@@ -210,6 +211,7 @@ if [ "$RUN" = 1 ]; then
     exit 2
   fi
   CASE="$(cd "$CASE" && pwd)"
+  ensure_docker
 
   # Always build (never just reuse): Docker's layer cache makes this a ~2s no-op
   # when nothing changed, but a plain reuse would silently run a STALE image
@@ -222,12 +224,37 @@ if [ "$RUN" = 1 ]; then
   $DOCKER build -t sentinel-qwen . || { printf "  ${R}FAIL${X} build failed (see above)\n"; exit 1; }
   ok "image ready: sentinel-qwen"
 
-  # config: .env first (like findevil.sh), then verified-run defaults for the rest
+  # config: pick the first REAL key - environment -> .env -> API_KEY.txt - and
+  # never let a leftover placeholder beat a real key (README "Order & self-healing").
+  _is_real_key() { case "${1:-}" in ""|*your-*key*|*xxxxxxxx*|sk-...*) return 1 ;; *) return 0 ;; esac; }
+  _env_ds="${DASHSCOPE_API_KEY:-}"; _env_qw="${QWEN_API_KEY:-}"
   [ -f .env ] && { set -a; . ./.env 2>/dev/null || true; set +a; }
+  _is_real_key "$_env_ds" && DASHSCOPE_API_KEY="$_env_ds"      # real env beats .env
+  _is_real_key "$_env_qw" && QWEN_API_KEY="$_env_qw"
+  _is_real_key "${DASHSCOPE_API_KEY:-}" || DASHSCOPE_API_KEY=""  # placeholder = no key
+  _is_real_key "${QWEN_API_KEY:-}" || QWEN_API_KEY=""
+  export DASHSCOPE_API_KEY QWEN_API_KEY
   export SIFT_LLM_PROVIDER="${SIFT_LLM_PROVIDER:-qwen}"
   export SIFT_DEFAULT_MODEL="${SIFT_DEFAULT_MODEL:-qwen3.7-max}"
   export SIFT_HTTP_TIMEOUT="${SIFT_HTTP_TIMEOUT:-600}"
   export SIFT_ALLOW_YARA="${SIFT_ALLOW_YARA:-1}"
+  # API_KEY.txt (visible, gitignored): created on first run, honored on later
+  # runs - README key option 2. Template only; a pasted key is never written.
+  if [ ! -f API_KEY.txt ]; then
+    { printf '# Sentinel Qwen Ensemble - your Qwen Cloud (DashScope) API key\n'
+      printf '# Replace the last line with YOUR sk-... key, then save. Gitignored -\n'
+      printf '# never uploaded or committed. Or skip this file: the launcher asks at\n'
+      printf '# a hidden prompt. Get a key: home.qwencloud.com/api-keys\n\n'
+      printf 'sk-your-dashscope-key-here\n'; } > API_KEY.txt 2>/dev/null || true
+  fi
+  if [ "$SIFT_LLM_PROVIDER" = qwen ] && [ -z "${DASHSCOPE_API_KEY:-}${QWEN_API_KEY:-}" ] && [ -f API_KEY.txt ]; then
+    _file_key="$(grep -v '^[[:space:]]*#' API_KEY.txt 2>/dev/null \
+                 | grep -Eo '(^|=)sk-[A-Za-z0-9_.-]{16,}' | tail -1 | sed 's/^=//')"
+    if _is_real_key "$_file_key"; then
+      export DASHSCOPE_API_KEY="$_file_key"
+      note "using the key from API_KEY.txt"
+    fi
+  fi
   if [ "$SIFT_LLM_PROVIDER" = qwen ] && [ -z "${DASHSCOPE_API_KEY:-}${QWEN_API_KEY:-}" ]; then
     case " ${PASS[*]-} " in
       *" --dry-run "*|*" --demo "*) : ;;   # no key needed
