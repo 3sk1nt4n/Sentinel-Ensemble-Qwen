@@ -31,7 +31,7 @@ service on Alibaba Cloud (ECS compute + OSS evidence intake + DashScope
 inference - the runbook already exists in [`DEPLOY-ALIBABA.md`](DEPLOY-ALIBABA.md)),
 priced per investigation against the measured $0.22-$1.67 unit cost. The
 open-source route is already live: MIT-licensed, running in Docker on any OS
-(one `./setup.sh` command; the image bundles the entire forensic
+(one bootstrap paste - `get.sh` / `get.ps1` - or one `./setup.sh` command; the image bundles the entire forensic
 toolchain), with a documented tool-plugin contract
 ([`EXTENDING.md`](EXTENDING.md)) so the community can add parsers without
 touching the trust layer.
@@ -123,6 +123,19 @@ fresh repository:
 ---
 
 ## How it runs on Qwen (no code change - env only)
+
+Fastest (a judge on any fresh Linux/cloud box - ONE paste, it does everything):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.sh | bash -s -- dc01
+```
+
+That one line self-updates, downloads the featured public **memory + disk**
+case (skipped when already installed), builds the toolchain, then asks the
+only three things that are the analyst's: **depth (model pick) → hidden
+API-key paste (one Enter saves it to the gitignored `.env` for good) → FIND**.
+
+Provider and model are chosen purely by environment:
 
 ```bash
 cp .env.qwen.example .env            # then set DASHSCOPE_API_KEY
@@ -232,8 +245,11 @@ Python.
 ### Verified Qwen Cloud runs (proof)
 
 The **featured case is DFIR Madness's "Stolen Szechuan Sauce" DC01** - a **public,
-reproducible** intrusion (2 GB memory + ~4.9 GB two-segment E01 disk) any judge can download and
-rerun. Two full **paired (memory + disk)** investigations ran end-to-end on **Qwen
+reproducible** intrusion (2 GB memory + ~4.9 GB two-segment E01 disk) any judge can
+rerun with **one paste** (`curl -fsSL
+https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.sh | bash -s -- dc01`
+- it downloads the pair and walks through depth → hidden key → FIND).
+Two full **paired (memory + disk)** investigations ran end-to-end on **Qwen
 models on Alibaba Cloud DashScope** (both images read-only), through the **full
 trust-layer pipeline** (Step-13AA consolidated finalize + review-all with
 `SIFT_INV3A_FINALIZE=1` + `SIFT_INV3A_REVIEW_ALL=1`, cross-bucket dedup, signature
