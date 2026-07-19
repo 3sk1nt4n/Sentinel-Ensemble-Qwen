@@ -256,7 +256,16 @@ if ($Mode -eq 'run' -or $Mode -eq '') {
                 $zip = Join-Path $CasePath (Split-Path $u -Leaf)
                 if (-not (Test-Path -LiteralPath $zip)) {
                     Write-Host "  --   downloading $(Split-Path $u -Leaf) ..."
-                    Invoke-WebRequest -Uri $u -OutFile $zip
+                    # curl.exe (ships with Windows 10+) streams and RESUMES large
+                    # files; Invoke-WebRequest is the slow fallback.
+                    $curlExe = Get-Command curl.exe -ErrorAction SilentlyContinue
+                    if ($curlExe) {
+                        & $curlExe.Source -fL --retry 3 -C - -o $zip $u
+                        if ($LASTEXITCODE -ne 0) { Bad "download failed: $u (re-run to resume)"; exit 2 }
+                    } else {
+                        $oldPP = $ProgressPreference; $ProgressPreference = 'SilentlyContinue'
+                        try { Invoke-WebRequest -Uri $u -OutFile $zip } finally { $ProgressPreference = $oldPP }
+                    }
                 }
                 Expand-Archive -LiteralPath $zip -DestinationPath $CasePath -Force
             }
