@@ -124,14 +124,18 @@ fresh repository:
 
 ## How it runs on Qwen (no code change - env only)
 
-Fastest (a judge on any fresh Linux/cloud box - ONE paste, it does everything):
+Fastest for a judge - ONE paste, it does everything. Match the line to the
+window:
 
 ```bash
+# macOS / Linux / cloud box - Terminal:
 curl -fsSL https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.sh | bash -s -- dc01
 ```
 
-(Windows PowerShell equivalent:
-`& ([scriptblock]::Create((irm https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.ps1))) dc01`)
+```powershell
+# Windows - PowerShell (curl is a different command there):
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.ps1))) dc01
+```
 
 That one line self-updates, downloads the featured public **memory + disk**
 case (skipped when already installed), builds the toolchain, then asks the
@@ -249,8 +253,9 @@ Python.
 
 The **featured case is DFIR Madness's "Stolen Szechuan Sauce" DC01** - a **public,
 reproducible** intrusion (2 GB memory + ~4.9 GB two-segment E01 disk) any judge can
-rerun with **one paste** (`curl -fsSL
-https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.sh | bash -s -- dc01`
+rerun with **one paste** (macOS/Linux/cloud Terminal: `curl -fsSL
+https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.sh | bash -s -- dc01`;
+Windows PowerShell has its own one-liner in "How it runs on Qwen" above
 - it downloads the pair and walks through depth → hidden key → FIND).
 Two full **paired (memory + disk)** investigations ran end-to-end on **Qwen
 models on Alibaba Cloud DashScope** (both images read-only), through the **full

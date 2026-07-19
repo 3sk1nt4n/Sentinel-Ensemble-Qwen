@@ -12,19 +12,24 @@ Five minutes from clone to a verified end-to-end demo (**no evidence, no API
 key** - `./setup.sh docker`, §2). A real investigation **on Qwen models hosted
 on Alibaba Cloud** is then one line (first toolchain build ~15 min, once).
 
-> ⚡ **Fastest judge path - ONE paste** (macOS / Linux / cloud Terminal):
+> ⚡ **Fastest judge path - ONE paste.** It self-updates, downloads the
+> featured **memory + disk** case (skipped when already installed), builds
+> the toolchain, then asks the only three things that are yours: **depth
+> (model pick) → hidden API-key paste (one Enter saves it for good) → FIND**.
+> **Match the line to your window:**
 >
+> 🪟 **Windows - PowerShell:**
+> ```powershell
+> & ([scriptblock]::Create((irm https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.ps1))) dc01
+> ```
+>
+> 🍎🐧☁️ **macOS / Linux / cloud - Terminal** (`curl` belongs here only - in
+> PowerShell it is a different command and errors):
 > ```bash
 > curl -fsSL https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.sh | bash -s -- dc01
 > ```
 >
-> That single line self-updates, downloads the featured **memory + disk** case
-> (skipped when already installed), builds the toolchain, then asks the only
-> three things that are yours: **depth (model pick) → hidden API-key paste
-> (one Enter saves it for good) → FIND**. Free no-key demo instead: same line
-> with `docker` in place of `dc01`. Windows PowerShell (where `curl` is a
-> different command) uses this one-liner instead:
-> `& ([scriptblock]::Create((irm https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.ps1))) dc01`
+> Free no-key demo instead: the same line with `docker` in place of `dc01`.
 
 ---
 
