@@ -246,6 +246,7 @@ if [ "$RUN" = 1 ]; then
       printf '# never uploaded or committed. Or skip this file: the launcher asks at\n'
       printf '# a hidden prompt. Get a key: home.qwencloud.com/api-keys\n\n'
       printf 'sk-your-dashscope-key-here\n'; } > API_KEY.txt 2>/dev/null || true
+    [ -n "${SUDO_USER:-}" ] && chown "$SUDO_USER" API_KEY.txt 2>/dev/null || true
   fi
   if [ "$SIFT_LLM_PROVIDER" = qwen ] && [ -z "${DASHSCOPE_API_KEY:-}${QWEN_API_KEY:-}" ] && [ -f API_KEY.txt ]; then
     _file_key="$(grep -v '^[[:space:]]*#' API_KEY.txt 2>/dev/null \
@@ -259,7 +260,25 @@ if [ "$RUN" = 1 ]; then
     case " ${PASS[*]-} " in
       *" --dry-run "*|*" --demo "*) : ;;   # no key needed
       *) printf "  ${B}DashScope API key${X} (hidden; home.qwencloud.com/api-keys): "
-         read -rs DASHSCOPE_API_KEY; printf "\n"; export DASHSCOPE_API_KEY ;;
+         read -rs DASHSCOPE_API_KEY; printf "\n"; export DASHSCOPE_API_KEY
+         # Paste once, keep forever: one Enter saves it to the gitignored .env
+         # (chmod 600), so no later run on this box ever asks again. The key is
+         # never echoed; decline with n for a this-session-only key.
+         if [ -n "${DASHSCOPE_API_KEY:-}" ] && [ -t 0 ]; then
+           printf "  Save it on this box so future runs never ask? [Y/n] "
+           read -r _savekey || _savekey=Y
+           case "$_savekey" in
+             [nN]*) note "not saved - this session only" ;;
+             *) [ -f .env ] || cp .env.qwen.example .env 2>/dev/null || : > .env
+                grep -v '^DASHSCOPE_API_KEY=' .env > .env.tmp 2>/dev/null || : > .env.tmp
+                printf 'DASHSCOPE_API_KEY=%s\n' "$DASHSCOPE_API_KEY" >> .env.tmp
+                mv .env.tmp .env
+                chmod 600 .env 2>/dev/null || true
+                # under `sudo ./setup.sh` give the file back to the real user
+                [ -n "${SUDO_USER:-}" ] && chown "$SUDO_USER" .env 2>/dev/null || true
+                ok "saved to .env (gitignored, chmod 600) - future runs will not ask" ;;
+           esac
+         fi ;;
     esac
   fi
 
@@ -331,10 +350,12 @@ if [ "$DOCKER_MODE" = 1 ]; then
   sec "Running the demo (no key, no evidence)"
   $DOCKER run --rm sentinel-qwen:demo || { printf "  ${R}FAIL${X} demo run failed\n"; exit 1; }
   printf "\n  ${G}${B}✅  Docker demo works.${X}\n"
-  printf "  ${B}Real investigation on Qwen Cloud - ONE line:${X}\n"
-  printf "    ./setup.sh /path/to/case   ${Y}# image, key, flags, read-only mount: all handled${X}\n"
-  printf "    (key from .env or a hidden prompt - get one at home.qwencloud.com/api-keys)\n"
-  printf "    Full guide: docs/DOCKER.md\n\n"
+  printf "  ${B}Real investigation on Qwen Cloud - ONE copy-paste line (works from any folder):${X}\n"
+  printf "    ${C}cd \"%s\" && ./setup.sh /path/to/case${X}\n" "$REPO_DIR"
+  printf "  No case folder yet? Guided mode asks for everything:\n"
+  printf "    ${C}cd \"%s\" && ./setup.sh${X}\n" "$REPO_DIR"
+  printf "  First run asks for your key at a hidden prompt - one Enter saves it for good.\n"
+  printf "  (Get a key: home.qwencloud.com/api-keys · Full guide: docs/DOCKER.md)\n\n"
   exit 0
 fi
 

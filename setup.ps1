@@ -294,6 +294,25 @@ if ($Mode -eq 'run' -or $Mode -eq '') {
         $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
         try { $envmap['DASHSCOPE_API_KEY'] = [Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr) }
         finally { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr) }
+        # Paste once, keep forever: one Enter saves it to the gitignored .env,
+        # so no later run on this machine ever asks again.
+        if ($envmap['DASHSCOPE_API_KEY']) {
+            $saveKey = Read-Host "     save it on this machine so future runs never ask? [Y/n]"
+            if ($saveKey -notmatch '^[nN]') {
+                $envPath = Join-Path $PSScriptRoot '.env'
+                if (-not (Test-Path $envPath)) {
+                    $example = Join-Path $PSScriptRoot '.env.qwen.example'
+                    if (Test-Path $example) { Copy-Item $example $envPath }
+                    else { New-Item -ItemType File -Path $envPath | Out-Null }
+                }
+                $envLines = @(Get-Content $envPath | Where-Object { $_ -notmatch '^DASHSCOPE_API_KEY=' })
+                $envLines += "DASHSCOPE_API_KEY=$($envmap['DASHSCOPE_API_KEY'])"
+                Set-Content -Path $envPath -Value $envLines
+                Ok "saved to .env (gitignored) - future runs will not ask"
+            } else {
+                Write-Host "  --   not saved - this session only"
+            }
+        }
     }
 
     $envArgs = @()

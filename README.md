@@ -156,7 +156,7 @@ cd Sentinel-Ensemble-Qwen
 
 **What command (b) does for you:** builds the toolchain image on first use (one
 time, ~15 min), reads your DashScope key from `.env` / the environment (or
-**asks once, hidden**), applies the verified-run flags, passes the `.E01`/FUSE
+**asks once at a hidden prompt - one Enter saves it for good**), applies the verified-run flags, passes the `.E01`/FUSE
 capabilities, mounts your evidence **read-only**, walks you through the
 **case card → depth → run**, and **saves the report to `sentinel-results/<case>/`
 on your machine** (open `report.md` or `summary_report_*.html`). Full guide:
@@ -211,15 +211,23 @@ whole 16-step pipeline onto Qwen needs **no code change**.
 2. Open **Model Studio** (Singapore / International region) → **API Keys** →
    **Create API Key** → copy the `sk-…` string.
    (Direct portal: **home.qwencloud.com/api-keys**.)
-3. Give it to Sentinel Qwen Ensemble in any one of three ways - pick whatever's
-   easiest. **You genuinely cannot get stuck**: a real key always wins, and a
-   bad one falls through to the next option:
+3. Give it to Sentinel Qwen Ensemble - **nothing to prepare, no file to edit.**
+   Just launch (`.\setup.cmd` / `./setup.sh`): at the **🔑 API key** step it
+   asks at a **hidden prompt** (verified live with the API before launch;
+   never echoed or logged). Paste, press **Enter** - then one more **Enter**
+   **saves it to the gitignored `.env`**, and **no run on that machine ever
+   asks again**. (Answer `n` to keep it this-session-only instead.)
 
-| | Option | How | Notes |
-|---|---|---|---|
-| ① | 🚀 **Just run it & paste** *(recommended)* | Launch it (`.\setup.cmd` / `./setup.sh`) - at the **🔑 API key** step it asks at a **hidden prompt**. Paste, press Enter. | **Verified live with the API before launch** · this session only · never echoed, logged, or written to disk (native Linux/macOS runs even scrub old key-bearing lines from bash history). Nothing to find or edit. |
-| ② | 📄 **A visible file** *(set once)* | Open **`API_KEY.txt`** in the repo root, replace the placeholder on the last line with your key, save. | Created for you on first run · **gitignored**, so your key is never committed · no prompt next time. |
-| ③ | 🌐 **Environment variable** | `export DASHSCOPE_API_KEY=sk-…` (`QWEN_API_KEY` works too; a hidden `.env` via `cp .env.qwen.example .env` also works). | For CI / power users - the launchers forward it into the container. |
+<details>
+<summary>Power-user alternatives (env var · .env · API_KEY.txt - all auto-detected)</summary>
+
+| Option | How |
+|---|---|
+| 🌐 **Environment variable** | `export DASHSCOPE_API_KEY=sk-…` (`QWEN_API_KEY` works too) - CI-friendly; the launchers forward it into the container. |
+| 📄 **`.env` file** | `cp .env.qwen.example .env`, replace the placeholder - the same file the hidden prompt saves to. |
+| 📄 **`API_KEY.txt`** | Created in the repo root on first run; replace the placeholder on the last line. Gitignored. |
+
+</details>
 
 > 🔓 **Order & self-healing.** The launcher picks the **first real key** it
 > finds - **env var → `.env` → `API_KEY.txt`** - and a **leftover placeholder
@@ -289,16 +297,13 @@ option Alibaba recommends for AI-API agents.
    `root`. *(This is the exact console view our proof screenshot comes from.)*
 
 <details>
-<summary>⚡ <b>In a hurry? Steps 3️⃣-6️⃣ are just four pastes</b> (each explained below)</summary>
+<summary>⚡ <b>In a hurry? Steps 3️⃣-4️⃣ are just TWO pastes</b> (each explained below)</summary>
 
 ```bash
 # 3) code + toolchain + free demo - one line
 curl -fsSL https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.sh | bash -s -- docker
-# 4) your key (replace the sk-your-dashscope-key-here placeholder)
-cd ~/Sentinel-Ensemble-Qwen && cp .env.qwen.example .env && nano .env
-# 5) prove the Qwen connection (prints SENTINEL-QWEN-OK)
-sudo docker run --rm -e SIFT_LLM_PROVIDER=qwen --env-file .env --entrypoint python3 sentinel-qwen:demo scripts/qwen_smoke.py
-# 6) real investigation on the featured public case
+# 4) real investigation on the featured public case - the walkthrough asks for
+#    depth + your key (hidden paste; one Enter saves it for good)
 sudo apt-get install -y unzip && mkdir -p ~/cases/dc01 && cd ~/cases/dc01 && wget https://dfirmadness.com/case001/DC01-memory.zip https://dfirmadness.com/case001/DC01-E01.zip && unzip -o DC01-memory.zip && unzip -o DC01-E01.zip && cd ~/Sentinel-Ensemble-Qwen && sudo ./setup.sh ~/cases/dc01
 ```
 
@@ -335,32 +340,9 @@ cd Sentinel-Ensemble-Qwen
 > step 6️⃣.) The first build takes ~15 min (it downloads the toolchain once);
 > every run after that is instant.
 
-### 4️⃣ Add your Qwen key (the AI brain)
+### 4️⃣ Run a real investigation (ONE command - it asks for everything else)
 
-```bash
-cd ~/Sentinel-Ensemble-Qwen
-cp .env.qwen.example .env
-nano .env     # on the DASHSCOPE_API_KEY= line, REPLACE sk-your-dashscope-key-here with your sk-... key, then Ctrl-O, Enter, Ctrl-X
-```
-
-You only add the **key**, the provider and model tiering are already preset. Get
-the key from [🔑 Get a Qwen Cloud API key](#-get-a-qwen-cloud-api-key-the-ai-brain)
-above.
-
-> 🔒 The key lives in `.env`, which is **git-ignored**, so it never leaves the box.
-
-### 5️⃣ Prove the Qwen connection (10 seconds)
-
-```bash
-sudo docker run --rm -e SIFT_LLM_PROVIDER=qwen --env-file .env \
-  --entrypoint python3 sentinel-qwen:demo scripts/qwen_smoke.py
-```
-
-> ✅ **You did it when:** it prints **`SENTINEL-QWEN-OK`**, a live Qwen call to
-> `dashscope-intl.aliyuncs.com`, made **from your Alibaba Cloud box**.
-
-### 6️⃣ Run a real investigation
-
+No key setup, no `.env` editing - **the walkthrough asks for everything**.
 Pull a free public case straight onto the box - this is the **DFIR Madness
 "Stolen Szechuan Sauce" DC01** pair, the exact investigation shown in the demo
 video (more options: [🧪 Get evidence](#-get-evidence-to-investigate)) - then
@@ -374,12 +356,15 @@ unzip -o DC01-memory.zip && unzip -o DC01-E01.zip
 cd ~/Sentinel-Ensemble-Qwen && sudo ./setup.sh ~/cases/dc01
 ```
 
-**What you'll see:** the case card auto-detects the **paired memory + disk**
-shape (the strongest evidence combo), the depth prompt asks **HEAVY**
-(≈ $1.67 - the configuration of the featured verified run) or **LIGHT**
-(≈ $0.22 - the budget pass), you type **FIND**, and the 16-step pipeline
-streams live. Evidence is mounted **read-only** and **SHA256-fingerprinted
-before and after** (chain of custody).
+**The walkthrough asks you three things, in order:** the case card
+auto-detects the **paired memory + disk** shape (the strongest evidence
+combo); the depth prompt asks **HEAVY** (`qwen3.7-max`, ≈ $1.67 - the featured
+verified configuration) or **LIGHT** (`qwen-plus`, ≈ $0.22 - the budget pass);
+the **🔑 hidden prompt** asks for your key **once** - paste, **Enter**, and
+one more **Enter saves it to the gitignored `.env`** so it is never asked
+again ([get a key](#-get-a-qwen-cloud-api-key-the-ai-brain)). Type **FIND**
+and the 16-step pipeline streams live. Evidence is mounted **read-only** and
+**SHA256-fingerprinted before and after** (chain of custody).
 
 > ✅ **You did it when:** the run ends with **`SHA256 MATCH`** and the report +
 > dashboard are on the box in `~/Sentinel-Ensemble-Qwen/sentinel-results/dc01/`
@@ -387,7 +372,20 @@ before and after** (chain of custody).
 > verified Qwen runs in [`docs/qwen-runs/`](docs/qwen-runs/) found. That is the
 > full replication of our featured run, on your own Alibaba Cloud box.
 
-### 7️⃣ Capture the Proof of Deployment (for judges)
+### 5️⃣ (Optional) Prove the Qwen connection in 10 seconds
+
+Once the key is saved (one Enter at the hidden prompt above), the smoke test
+reads it straight from `.env`:
+
+```bash
+cd ~/Sentinel-Ensemble-Qwen && sudo docker run --rm -e SIFT_LLM_PROVIDER=qwen --env-file .env \
+  --entrypoint python3 sentinel-qwen:demo scripts/qwen_smoke.py
+```
+
+> ✅ **You did it when:** it prints **`SENTINEL-QWEN-OK`**, a live Qwen call to
+> `dashscope-intl.aliyuncs.com`, made **from your Alibaba Cloud box**.
+
+### 6️⃣ Capture the Proof of Deployment (for judges)
 
 With the instance showing **Running** in the console, screenshot the **Servers /
 Workbench view** (compute in the Running state, this backend deployed on it).
@@ -403,8 +401,8 @@ Deployment. Full details: [`DEPLOY-ALIBABA.md`](DEPLOY-ALIBABA.md) §6.
 |---|---|
 | Server up | Console shows **Running** (green dot) |
 | Toolchain built | Demo ends `Everything verified and ready` + `✅  Docker demo works.` |
-| Qwen wired | Smoke test prints **`SENTINEL-QWEN-OK`** |
-| Investigation | A report appears in the run folder with **SHA256 MATCH** |
+| Investigation | A report appears in `sentinel-results/dc01/` with **SHA256 MATCH** |
+| Qwen wired (optional double-check) | Smoke test prints **`SENTINEL-QWEN-OK`** |
 
 ## 🧪 Get evidence to investigate
 
