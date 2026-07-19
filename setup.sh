@@ -336,7 +336,7 @@ if [ "$RUN" = 1 ]; then
     { printf '# Sentinel Qwen Ensemble - your Qwen Cloud (DashScope) API key\n'
       printf '# Replace the last line with YOUR sk-... key, then save. Gitignored -\n'
       printf '# never uploaded or committed. Or skip this file: the launcher asks at\n'
-      printf '# a hidden prompt. Get a key: home.qwencloud.com/api-keys\n\n'
+      printf '# a hidden prompt. Get a key: https://home.qwencloud.com/api-keys\n\n'
       printf 'sk-your-dashscope-key-here\n'; } > API_KEY.txt 2>/dev/null || true
     [ -n "${SUDO_USER:-}" ] && chown "$SUDO_USER" API_KEY.txt 2>/dev/null || true
   fi
@@ -351,7 +351,7 @@ if [ "$RUN" = 1 ]; then
   if [ "$SIFT_LLM_PROVIDER" = qwen ] && [ -z "${DASHSCOPE_API_KEY:-}${QWEN_API_KEY:-}" ]; then
     case " ${PASS[*]-} " in
       *" --dry-run "*|*" --demo "*) : ;;   # no key needed
-      *) printf "  ${B}DashScope API key${X} (hidden; home.qwencloud.com/api-keys): "
+      *) printf "  ${B}DashScope API key${X} (hidden; create one: https://home.qwencloud.com/api-keys): "
          read -rs DASHSCOPE_API_KEY; printf "\n"; export DASHSCOPE_API_KEY
          # Paste once, keep forever: one Enter saves it to the gitignored .env
          # (chmod 600), so no later run on this box ever asks again. The key is
@@ -457,7 +457,7 @@ if [ "$DOCKER_MODE" = 1 ]; then
   printf "  Have your own case folder instead?\n"
   printf "    ${C}cd \"%s\" && ./setup.sh /path/to/case${X}\n" "$REPO_DIR"
   printf "  The hidden key prompt saves your key with one Enter - never asked again.\n"
-  printf "  (Get a key: home.qwencloud.com/api-keys · Full guide: docs/DOCKER.md)\n\n"
+  printf "  (Get a key: https://home.qwencloud.com/api-keys · Full guide: docs/DOCKER.md)\n\n"
   exit 0
 fi
 

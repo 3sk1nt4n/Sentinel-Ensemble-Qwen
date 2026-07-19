@@ -188,7 +188,7 @@ if ($Mode -eq 'docker') {
     Write-Host "    cd `"$RepoDir`"; .\setup.cmd dc01" -ForegroundColor Cyan
     Write-Host "  Have your own case?  cd `"$RepoDir`"; .\setup.cmd C:\path\to\case"
     Write-Host "  It asks for your key at a hidden prompt - one Enter saves it for good."
-    Write-Host "    (Get a key: home.qwencloud.com/api-keys - Full guide: docs\DOCKER.md)`n"
+    Write-Host "    (Get a key: https://home.qwencloud.com/api-keys - Full guide: docs\DOCKER.md)`n"
     exit 0
 }
 
@@ -337,7 +337,7 @@ if ($Mode -eq 'run' -or $Mode -eq '') {
             '# Sentinel Qwen Ensemble - your Qwen Cloud (DashScope) API key'
             '# Replace the last line with YOUR sk-... key, then save. Gitignored -'
             '# never uploaded or committed. Or skip this file: the launcher asks at'
-            '# a hidden prompt. Get a key: home.qwencloud.com/api-keys'
+            '# a hidden prompt. Get a key: https://home.qwencloud.com/api-keys'
             ''
             'sk-your-dashscope-key-here'
         ) | Set-Content $keyFile
@@ -358,7 +358,7 @@ if ($Mode -eq 'run' -or $Mode -eq '') {
     }
     if ($provider -eq 'qwen' -and -not $haveKey -and -not $DryRun) {
         Write-Host ""
-        Write-Host "  DashScope API key (hidden - never shown; get one at home.qwencloud.com/api-keys)" -ForegroundColor White
+        Write-Host "  DashScope API key (hidden - never shown; create one: https://home.qwencloud.com/api-keys)" -ForegroundColor White
         $secure = Read-Host "     paste it here" -AsSecureString
         $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
         try { $envmap['DASHSCOPE_API_KEY'] = [Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr) }

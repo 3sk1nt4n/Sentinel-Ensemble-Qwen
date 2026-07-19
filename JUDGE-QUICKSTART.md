@@ -88,7 +88,7 @@ Provider + model are env-driven, so no code change is needed.
 
 1. Request the **$40 Qwen Cloud voucher**, then in **Model Studio** (Singapore /
    International region) → **API Keys** → **Create API Key** → copy the `sk-…`
-   (direct portal: **home.qwencloud.com/api-keys**).
+   (direct portal: **[https://home.qwencloud.com/api-keys](https://home.qwencloud.com/api-keys)**).
 2. Give it to Sentinel Qwen Ensemble - three ways, pick the easiest
    (**① recommended: just launch and paste at the hidden prompt** - verified
    live with the API, never echoed or stored; ② `API_KEY.txt` in the repo root,

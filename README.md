@@ -221,9 +221,9 @@ whole 16-step pipeline onto Qwen needs **no code change**.
 
 1. Go to **https://qwencloud.com** (Alibaba Cloud International) → sign up / log
    in → request the hackathon **$40 Qwen Cloud voucher** (track your credit at the **[billing console](https://billing-cost.console.alibabacloud.com/home)**, English / international). **No voucher option?** Top up a small balance instead (billing console → Top Up) - pay-as-you-go covers everything here: ~$0.22 light / ~$1.67 heavy per full investigation.
-2. Open **Model Studio** (Singapore / International region) → **API Keys** →
-   **Create API Key** → copy the `sk-…` string.
-   (Direct portal: **home.qwencloud.com/api-keys**.)
+2. Create the key here: **[https://home.qwencloud.com/api-keys](https://home.qwencloud.com/api-keys)**
+   → **Create API Key** → copy the `sk-…` string. (That page lives inside
+   **Model Studio**, Singapore / International region.)
 3. Give it to Sentinel Qwen Ensemble - **nothing to prepare, no file to edit.**
    Just launch (`.\setup.cmd` / `./setup.sh`): at the **🔑 API key** step it
    asks at a **hidden prompt** (verified live with the API before launch;
