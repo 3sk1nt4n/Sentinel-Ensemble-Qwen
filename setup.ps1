@@ -137,7 +137,7 @@ function Read-CasePath {
     Write-Host "   Paste the FOLDER that holds this case (memory + disk + notes)."
     Write-Host "     Example:  C:\Users\You\Downloads\my-case" -ForegroundColor Gray
     Write-Host "     Tip: you can drag the folder onto this window to paste its path." -ForegroundColor DarkGray
-    Write-Host "     No evidence yet? Type dc01 - the featured public case is downloaded for you (~5.4 GB)." -ForegroundColor DarkGray
+    Write-Host "     No evidence yet? Type dc01 - the featured public case (memory + disk, ~5.4 GB) is downloaded for you." -ForegroundColor DarkGray
     while ($true) {
         $p = (Read-Host "   path (or dc01, or Q to quit)").Trim().Trim('"')
         if ($p -eq '') { continue }
@@ -184,7 +184,7 @@ if ($Mode -eq 'docker') {
     if ($LASTEXITCODE -ne 0) { Bad "demo run failed (see above)"; exit 1 }
     Write-Host "`n  OK  Docker demo works." -ForegroundColor Green
     Write-Host "  NEXT STEP - real investigation on the featured public case, ONE line" -ForegroundColor White
-    Write-Host "  (auto-downloads the evidence, ~5.4 GB one time):"
+    Write-Host "  (auto-downloads the FULL pair - memory + disk, ~5.4 GB one time):"
     Write-Host "    cd `"$RepoDir`"; .\setup.cmd dc01" -ForegroundColor Cyan
     Write-Host "  Have your own case?  cd `"$RepoDir`"; .\setup.cmd C:\path\to\case"
     Write-Host "  It asks for your key at a hidden prompt - one Enter saves it for good."
@@ -225,7 +225,7 @@ if ($Mode -eq 'run' -or $Mode -eq '') {
         if ((Test-Path -LiteralPath $CasePath) -and (Get-ChildItem -LiteralPath $CasePath -File -Exclude '*.zip' -ErrorAction SilentlyContinue)) {
             Ok "using the previously downloaded featured case: $CasePath"
         } else {
-            Sec "Downloading the featured public case (DFIR Madness DC01, ~5.4 GB - one time)"
+            Sec "Downloading the featured public case (DFIR Madness DC01: memory + disk pair, ~5.4 GB - one time)"
             New-Item -ItemType Directory -Force -Path $CasePath | Out-Null
             foreach ($u in 'https://dfirmadness.com/case001/DC01-memory.zip',
                            'https://dfirmadness.com/case001/DC01-E01.zip') {

@@ -141,14 +141,14 @@ cd Sentinel-Ensemble-Qwen
 ```powershell
 .\setup.cmd docker                # a) free demo - no key, no evidence (~30 s + a one-time ~290 MB image build on the very first run)
 .\setup.cmd C:\path\to\your\case  # b) real investigation - just the folder, ONE line
-.\setup.cmd dc01                  # c) no evidence? "dc01" auto-downloads the featured public case (~5.4 GB)
+.\setup.cmd dc01                  # c) no evidence? "dc01" auto-downloads the featured case - memory + disk pair (~5.4 GB)
 ```
 
 **🍎 macOS / 🐧 Linux - Terminal:**
 ```bash
 ./setup.sh docker               # a) free demo - no key, no evidence (~30 s + a one-time ~290 MB image build on the very first run)
 ./setup.sh /path/to/your/case   # b) real investigation - just the folder, ONE line
-./setup.sh dc01                 # c) no evidence? "dc01" auto-downloads the featured public case (~5.4 GB)
+./setup.sh dc01                 # c) no evidence? "dc01" auto-downloads the featured case - memory + disk pair (~5.4 GB)
 ```
 
 > 💡 **Easiest of all - let it ask you.** Run just **`.\setup.cmd`** (Windows) or
@@ -305,7 +305,7 @@ option Alibaba recommends for AI-API agents.
 # 3) code + toolchain + free demo - one line
 curl -fsSL https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.sh | bash -s -- docker
 # 4) real investigation on the featured public case ("dc01" auto-downloads the
-#    evidence; the walkthrough asks depth + your key - one Enter saves it for good)
+#    memory + disk pair; the walkthrough asks depth + your key - one Enter saves it for good)
 cd ~/Sentinel-Ensemble-Qwen && sudo ./setup.sh dc01
 ```
 
@@ -346,8 +346,9 @@ cd Sentinel-Ensemble-Qwen
 
 No key setup, no downloads, no `.env` editing - the magic case name **`dc01`**
 tells the launcher to **fetch the featured public case itself** (the **DFIR
-Madness "Stolen Szechuan Sauce" DC01** pair, the exact investigation shown in
-the demo video; ~5.4 GB, one time, downloads resume if interrupted):
+Madness "Stolen Szechuan Sauce" DC01** **memory + disk pair**, the exact
+investigation shown in the demo video; ~5.4 GB, one time, downloads resume if
+interrupted):
 
 ```bash
 cd ~/Sentinel-Ensemble-Qwen && sudo ./setup.sh dc01

@@ -91,7 +91,7 @@ read_case_path() {
   printf "   Paste the FOLDER that holds this case (memory + disk + notes).\n" >&2
   printf "     Example:  /home/you/cases/my-case\n" >&2
   printf "     Tip: drag the folder into this window to paste its path.\n" >&2
-  printf "     No evidence yet? Type ${B}dc01${X} - I'll download the featured public case (~5.4 GB).\n" >&2
+  printf "     No evidence yet? Type ${B}dc01${X} - I'll download the featured public case (memory + disk, ~5.4 GB).\n" >&2
   while true; do
     printf "   ${B}path (or dc01, or Q to quit):${X} " >&2
     IFS= read -r _p || { echo ""; return; }
@@ -219,7 +219,7 @@ if [ "$RUN" = 1 ]; then
     if [ -d "$CASE" ] && find "$CASE" -maxdepth 1 -type f ! -name '*.zip' 2>/dev/null | head -1 | grep -q .; then
       ok "using the previously downloaded featured case: $CASE"
     else
-      sec "Downloading the featured public case (DFIR Madness DC01, ~5.4 GB - one time)"
+      sec "Downloading the featured public case (DFIR Madness DC01: memory + disk pair, ~5.4 GB - one time)"
       command -v unzip >/dev/null 2>&1 || sudo apt-get install -y unzip >/dev/null 2>&1 || true
       mkdir -p "$CASE"
       ( cd "$CASE" || exit 1
@@ -386,7 +386,7 @@ if [ "$DOCKER_MODE" = 1 ]; then
   $DOCKER run --rm sentinel-qwen:demo || { printf "  ${R}FAIL${X} demo run failed\n"; exit 1; }
   printf "\n  ${G}${B}✅  Docker demo works.${X}\n"
   printf "  ${B}NEXT STEP - real investigation on the featured public case, ONE line${X}\n"
-  printf "  ${B}(auto-downloads the evidence, ~5.4 GB one time; works from any folder):${X}\n"
+  printf "  ${B}(auto-downloads the FULL pair - memory + disk, ~5.4 GB one time; works from any folder):${X}\n"
   printf "    ${C}cd \"%s\" && ./setup.sh dc01${X}\n" "$REPO_DIR"
   printf "  Have your own case folder instead?\n"
   printf "    ${C}cd \"%s\" && ./setup.sh /path/to/case${X}\n" "$REPO_DIR"
