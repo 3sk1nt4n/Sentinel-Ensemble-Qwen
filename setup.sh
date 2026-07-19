@@ -214,14 +214,19 @@ if [ "$RUN" = 1 ]; then
   # user never has to hand-download evidence to try a real investigation.
   if printf '%s' "$CASE" | grep -qiE '^dc01$'; then
     CASE="$HOME/cases/dc01"
-    # Reuse only when UNZIPPED evidence exists - a folder holding nothing but
-    # .zip files is an interrupted download, so resume it (wget -c) instead.
-    if [ -d "$CASE" ] && find "$CASE" -maxdepth 1 -type f ! -name '*.zip' 2>/dev/null | head -1 | grep -q .; then
-      ok "using the previously downloaded featured case: $CASE"
+    mkdir -p "$CASE"
+    # Heal FIRST, decide second: flatten any nested layout (the E01 zip nests
+    # its segments under E01-DC01/, which the top-level case scanner cannot
+    # see; older runs left it that way). Idempotent - a flat folder is a no-op.
+    find "$CASE" -mindepth 2 -type f -exec mv -f {} "$CASE"/ \; 2>/dev/null || true
+    find "$CASE" -mindepth 1 -type d -empty -delete 2>/dev/null || true
+    # "Installed" means BOTH halves of the pair are present and extracted.
+    _dc01_complete() { ls "$CASE"/*.mem >/dev/null 2>&1 && ls "$CASE"/*.[Ee]01 >/dev/null 2>&1; }
+    if _dc01_complete; then
+      ok "featured case already installed (memory + disk found) - skipping the download"
     else
       sec "Downloading the featured public case (DFIR Madness DC01: memory + disk pair, ~5.4 GB - one time)"
       command -v unzip >/dev/null 2>&1 || sudo apt-get install -y unzip >/dev/null 2>&1 || true
-      mkdir -p "$CASE"
       ( cd "$CASE" || exit 1
         for _u in https://dfirmadness.com/case001/DC01-memory.zip \
                   https://dfirmadness.com/case001/DC01-E01.zip; do
@@ -230,13 +235,14 @@ if [ "$RUN" = 1 ]; then
         unzip -o -j DC01-memory.zip && unzip -o -j DC01-E01.zip ) \
         || { bad "download/unpack failed - check the network and re-run the same command (downloads resume)"; exit 1; }
       [ -n "${SUDO_USER:-}" ] && chown -R "$SUDO_USER" "$CASE" 2>/dev/null || true
-      ok "evidence ready: $CASE"
+      if _dc01_complete; then
+        # The extracted pair is verified - the zips are dead weight now (~5 GB).
+        rm -f "$CASE"/DC01-memory.zip "$CASE"/DC01-E01.zip 2>/dev/null || true
+        ok "evidence ready: $CASE (zips removed after verification, ~5 GB freed)"
+      else
+        bad "evidence incomplete after download - re-run the same command (downloads resume)"; exit 1
+      fi
     fi
-    # The E01 zip nests its segments in a subfolder (E01-DC01/...), but the
-    # case scanner reads top-level items - flatten so the disk is never missed.
-    # Also heals folders downloaded before this fix, without re-downloading.
-    find "$CASE" -mindepth 2 -type f -exec mv -f {} "$CASE"/ \; 2>/dev/null || true
-    find "$CASE" -mindepth 1 -type d -empty -delete 2>/dev/null || true
   fi
   if [ ! -d "$CASE" ]; then
     bad "case folder not found: $CASE"

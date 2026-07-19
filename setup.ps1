@@ -220,13 +220,26 @@ if ($Mode -eq 'run' -or $Mode -eq '') {
     # "Stolen Szechuan Sauce" DC01, memory + disk, ~5.4 GB zipped) for the user.
     if ($CasePath -match '^(?i)dc01$') {
         $CasePath = Join-Path $HOME 'cases\dc01'
-        # Reuse only when UNZIPPED evidence exists - a folder holding nothing
-        # but .zip files is an interrupted download, so finish it instead.
-        if ((Test-Path -LiteralPath $CasePath) -and (Get-ChildItem -LiteralPath $CasePath -File -Exclude '*.zip' -ErrorAction SilentlyContinue)) {
-            Ok "using the previously downloaded featured case: $CasePath"
+        New-Item -ItemType Directory -Force -Path $CasePath | Out-Null
+        # Heal FIRST, decide second: flatten any nested layout (the E01 zip
+        # nests its segments under E01-DC01\, which the top-level case scanner
+        # cannot see). Idempotent - a flat folder is a no-op.
+        function Repair-Dc01Layout {
+            Get-ChildItem -LiteralPath $CasePath -Directory -ErrorAction SilentlyContinue | ForEach-Object {
+                Get-ChildItem -LiteralPath $_.FullName -Recurse -File | Move-Item -Destination $CasePath -Force
+                Remove-Item -LiteralPath $_.FullName -Recurse -Force -ErrorAction SilentlyContinue
+            }
+        }
+        # "Installed" means BOTH halves of the pair are present and extracted.
+        function Test-Dc01Complete {
+            [bool](Get-ChildItem -LiteralPath $CasePath -Filter '*.mem' -ErrorAction SilentlyContinue) -and
+            [bool](Get-ChildItem -LiteralPath $CasePath -Filter '*.E01' -ErrorAction SilentlyContinue)
+        }
+        Repair-Dc01Layout
+        if (Test-Dc01Complete) {
+            Ok "featured case already installed (memory + disk found) - skipping the download"
         } else {
             Sec "Downloading the featured public case (DFIR Madness DC01: memory + disk pair, ~5.4 GB - one time)"
-            New-Item -ItemType Directory -Force -Path $CasePath | Out-Null
             foreach ($u in 'https://dfirmadness.com/case001/DC01-memory.zip',
                            'https://dfirmadness.com/case001/DC01-E01.zip') {
                 $zip = Join-Path $CasePath (Split-Path $u -Leaf)
@@ -236,14 +249,15 @@ if ($Mode -eq 'run' -or $Mode -eq '') {
                 }
                 Expand-Archive -LiteralPath $zip -DestinationPath $CasePath -Force
             }
-            Ok "evidence ready: $CasePath"
-        }
-        # The E01 zip nests its segments in a subfolder (E01-DC01\...), but the
-        # case scanner reads top-level items - flatten so the disk is never
-        # missed. Also heals folders downloaded before this fix.
-        Get-ChildItem -LiteralPath $CasePath -Directory -ErrorAction SilentlyContinue | ForEach-Object {
-            Get-ChildItem -LiteralPath $_.FullName -Recurse -File | Move-Item -Destination $CasePath -Force
-            Remove-Item -LiteralPath $_.FullName -Recurse -Force -ErrorAction SilentlyContinue
+            Repair-Dc01Layout
+            if (Test-Dc01Complete) {
+                # The extracted pair is verified - the zips are dead weight (~5 GB).
+                Remove-Item -LiteralPath (Join-Path $CasePath 'DC01-memory.zip'), (Join-Path $CasePath 'DC01-E01.zip') -Force -ErrorAction SilentlyContinue
+                Ok "evidence ready: $CasePath (zips removed after verification, ~5 GB freed)"
+            } else {
+                Bad "evidence incomplete after download - re-run the same command"
+                exit 2
+            }
         }
     }
     if (-not (Test-Path -LiteralPath $CasePath -PathType Container)) {
