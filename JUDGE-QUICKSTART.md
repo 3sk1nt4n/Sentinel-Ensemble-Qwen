@@ -22,9 +22,9 @@ on Alibaba Cloud** is then one line (first toolchain build ~15 min, once).
 > (skipped when already installed), builds the toolchain, then asks the only
 > three things that are yours: **depth (model pick) → hidden API-key paste
 > (one Enter saves it for good) → FIND**. Free no-key demo instead: same line
-> with `docker` in place of `dc01`. Windows:
-> `irm https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.ps1 | iex`,
-> then `.\setup.cmd dc01`.
+> with `docker` in place of `dc01`. Windows PowerShell (where `curl` is a
+> different command) uses this one-liner instead:
+> `& ([scriptblock]::Create((irm https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.ps1))) dc01`
 
 ---
 

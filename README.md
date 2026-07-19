@@ -110,8 +110,14 @@ what's missing, then asks you the only three things that are yours to answer:
 **depth (model pick: HEAVY `qwen3.7-max` / LIGHT `qwen-plus`) → hidden
 API-key paste (one Enter saves it for good) → FIND**:
 
+**🍎 macOS / 🐧 Linux / ☁️ cloud box** - Terminal (bash - NOT PowerShell):
 ```bash
 curl -fsSL https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.sh | bash -s -- dc01
+```
+
+**🪟 Windows** - PowerShell (`curl` means something else there - use this form):
+```powershell
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.ps1))) dc01
 ```
 
 > [`get.sh`](get.sh) / [`get.ps1`](get.ps1) are short, readable scripts in this

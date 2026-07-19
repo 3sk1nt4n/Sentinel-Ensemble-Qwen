@@ -130,6 +130,9 @@ Fastest (a judge on any fresh Linux/cloud box - ONE paste, it does everything):
 curl -fsSL https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.sh | bash -s -- dc01
 ```
 
+(Windows PowerShell equivalent:
+`& ([scriptblock]::Create((irm https://raw.githubusercontent.com/3sk1nt4n/Sentinel-Ensemble-Qwen/master/get.ps1))) dc01`)
+
 That one line self-updates, downloads the featured public **memory + disk**
 case (skipped when already installed), builds the toolchain, then asks the
 only three things that are the analyst's: **depth (model pick) → hidden
