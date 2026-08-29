@@ -27,6 +27,18 @@ Center (DFIR/SOC) triage agent on Qwen Cloud (Alibaba DashScope) - Track 4
 Autopilot Agent. Deterministic trust layer: code, not the LLM model, decides
 what is confirmed.**
 
+**Sentinel Ensemble (Qwen)** is an autonomous DFIR agent that investigates Windows
+forensic evidence with real tools, then refuses to take its own word for it. A
+deterministic validation layer checks every AI conclusion against actual tool
+output before anything is confirmed.
+
+The principle: **give AI the ability to investigate, never the final word.**
+
+It runs its reasoning on Qwen models via the Qwen Cloud / DashScope API, and was
+named a Top 10 Honorable Mention out of 8,465 participants in the Qwen Global AI
+Hackathon 2026.
+
+
 One Docker command, any OS: point it at Windows evidence (memory image, disk
 image, event logs) and it investigates end-to-end -
 **zero human steering, zero model shell access** - then hands you an
