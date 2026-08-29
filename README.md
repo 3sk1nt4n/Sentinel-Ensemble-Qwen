@@ -20,7 +20,7 @@
 </div>
 
 
-# 🛡️ Sentinel Qwen Ensemble -Fully Autonomous Digital Forensics & Incident Response (DFIR) Triage Agent
+# 🛡️ Sentinel Qwen Ensemble -Fully Autonomous Digital Forensics & Incident Response (DFIR) Triage Ai-Agent
 
 A deterministic validation layer sits between the AI and every claim it makes:
 code, not the model, decides what counts as confirmed. **Sentinel Ensemble
