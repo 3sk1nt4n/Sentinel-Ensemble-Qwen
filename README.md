@@ -15,35 +15,12 @@
 [![Python](https://img.shields.io/badge/python-3.10+-3776AB?style=flat-square&labelColor=0A0F16&logo=python&logoColor=white)](pyproject.toml)
 [![Tests](https://img.shields.io/badge/pytest-VERIFY_COUNT_passing-brightgreen?style=flat-square&labelColor=0A0F16)](tests)
 [![Evidence](https://img.shields.io/badge/evidence-strictly_read--only-critical?style=flat-square&labelColor=0A0F16)](#-what-youll-see-when-it-runs)
-[![Demo](https://img.shields.io/badge/Demo-YouTube-FF0000?style=flat-square&labelColor=0A0F16&logo=youtube&logoColor=white)](REPLACE_WITH_YOUTUBE_URL)
+[![Demo](https://img.shields.io/badge/Demo-YouTube-FF0000?style=flat-square&labelColor=0A0F16&logo=youtube&logoColor=white)](https://www.youtube.com/watch?v=A53FpVgdnnU)
 
 </div>
 
 
 
-<div align="center">
-
-# 🏆 Top 10 Honorable Mention — Qwen Global AI Hackathon 2026
-**Selected from 8,465 participants**
-
-[![Award](https://img.shields.io/badge/Qwen_Global_AI_Hackathon-Top_10_Honorable_Mention-FFB020?style=for-the-badge)](https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen)
-[![License](https://img.shields.io/badge/license-MIT-4DD0C4?style=flat-square)](LICENSE)
-[![Demo](https://img.shields.io/badge/▶_Demo-YouTube-red?style=flat-square)](PASTE_YOUR_YOUTUBE_URL_HERE)
-
-</div>
-
-
-
-<div align="center">
-
-# 🏆 Top 10 Honorable Mention-Qwen Global AI Hackathon 2026
-**Selected from 8,465 participants**
-
-[![Award](https://img.shields.io/badge/Qwen_Global_AI_Hackathon-Top_10_Honorable_Mention-FFB020?style=for-the-badge)](https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen)
-[![License](https://img.shields.io/badge/license-MIT-4DD0C4?style=flat-square)](LICENSE)
-[![Demo](https://img.shields.io/badge/▶_Demo-YouTube-red?style=flat-square)](YOUR_QWEN_VIDEO_URL)
-
-</div>
 
 
 # 🛡️ Sentinel Qwen Ensemble
@@ -71,11 +48,6 @@ It runs its reasoning on Qwen models via Qwen Cloud (Alibaba DashScope), and was
 named a **Top 10 Honorable Mention out of 8,465 participants** in the Qwen Global
 AI Hackathon 2026.
 
-
-**Sentinel Ensemble (Qwen)** is an autonomous DFIR agent that investigates Windows
-forensic evidence with real tools, then refuses to take its own word for it. A
-deterministic validation layer checks every AI conclusion against actual tool
-output before anything is confirmed.
 
 The principle: **give AI the ability to investigate, never the final word.**
 
@@ -681,6 +653,32 @@ stronger model; the guard suppresses classic JIT/.NET RWX false-positive
 promotions structurally (no process-name allowlist); the 8.3 flag folds
 short-name user identities into their long form. Every flag has a kill-switch
 and fails closed.
+
+
+---
+
+## 🏆 Recognition
+
+| | |
+|---|---|
+| **Award** | Top 10 Honorable Mention, Qwen Global AI Hackathon 2026 |
+| **Field** | 8,465 participants |
+| **Track** | Track 4, Autopilot Agent |
+| **Engine** | Qwen models via Qwen Cloud (Alibaba DashScope) |
+| **Demo** | [Watch the run](https://www.youtube.com/watch?v=A53FpVgdnnU) |
+
+## 🛣️ Roadmap
+
+- **Modern UI** so the security community can drive Ensemble without the terminal
+- **Full local-LLM operation**, so SOC and DFIR teams can investigate sensitive evidence without it ever leaving their environment
+- **Production hardening** for daily use in real Security Operations and Incident Response
+
+## 🙏 Acknowledgments
+
+**Qwen and Alibaba Cloud**, for the models and platform powering the reasoning layer.
+**Claude Code by Anthropic**, used throughout development, testing, and refactoring.
+
+MIT © Adil Eskintan
 
 ---
 
