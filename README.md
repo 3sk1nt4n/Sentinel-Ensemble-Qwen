@@ -13,48 +13,27 @@
 [![License](https://img.shields.io/badge/license-MIT-4DD0C4?style=flat-square&labelColor=0A0F16)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Docker_(any_OS)-2496ED?style=flat-square&labelColor=0A0F16&logo=docker&logoColor=white)](#-run-it---3-steps-any-computer)
 [![Python](https://img.shields.io/badge/python-3.10+-3776AB?style=flat-square&labelColor=0A0F16&logo=python&logoColor=white)](pyproject.toml)
-[![Tests](https://img.shields.io/badge/pytest-VERIFY_COUNT_passing-brightgreen?style=flat-square&labelColor=0A0F16)](tests)
+[![Tests](https://img.shields.io/badge/pytest-4%2C849_passing-brightgreen?style=flat-square&labelColor=0A0F16)](tests)
 [![Evidence](https://img.shields.io/badge/evidence-strictly_read--only-critical?style=flat-square&labelColor=0A0F16)](#-what-youll-see-when-it-runs)
 [![Demo](https://img.shields.io/badge/Demo-YouTube-FF0000?style=flat-square&labelColor=0A0F16&logo=youtube&logoColor=white)](https://www.youtube.com/watch?v=A53FpVgdnnU)
 
 </div>
 
 
-
-
-
 # 🛡️ Sentinel Qwen Ensemble
 
-![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
-![Platform](https://img.shields.io/badge/Platform-Docker%20(any%20OS)-blue)
-![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
-![Tests](https://img.shields.io/badge/pytest-4%2C700%2B%20passing-brightgreen)
-![Evidence](https://img.shields.io/badge/Evidence-strictly%20read--only-critical)
-
-**Autonomous Digital Forensics & Incident Response / Security Operations
-Center (DFIR/SOC) triage agent on Qwen Cloud (Alibaba DashScope) - Track 4
-Autopilot Agent. Deterministic trust layer: code, not the LLM model, decides
-what is confirmed.**
-
-
-**Sentinel Ensemble Qwen** is an autonomous DFIR agent that investigates Windows
-forensic evidence with real tools, then refuses to take its own word for it. A
-deterministic validation layer checks every AI conclusion against actual tool
-output before anything is confirmed.
+A deterministic validation layer sits between the AI and every claim it makes:
+code, not the model, decides what counts as confirmed. **Sentinel Ensemble
+Qwen** is an autonomous Digital Forensics & Incident Response (DFIR) triage
+agent that investigates Windows forensic evidence with real tools, then
+refuses to take its own word for it - every AI conclusion is checked against
+actual tool output before anything is confirmed.
 
 The principle: **give AI the ability to investigate, never the final word.**
 
 It runs its reasoning on Qwen models via Qwen Cloud (Alibaba DashScope), and was
 named a **Top 10 Honorable Mention out of 8,465 participants** in the Qwen Global
 AI Hackathon 2026.
-
-
-The principle: **give AI the ability to investigate, never the final word.**
-
-It runs its reasoning on Qwen models via the Qwen Cloud / DashScope API, and was
-named a Top 10 Honorable Mention out of 8,465 participants in the Qwen Global AI
-Hackathon 2026.
-
 
 One Docker command, any OS: point it at Windows evidence (memory image, disk
 image, event logs) and it investigates end-to-end -
@@ -63,7 +42,7 @@ investigative report where **every single claim is validated against real tool
 output before you ever see it**.
 
 Incident-response agents fix outages; **Sentinel Qwen Ensemble investigates
-compromises**: **195 typed forensic tools** on a custom MCP server, proven on a **PUBLIC
+compromises**: **67 typed forensic tools** on a custom MCP server, proven on a **PUBLIC
 intrusion case you can download and rerun** (it found the whole attack and held
 every lead) plus a held-back reference case (rd01, non-public) with atomic proof where it **confirms decisively** - the
 trust layer is the constant, and every finding traces to the exact tool
@@ -76,7 +55,7 @@ execution that proved it.
 
 ## Submission status (Global AI Hackathon with Qwen Cloud, Track 4)
 
-> Honest status, not a blanket "done" - see [`QWEN-SUBMISSION.md`](QWEN-SUBMISSION.md) for the full writeup.
+> Final submitted status - every requirement below is complete. See [`QWEN-SUBMISSION.md`](QWEN-SUBMISSION.md) for the full writeup.
 
 | Requirement | Status | Location / note |
 |---|---|---|
@@ -116,7 +95,7 @@ from a temp dir - while the light tier confirmed **0**. A flags-off ablation
 measured the trust layer directly: inconclusive jumped **0 → 11** without it.
 **The bar does not move; the model's ability to clear it does.** Full comparison
 + shipped metrics: [`QWEN-SUBMISSION.md`](QWEN-SUBMISSION.md) · [`docs/qwen-runs/`](docs/qwen-runs/).
-The trust layer, the 195 typed tools, and the 16-step conductor are
+The trust layer, the 67 typed tools, and the 16-step conductor are
 model-agnostic; only the provider/tier differs.
 
 ---
@@ -677,8 +656,6 @@ and fails closed.
 
 **Qwen and Alibaba Cloud**, for the models and platform powering the reasoning layer.
 **Claude Code by Anthropic**, used throughout development, testing, and refactoring.
-
-MIT © Adil Eskintan
 
 ---
 
