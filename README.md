@@ -2,6 +2,18 @@
   <img src="docs/assets/sentinel-ensemble-logo.png" alt="Sentinel Qwen Ensemble - Autonomous DFIR/SOC agent on Qwen Cloud (Alibaba DashScope), Track 4 Autopilot Agent. The AI never gets the final word." width="880">
 </p>
 
+<div align="center">
+
+# 🏆 Top 10 Honorable Mention — Qwen Global AI Hackathon 2026
+**Selected from 8,465 participants**
+
+[![Award](https://img.shields.io/badge/Qwen_Global_AI_Hackathon-Top_10_Honorable_Mention-FFB020?style=for-the-badge)](https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen)
+[![License](https://img.shields.io/badge/license-MIT-4DD0C4?style=flat-square)](LICENSE)
+[![Demo](https://img.shields.io/badge/▶_Demo-YouTube-red?style=flat-square)](YOUR_QWEN_VIDEO_URL)
+
+</div>
+
+
 # 🛡️ Sentinel Qwen Ensemble
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
