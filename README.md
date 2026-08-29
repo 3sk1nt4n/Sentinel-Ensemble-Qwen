@@ -4,7 +4,7 @@
 
 <div align="center">
 
-# 🏆 Top 10 Honorable Mention — Qwen Global AI Hackathon 2026
+# 🏆 Top 10 Honorable Mention-Qwen Global AI Hackathon 2026
 **Selected from 8,465 participants**
 
 [![Award](https://img.shields.io/badge/Qwen_Global_AI_Hackathon-Top_10_Honorable_Mention-FFB020?style=for-the-badge)](https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen)
