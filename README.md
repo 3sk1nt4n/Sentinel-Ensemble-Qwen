@@ -5,6 +5,24 @@
 
 <div align="center">
 
+# 🏆 Top 10 Honorable Mention
+### Qwen Global AI Hackathon 2026 · Selected from 8,465 participants
+
+[![Award](https://img.shields.io/badge/🏆_Qwen_Global_AI_Hackathon_2026-Top_10_Honorable_Mention-FFB020?style=for-the-badge&labelColor=0A0F16)](https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen)
+
+[![License](https://img.shields.io/badge/license-MIT-4DD0C4?style=flat-square&labelColor=0A0F16)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Docker_(any_OS)-2496ED?style=flat-square&labelColor=0A0F16&logo=docker&logoColor=white)](#-run-it---3-steps-any-computer)
+[![Python](https://img.shields.io/badge/python-3.10+-3776AB?style=flat-square&labelColor=0A0F16&logo=python&logoColor=white)](pyproject.toml)
+[![Tests](https://img.shields.io/badge/pytest-VERIFY_COUNT_passing-brightgreen?style=flat-square&labelColor=0A0F16)](tests)
+[![Evidence](https://img.shields.io/badge/evidence-strictly_read--only-critical?style=flat-square&labelColor=0A0F16)](#-what-youll-see-when-it-runs)
+[![Demo](https://img.shields.io/badge/Demo-YouTube-FF0000?style=flat-square&labelColor=0A0F16&logo=youtube&logoColor=white)](REPLACE_WITH_YOUTUBE_URL)
+
+</div>
+
+
+
+<div align="center">
+
 # 🏆 Top 10 Honorable Mention — Qwen Global AI Hackathon 2026
 **Selected from 8,465 participants**
 
