@@ -23,8 +23,9 @@
 # 🛡️ Sentinel Qwen Ensemble -Fully Autonomous Digital Forensics & Incident Response (DFIR) Triage Ai-Agent
 
 <img width="1320" height="1239" alt="IMG_0649" src="https://github.com/user-attachments/assets/26c32dab-e894-4d34-a7bd-fb878e53a6f5" />
-<img width="1216" height="1076" alt="IMG_0655" src="https://github.com/user-attachments/assets/e6945cd1-5ef5-45d3-8ac7-f2aac7a0c734" />
 <img width="1320" height="1538" alt="IMG_0651" src="https://github.com/user-attachments/assets/dec2aeac-dee3-46a0-9901-1bcd9bac41a6" />
+<img width="1216" height="1076" alt="IMG_0655" src="https://github.com/user-attachments/assets/e6945cd1-5ef5-45d3-8ac7-f2aac7a0c734" />
+
 
 
 
