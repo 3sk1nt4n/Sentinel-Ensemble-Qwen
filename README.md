@@ -5,8 +5,10 @@
 
 <div align="center">
 
-# 🏆 Top 10 Honorable Mention
+# 🏆 Top 10 Honorable Mention - WINNER 🏆
 ### Qwen Global AI Hackathon 2026 · Selected from 8,465 participants
+
+**Built by [Solvent CyberSecurity LLC](https://solventcyber.com)**
 
 [![Award](https://img.shields.io/badge/🏆_Qwen_Global_AI_Hackathon_2026-Top_10_Honorable_Mention-FFB020?style=for-the-badge&labelColor=0A0F16)](https://github.com/3sk1nt4n/Sentinel-Ensemble-Qwen)
 
@@ -56,7 +58,7 @@ every lead) plus a held-back reference case (rd01, non-public) with atomic proof
 trust layer is the constant, and every finding traces to the exact tool
 execution that proved it.
 
-> Global AI Hackathon with Qwen Cloud · Track 4 (Autopilot Agent) · Adil Eskintan · MIT License
+> Global AI Hackathon with Qwen Cloud · Track 4 (Autopilot Agent) · Adil Eskintan, [Solvent CyberSecurity LLC](https://solventcyber.com) · MIT License
 > *Internal Python package name: `sift_sentinel` (stable import path; the product/repo name is Sentinel Qwen Ensemble).*
 
 ---
@@ -649,6 +651,7 @@ and fails closed.
 | | |
 |---|---|
 | **Award** | Top 10 Honorable Mention, Qwen Global AI Hackathon 2026 |
+| **Built by** | [Solvent CyberSecurity LLC](https://solventcyber.com) |
 | **Field** | 8,465 participants |
 | **Track** | Track 4, Autopilot Agent |
 | **Engine** | Qwen models via Qwen Cloud (Alibaba DashScope) |
